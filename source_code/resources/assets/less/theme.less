@@ -1,0 +1,858 @@
+@import './init.less';
+
+.el-progress-circle>svg>path:last-of-type {
+  stroke: @themeColor  !important;
+}
+.el-table {
+  margin-bottom: 20px;
+  font-size: 14px;
+  .el-button--text {
+    padding: 0;
+    font-size: 16px;
+    margin:0;
+    &:hover {
+      text-decoration:underline;
+    }
+  }
+}
+
+.intervalNotifyWidth {
+  width: 220px;
+}
+
+#searchCon {
+  min-height: 50px;
+  font-size: 14px;
+  padding: 0 20px;
+  margin: 10px 0 30px;
+  background-color: #f4fbfb;
+  border: 1px solid #e8e8e8;
+
+  .el-form-item {
+    font-weight: 700;
+    margin: 10px 20px 12px 0;
+
+    &:nth-last-child(1) {
+      margin-right: 10px;
+
+      .searchBtn {
+        i:before {
+          margin-right: 5px;
+        }
+      }
+    }
+
+    .el-input--small .el-input__inner {
+      height: 35px;
+    }
+  }
+
+  .searchBtn {
+    .el-icon-search:before {
+      margin-right: 5px;
+    }
+  }
+}
+
+.el-pagination {
+  float: right;
+}
+
+footer {
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+  color: #728398;
+  background-color: #27374d;
+}
+
+
+// Backstage.vue
+html,
+body,
+.el-container,
+.el-row,
+ul {
+  height: 100%;
+}
+
+.el-container {
+  >.el-header {
+    border-bottom: 1px solid @themeColor;
+
+    .homeLogo {
+      float: left;
+      width: 75%;
+      height: 80px;
+
+      img {
+        float: left;
+        width: 160px;
+        height: 50px;
+        margin-top: 20px;
+      }
+
+      p {
+        font-size: 22px;
+        margin: 28px 0 0 330px;
+        text-align: center;
+      }
+    }
+
+    .homeLogin {
+      float: left;
+      width: 20%;
+      height: 80px;
+      .el-dropdown {
+        margin-top: 25px;
+        margin-left: 30px;
+
+        .el-dropdown-link {
+          font-size: 20px;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  #taskListCon{
+    position:fixed;
+    bottom:100px;
+    right:10px;
+    text-align:right;
+    .per_task{
+      cursor: pointer;
+      &:hover{
+        color:@themeColor;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  >.el-container {
+    .el-aside {
+      overflow: inherit;
+    }
+
+    .el-menu-vertical-demo {
+      padding-top: 40px;
+
+      .el-submenu__icon-arrow {
+        right: 10px;
+      }
+
+      .el-submenu__title,
+      .el-menu-item {
+        height: 40px;
+        line-height:40px;
+        font-size: 15px;
+        i {
+          color: #fff;
+          font-weight: bold;
+        }
+      }
+
+      .el-submenu {
+
+        .el-submenu__title{
+          padding-left: 20px !important;
+          background-color: orange;
+        }
+
+        .el-menu-item-group {
+          .el-menu-item-group__title {
+            padding: 0px;
+          }
+
+          .el-menu-item:nth-child(1) {
+            margin-top: 0px;
+          }
+        }
+      }
+    }
+
+    .el-breadcrumb {
+      height: 25px;
+      font-size: 16px;
+      border-bottom: 1px solid @themeColor;
+    }
+
+    #footer {
+      width: 100%;
+      height: 40px !important;
+      text-align: center;
+      line-height: 40px;
+      font-size: 12px;
+      background-color: #f4fbfb;
+    }
+  }
+}
+
+.el-dropdown-menu {
+  height: auto;
+  padding: 10px;
+
+  >li {
+    font-size: 18px;
+  }
+}
+
+.el-badge__content.is-fixed {
+  top: 5px;
+  right: 5px;
+}
+
+.el-badge__content {
+  font-size: 10px;
+}
+
+
+// Login.vue
+#login {
+  overflow: hidden;
+
+  @media (min-width: 650px) {
+    background-image: url(/images/timg.jpg);
+  }
+
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+
+  .modeTitle {
+    display: inline-block;
+    width: 30%;
+    color: @themeColor;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: 20px;
+    border-left: 2px solid #ddd;
+  }
+
+  form {
+    padding: 50px 20px;
+
+    @media (min-width: 650px) {
+      width: 55vw;
+      max-width: 500px;
+      min-width: 400px;
+      float: right;
+      padding: 50px 50px 70px;
+      margin-right: 10vw;
+      margin-top: 12vh;
+      background-color: #fff;
+      box-shadow: 1px 1px 10px #aaa;
+    }
+  }
+
+  .submitBtn,
+  .resetBtn {
+    width: 49%;
+  }
+
+  .resetBtn {
+    background-color: #aaa;
+    border-color: #aaa;
+
+    &:hover {
+      background-color: #999;
+      border-color: #999;
+    }
+  }
+
+  .resigerBtn {
+    width: 100%;
+  }
+
+  .rememberStatus {
+    float: left;
+    font-size: 14px;
+    color: #aaa;
+  }
+
+  .formLink {
+    text-align: right;
+    font-size: 14px;
+
+    a:first-child {
+      color: @themeColor;
+      padding-right: 10px;
+    }
+
+    a:nth-child(2) {
+      color: @themeColor;
+      padding-left: 10px;
+      border-left: 1px solid #ccc;
+    }
+  }
+}
+
+
+// Register.vue
+#register {
+  overflow: hidden;
+
+  @media (min-width: 650px) {
+    background-image: url(/images/timg.jpg);
+  }
+
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+
+  .modeTitle {
+    display: inline-block;
+    width: 30%;
+    color: @themeColor;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    margin-left: 20px;
+    border-left: 2px solid #ddd;
+  }
+
+  form {
+    padding: 50px 20px;
+
+    @media (min-width: 650px) {
+      width: 55vw;
+      max-width: 500px;
+      min-width: 400px;
+      float: right;
+      padding: 50px 50px 70px;
+      margin-right: 10vw;
+      margin-top: 12vh;
+      background-color: #fff;
+      box-shadow: 1px 1px 10px #aaa;
+    }
+  }
+
+  .submitBtn,
+  .resetBtn {
+    width: 49%;
+  }
+
+  .resetBtn {
+    background-color: #aaa;
+    border-color: #aaa;
+
+    &:hover {
+      background-color: #999;
+      border-color: #999;
+    }
+  }
+
+  .registerBtn {
+    width: 100%;
+  }
+
+  .rememberStatus {
+    float: left;
+    font-size: 14px;
+    color: #aaa;
+  }
+
+  .formLink {
+    text-align: right;
+    font-size: 14px;
+
+    a:first-child {
+      color: @themeColor;
+      padding-right: 10px;
+    }
+
+    a:nth-child(2) {
+      color: @themeColor;
+      padding-left: 10px;
+      border-left: 1px solid #ccc;
+    }
+  }
+}
+
+
+// warning page
+#notAuthMain,
+#notFoundMain {
+  color: #000;
+  padding: 20px;
+
+  .title {
+    font-weight: bold;
+    font-size: 26px;
+  }
+
+  >p {
+    font-size: 16px;
+
+    >span {
+      color: @themeColor;
+      padding: 0 3px;
+    }
+
+    >a {
+      color: @themeColor;
+      text-decoration: underline;
+    }
+  }
+}
+
+// Overview.vue
+#overviewMain{
+  .overviewHeader{
+    display: flex;
+    flex-grow:1;
+    .el-card{
+      height:80px;
+      flex-grow:1;
+      margin:15px 5px;
+      cursor: pointer;
+      .el-card__body{
+        padding:20px 15px;
+      }
+      .menuCon{
+        span{
+          display: inline-block;
+          font-size:28px;
+          vertical-align: middle;
+        }
+        div{
+          display: inline-block;
+          vertical-align: middle;
+          font-size: 22px;
+          margin-left: 10px;
+          color:#909399;
+        }
+      }
+    }
+    .el-card:nth-child(1){
+      i{
+        color: #fbad4c;
+      }
+    }
+    .el-card:nth-child(2){
+      i{
+        color: #59d05d;
+      }
+    }
+    .el-card:nth-child(3){
+      i{
+        color: #ff646d;      
+      }
+    }
+    .el-card:nth-child(4){
+      i{
+        color: #00b88a;      
+      }
+    }
+    .el-card:nth-child(5){
+      i{
+        color: #cc33ff;      
+      }
+    }
+  }
+}
+
+// ProjectList.vue
+#projectMain {
+  .addSearch {
+    .operationCon {
+      margin-bottom: 15px;
+    }
+  }
+
+}
+
+
+//ProjectDetail.vue
+#projectDetailMain {
+  #projectDetailCon {
+    .el-card {
+      >.el-card__header {
+        // height: 60px;
+      }
+
+      >.el-card__body {
+        // height: 200px;
+        overflow-y: auto;
+        padding: 10px 20px;
+      }
+    }
+    .box-card {
+      width:95%;
+      min-height: 260px;
+      margin: 10px;
+      display: inline-block;
+
+      .el-form-item {
+        margin-bottom: 8px;
+      }
+
+      .cardTitle {
+        font-weight: bold;
+        padding-right: 30px;
+      }
+
+      .operationBtn {
+        padding: 0 8px 0 0;
+        font-weight: bold;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .submitBtn {
+        color: #fd7e14;
+      }
+
+      .cancelBtn {
+        color: #aaa;
+      }
+
+      .membersInput {
+        .el-select {
+          width: 80%;
+        }
+      }
+      .el-form-item__label{
+        font-weight: bold;
+      }
+
+      .infoItem {
+        >span {
+          font-weight: bold;
+          line-height: 20px;
+        }
+
+        .progressItem {
+          >.el-progress {
+            width: 70%;
+            display: inline-block;
+            .el-progress-bar__innerText{
+              font-size:10px;
+            }
+          }
+        }
+      }
+      .recordListCon{
+        padding-top:10px;
+        .versionHistoryItem {
+          padding: 0 15px;
+          cursor: pointer;
+
+          &:hover {
+            color: @themeColor;
+          }
+        }
+      }
+    }
+
+    .el-icon-loading {
+      color: @themeColor;
+      margin-left: 10px;
+    }
+  }
+}
+
+
+
+// AllocationList.vue
+#missionListMain {
+  #batchSelected {
+    font-size: 16px;
+    padding: 5px 0 0 35px;
+
+    .el-button {
+      font-size: 16px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  #batchModal {
+    text-align: center;
+
+    .el-select {
+      margin: 5px;
+    }
+  }
+}
+
+
+// ViewObjection.vue
+#objectionItemMain {
+  #objectionItemCon {
+    padding: 10px 0;
+    .el-alert__title {
+      font-size: 14px;
+    }
+
+    .el-alert__description {
+      font-size: 16px;
+    }
+    .el-tag {
+      padding: 0 15px;
+      margin: 5px 0 5px 10px;
+    }
+
+    .source {
+      padding: 0 20px 10px 20px;
+      border-bottom: 1px dashed #ccc;
+      font-weight: bold;
+    }
+
+    .target {
+      padding: 10px 20px 0px 20px;
+      font-weight: bold;
+    }
+  }
+}
+
+
+// OnTrans.vue & BrowApprovalItem.vue & BrowHistoryItem.vue & ViewDetail.vue
+#onTransTaskMain,
+#approvalItemMain,
+#historyItemMain,
+#viewDetailItemMain {
+  #onTransCon,
+  #approvalItemCon,
+  #historyItemCon,
+  #viewDetailItemCon {
+    padding: 10px 0;
+
+    .el-tag {
+      padding: 0 15px;
+      margin: 5px 0 5px 10px;
+    }
+
+    #transBox,
+    #approvalItemBox,
+    #historyItemBox,
+    #viewDetailItemBox {
+      .boxCard {
+        position: relative;
+        display: inline-block;
+        width: 47%;
+        min-height: 120px;
+        font-size: 14px;
+        margin: 5px;
+        padding: 5px;
+
+        .el-card__body {
+
+          .rawDataText,
+          .afterDataText {
+            width: 100%;
+            overflow: auto;
+          }
+
+          .btnCon {
+            text-align: center;
+            margin-top: 5px;
+            float: right;
+          }
+        }
+      }
+    }
+
+    .source {
+      padding: 0 20px 10px 20px;
+      border-bottom: 1px dashed #ccc;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .target {
+      padding: 10px 20px 0px 20px;
+      font-weight: bold;
+    }
+  }
+}
+
+
+//ViewList.vue
+#viewProjectMain {
+  .addSearch {
+    .operationCon {
+      margin-bottom: 15px;
+    }
+  }
+}
+
+#versionList {
+  margin-bottom: 10px;
+
+  li {
+    padding: 10px 0 2px;
+    border-bottom: 1px dashed #ccc;
+
+    &:hover {
+      cursor: pointer;
+      color: @themeColor;
+      border-bottom-color: @themeColor;
+    }
+    .versionNameCon{
+      font-weight:bold;
+    }
+    .versionIdCon{
+      font-size:12px;
+      // color:#ccc;
+    }
+    // >span:hover {
+    //   cursor: pointer;
+    //   color: @themeColor;
+    //   border-bottom-color: @themeColor;
+    // }
+  }
+}
+
+.requestLoadingCon {
+  font-size: 16px;
+  color: @themeColor;
+  text-align: center;
+}
+
+
+
+// PersonalStatistics.vue
+#personalStatisticsMain {
+  #personalStatisticsCon {
+    .box-card {
+      margin: 10px;
+    }
+  }
+}
+
+
+// UserInfo.vue
+#userMain {
+  .addSearch {
+    #addUser {
+      color:#fff;
+      border-color: #ff9900;
+      background-color: #ff9900;
+
+      &:focus {
+        outline: none;
+      }
+
+      &:hover {
+        background-color: #ffad33;
+      }
+    }
+  }
+}
+
+
+// AddUser.vue & EditUser.vue & AddProject.vue
+#addUserMain,
+#editUserMain,
+#addProjectMain {
+  height: 600px;
+  position: relative;
+
+  #addUserDetail,
+  #editUserDetail,
+  #addProjectDetail {
+    position: absolute;
+    left: 50%;
+    top: 100px;
+    transform: translateX(-50%);
+
+    .namePwdInp {
+      width: 300px;
+    }
+    .resetPwdBtn{
+      float: right;
+    }
+
+    .el-input,
+    .el-select {
+      width: 100%;
+    }
+
+    .el-radio {
+      margin-left: 8px;
+      margin-top:.5rem;
+    }
+
+    .el-button--primary {
+      margin-left: 20px !important;
+      margin-right: 30px !important;
+      width: 100px;
+    }
+
+    .el-button--primary,
+    .el-button--default {
+      width: 100px;
+    }
+
+    #editBtn {
+      background-color: #ff9900;
+      border-color: #ff9900;
+    }
+  }
+}
+
+
+// Desc.vue
+#descMain {
+  .descDetail {
+    height: 50px;
+    line-height: 50px;
+    text-align: left;
+    padding-left: 10px;
+
+    span {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      i {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 22px;
+        margin-left: 15px;
+        color: @selectColor;
+      }
+    }
+  }
+
+  .videoCon {
+    font-size: 14px;
+    margin-left: 10px;
+
+    >div {
+      position: relative;
+
+      >span {
+        position: absolute;
+        right: 0;
+        top: -22px;
+        z-index: 1;
+        width: 80px;
+        height: 22px;
+        line-height: 22px;
+        color: #fff;
+        text-align: center;
+        background-color: #333;
+        cursor: pointer;
+
+        &:hover {
+          color: @themeColor;
+        }
+      }
+    }
+  }
+
+  .video-js .vjs-big-play-button {
+    width: 200px;
+  }
+}
+
+

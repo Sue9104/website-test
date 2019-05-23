@@ -1,0 +1,271 @@
+<?php
+namespace App\Http\Controllers\API;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use DB;
+use Validator;
+use App\User;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\UploadedFile;
+use App\Models\Log;
+
+use App\Imports\TranslateImport;
+use App\Models\Translate_in;
+use App\Models\Translate_job;
+use App\Models\Translate_approve;
+
+use App\Models\Product;
+use App\Models\Export_version;
+use App\Models\Version;
+
+
+class ViewedController extends Controller 
+{
+
+	public function list_project(Request $request){
+
+		$page=$request->get('page',1);
+        $count=$request->get('count',10);
+        
+        $product_name = $request->get('product_name');
+
+        //get permission by user 
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+        $user_id = "'".$user_id."'";
+        $users_name = "'".$users_name."'";
+        //product_id
+        $where[] = array('id','>',0);
+		if(!empty($product_name)){
+            $where[] = array('product','like','%'.$product_name.'%');
+        }
+        
+        $sqlTmp = sprintf("json_contains(`product`.`viewed_users`,%s)", $user_id);
+        $sqlTmp2 = sprintf("json_contains(`product`.`translate_users`,%s)", $user_id);
+        $sqlTmp3 = sprintf("json_contains(`product`.`approve_users`,%s)", $user_id);
+        $sql_where = sprintf("(%s OR %s OR %s OR product.users_name=%s)",$sqlTmp,$sqlTmp2,$sqlTmp3,$users_name);
+        /*var_dump($sql_where);
+        die();*/
+        $sql_orwhere = "`product`.`attribute` = 'public'";
+        return  DB::table('product')
+                ->select('*')
+                ->where($where)
+                ->WhereRaw($sql_where)
+                ->orWhereRaw($sql_orwhere)
+                /*->orWhereRaw($sqlTmp2)
+                ->orWhereRaw($sqlTmp3)
+                ->orWhere('product.users_name','=',$users_name)*/
+                ->paginate($count,['*'],'page',$page);			
+	}
+
+	public function list_version(Request $request){
+
+		$validator = Validator::make($request->all(), [
+            'product_id' => 'required | integer',// int
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+        $input = $request->all();
+
+        $page=$request->get('page',1);
+        $count=$request->get('count',10);
+
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+        //make sure user have access to viewed
+        $viewed_users_get = Product::where('id',$input['product_id'])
+        					->select('users_name','viewed_users','translate_users','approve_users','attribute')
+                            ->get()
+                            ->toArray();
+        $viewed_users_get = $viewed_users_get[0];
+        
+        if($viewed_users_get['attribute'] === 'private'){
+            $users_name_get = $viewed_users_get['users_name'];
+            $translate_users = json_decode($viewed_users_get['translate_users']);
+            $viewed_users = json_decode($viewed_users_get['viewed_users']);
+            $approve_users = json_decode($viewed_users_get['approve_users']);
+
+            if(($users_name !== $users_name_get)&&(!in_array($user_id,$translate_users))&&(!in_array($user_id,$viewed_users))&&(!in_array($user_id,$approve_users))){
+                return response()->json(['error' => 'Failed'], 200);
+                die();
+            }
+        }
+
+        return Version::select('version.id','version.version_id','version_name')
+        					->where('version.product_id',$input['product_id'])
+                            ->leftjoin('export_version','version.version_id','=','export_version.version_id')	
+        					->groupBy('version.version_id')
+                            ->orderBy('version.id','DESC')
+        					->paginate($count,['*'],'page',$page);
+        					        					      						      					
+	}
+
+	public function list_items(Request $request){
+		
+        $validator = Validator::make($request->all(), [
+            'product_id'=>'required',
+            //'version_name' => 'required',// int
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+        $input = $request->all();
+
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+        //make sure user have access to viewed
+        $viewed_users_get = Product::where('id',$input['product_id'])
+                            ->select('users_name','viewed_users','translate_users','approve_users','attribute')
+                            ->get()
+                            ->toArray();
+        $viewed_users_get = $viewed_users_get[0];
+        
+        if($viewed_users_get['attribute'] === 'private'){      
+            $users_name_get = $viewed_users_get['users_name'];
+            $translate_users = json_decode($viewed_users_get['translate_users']);
+            $viewed_users = json_decode($viewed_users_get['viewed_users']);
+            $approve_users = json_decode($viewed_users_get['approve_users']);
+
+            if(($users_name !== $users_name_get)&&(!in_array($user_id,$translate_users))&&(!in_array($user_id,$viewed_users))&&(!in_array($user_id,$approve_users))){
+                return response()->json(['error' => 'Failed'], 200);
+                die();
+            }
+        }
+        //paginate
+        $page=$request->get('page',1); 
+        $count=$request->get('count',10);
+        // query 
+        $version_name = $request->get('version_name');
+        $key = $request->get('key');
+        $export_id = $request->get('export_id');
+
+        $where[] = array('version.product_id','=',$input['product_id']);
+        if(!empty($version_name)){
+            $where[] = array('version.version_name','=',$version_name);
+        }
+        if($key !== NULL){
+            $where[] = array('translate_approve.key','like','%'.$key.'%');
+        }
+        if($export_id !== NULL){
+            $where[] = array('export_version.id','=',$export_id);
+        }
+
+
+        $data =  Version::select('version.version_name')
+                ->addselect('export_version.id as export_id','export_version.version_id','export_version.user_name','export_version.created_at')
+                ->addselect('translate_approve.id','translate_approve.translate_id','translate_approve.product_id','translate_approve.key','translate_approve.translate','translate_approve.status','translate_approve.tips','translate_approve.created_at','translate_approve.updated_at','translate_approve.conflict','translate_approve.objection')
+                ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')
+                ->addselect('product.lang','product.product')
+                ->leftjoin('export_version','version.version_id','=','export_version.version_id')//join export_version
+                ->leftjoin('translate_approve','translate_approve.id','=','export_version.t_appove_id')
+                ->join('product','version.product_id','=','product.id')
+                ->where($where)
+                ->orderBy('version.id','DESC')
+                ->paginate($count,['*'],'page',$page)
+                ->toArray();
+                
+        if($data['total'] ===0){
+            $data['newest_version_name'] = null;
+            $data['newest_version_id'] = null;
+            return response()->json(['result' => $data], 200); 
+            die();
+        }
+        //get newest version for front pages
+        $newest_version = Export_version::where([['export_version.product_id','=',$input['product_id']],['status','=',1]])
+                            ->select('export_version.version_id','version_name')
+                            ->join('version','version.version_id','=','export_version.version_id')
+                            ->orderBy('export_version.id','DESC')
+                            ->first();
+                          
+        $newest_version_name = $newest_version->version_name;
+        $newest_version_id = $newest_version->version_id;
+        $data['newest_version_name'] = $newest_version_name;
+        $data['newest_version_id'] = $newest_version_id;
+
+        return response()->json(['result' => $data], 200);
+	}
+
+    public function advise(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'export_id'=>'required | integer',//export_id
+            'objection' => 'required',// varchar
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 200);
+        }
+        $input = $request->all();
+
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+        //make sure user have access to viewed
+        $viewed_users_get = Product::select('users_name','viewed_users','translate_users','approve_users','attribute')
+                            ->addselect('export_version.product_id')
+                            ->join('export_version','export_version.product_id','=','product.id')
+                            ->where('export_version.id','=',$input['export_id'])
+                            ->get()
+                            ->toArray();
+        if(empty($viewed_users_get)){
+            return response()->json(['error' => 'Failed'], 200);
+            die();
+        }
+        $viewed_users_get = $viewed_users_get[0];
+        if($viewed_users_get['attribute'] === 'private'){
+            $users_name_get = $viewed_users_get['users_name'];
+            $translate_users = json_decode($viewed_users_get['translate_users']);
+            $viewed_users = json_decode($viewed_users_get['viewed_users']);
+            $approve_users = json_decode($viewed_users_get['approve_users']);
+
+            if(($users_name !== $users_name_get)&&(!in_array($user_id,$translate_users))&&(!in_array($user_id,$viewed_users))&&(!in_array($user_id,$approve_users))){
+                return response()->json(['error' => 'Failed'], 200);
+                die();
+            }
+        }
+        //make sure the version is newest
+        $version_id_find = Export_version::where('id',$input['export_id'])
+                            ->value('version_id');
+        $product_id = $viewed_users_get['product_id'];
+        $newest_version = Export_version::where([['product_id','=',$product_id],['status','=',1]])
+                            ->orderBy('id','DESC')
+                            ->value('version_id');
+        if($version_id_find !== $newest_version){
+            return response()->json(['error' => 'Comment only on the latest version'], 200);
+            die();
+        }
+        //make sure status
+        $items_find = Export_version::where('export_version.id',$input['export_id'])
+                            ->select('translate_approve.status','export_version.t_appove_id','translate_approve.conflict')
+                            ->join('translate_approve','translate_approve.id','=','export_version.t_appove_id')
+                            ->get()
+                            ->toArray();
+
+        if($items_find[0]['status'] !== 'Qualified'){
+            return response()->json(['error' => 'Comment only on qualified entries'], 200);
+            die();
+        }
+        if($items_find[0]['conflict'] !== 0){
+            return response()->json(['error' => 'The entry has been commented on'], 200);
+            die();
+        }
+        //logic processing
+        $t_appove_id = $items_find[0]['t_appove_id'];
+        $items_update = Translate_approve::where('id',$t_appove_id)->update(['conflict'=>1,'objection'=>$input['objection']]);
+        if($items_update){
+            return response()->json(['success' => 'Successful'], 200);           
+        }else{
+            return response()->json(['error' => 'Failed'], 200);
+        }
+        
+
+    }
+
+
+
+}

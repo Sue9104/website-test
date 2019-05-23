@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: WelcomeSGI1
+      MYSQL_DATABASE: translate_01
+    command: mysqld --sql_mode="STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    volumes:
+      - ./conf/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - ./data:/var/lib/mysql
+    ports:
+      - "9906:3306"
+  web:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ./source/:/var/www/trantrace/
+    ports:
+      - "9000:90"
+    stdin_open: true
+    tty: true

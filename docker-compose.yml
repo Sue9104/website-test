@@ -19,9 +19,10 @@ services:
       context: .
       dockerfile: php.dockerfile
     restart: always
+    container_name: trantrace
     depends_on:
       - db
     ports:
-      - "9000:90"
+      - "8000:80"
     stdin_open: true
     tty: true

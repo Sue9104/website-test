@@ -1,8 +1,9 @@
 FROM php:7.2-apache
 
+COPY .env /var/www/trantrace/docker.env
 COPY source_code/ /var/www/trantrace/
-COPY conf/trantrace.apache.conf  /etc/apache2/sites-available/000-default.conf
-RUN a2enmod headers && a2enmod rewrite
+COPY conf/trantrace.apache.conf /etc/apache2/sites-available/000-default.conf
+WORKDIR /var/www/trantrace/
 
 # install php extension
 RUN sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list \
@@ -13,7 +14,15 @@ RUN sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.o
   && docker-php-ext-configure ldap --with-libdir=/lib/x86_64-linux-gnu/ \
   && docker-php-ext-install imap ldap bcmath calendar exif gd gettext mysqli pdo pdo_mysql pcntl shmop sockets sysvmsg sysvsem sysvshm wddx xmlrpc xsl opcache zip \
   && printf "\n" | pecl install igbinary msgpack memcached \
-  && docker-php-ext-enable igbinary msgpack memcached
-  && cd /var/www/trantrace/ \
-  && php artisan passport:install --force \
+  && docker-php-ext-enable igbinary msgpack memcached \
+  && \rm -f /var/www/trantrace/public/storage
+
+# run website
+RUN head -3 /var/www/trantrace/docker.env | cat - >> /var/www/trantrace/.env \
+  && a2enmod headers \
+  && a2enmod rewrite \
+  && chown -R www-data:www-data storage/ bootstrap/ \
+  && chmod -R 775 storage/ bootstrap/ \
+#  && php artisan passport:install --force \
   && php artisan storage:link
+

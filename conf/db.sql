@@ -337,3 +337,6 @@ CREATE TABLE `version` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2019-05-22 12:18:56
+
+-- insert admin:admin
+insert into users (name, email, password, created_at, role) values ("root", "root", '$2y$10$5WV.eTXqNXzDIOtZkwak6eKgcmeOTJyhTePCDyv5Cf6Y8MBZJdaku', now(), 2);

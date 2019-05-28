@@ -1,7 +1,8 @@
 FROM php:7.2-apache
 
-COPY .env /var/www/trantrace/docker.env
 COPY source_code/ /var/www/trantrace/
+COPY .env /var/www/trantrace/docker.env
+COPY wait_for_mysql.sh /var/www/trantrace/
 COPY conf/trantrace.apache.conf /etc/apache2/sites-available/000-default.conf
 WORKDIR /var/www/trantrace/
 

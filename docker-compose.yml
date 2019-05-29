@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
-    command: ["./wait_for_mysql.sh", "${DB_PASSWORD}" ]
+    command: ["./wait_for_mysql.sh", "db", "${DB_PASSWORD}", "${DB_DATABASE}" ]
     restart: always
     container_name: trantrace
     ports:

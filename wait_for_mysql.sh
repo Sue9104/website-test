@@ -1,13 +1,16 @@
 #!/bin/bash
 
-DB_PASSWORD="$1"
+HOST=$1
+DB_PASSWORD=$2
+DB_DATABASE=$3
 
 echo "Waiting for mysql"
-until mysql -h"db" -P3306 -u root -p"$DB_PASSWORD" &> /dev/null
+until mysql --protocol TCP --host=$HOST --port=3306 --user=root --password=$DB_PASSWORD --database=$DB_DATABASE -e '\q'
 do
   printf "."
   sleep 1
 done
 
 echo -e "\nmysql is ready"
-php artsian passport:install --force
+cd /var/www/trantrace && php artisan passport:install --force
+apache2-foreground

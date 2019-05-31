@@ -55,3 +55,9 @@ web:
 		&& sudo a2ensite /etc/apache2/sites-available/trantrace.conf
 
 install: apache2 mysql php php-modules web
+
+uninstall:
+	sudo service mysql stop
+	sudo service apache2 stop
+	sudo \rm -rf /var/www/trantrace
+	sudo \rm /etc/apache2/sites-available/trantrace.conf

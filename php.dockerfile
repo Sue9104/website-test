@@ -20,7 +20,7 @@ RUN sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.o
   && \rm -f /var/www/trantrace/public/storage /var/www/trantrace/storage/*key
 
 # run website
-RUN head -3 /var/www/trantrace/docker.env | cat - >> /var/www/trantrace/.env \
+RUN head -2 /var/www/trantrace/docker.env | cat - >> /var/www/trantrace/.env \
   && a2enmod headers \
   && a2enmod rewrite \
   && chown -R www-data:www-data storage/ bootstrap/ \

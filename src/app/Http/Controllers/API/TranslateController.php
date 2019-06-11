@@ -16,6 +16,7 @@ use App\Models\Translate_in;
 use App\Models\Translate_job;
 use App\Models\Translate_approve;
 use App\Models\Product;
+use App\Models\Import_log;
 
 class TranslateController extends Controller 
 {
@@ -178,12 +179,15 @@ class TranslateController extends Controller
 
                 $success_insert[] =array('success_nums'=>$insert_nums);
 
-                /*$Log = new Log;
-                $Log->log_content = json_encode($md5_array);
-                $Log->log_model_type = 'plasm';
-                $Log->log_action = 'import';
-                $Log->log_user = $user->name;
-                $Log->save();*/
+                if($insert_nums > 0){
+                    $Log = new Import_log;
+                    $Log->product_id = $product_id;
+                    $Log->user_name = $users_name;
+                    $Log->file_name = $file_name;
+                    $Log->nums = $insert_nums;
+                    $Log->save();
+                }
+
                 $result_return= array('success_nums'=>$success_insert,'error_row'=>$error_row,'row_key'=>$row_key);
 
             return response()->json(['result' => $result_return], 200);  
@@ -241,10 +245,10 @@ class TranslateController extends Controller
         //if(in_array('1',$permission_array)){//owner return the translate_in table data
         $where[] = array('translate_in.users_name','=',$users_name);
         return Translate_in::select('translate_in.id','translate_in.users_name','translate_in.product_id','translate_in.key','translate_in.translate','translate_in.status','translate_in.created_at','translate_in.updated_at')
-                ->addselect('product.translate_users','product.lang')
+                ->addselect('product.translate_users','product.lang','product.product')
                 ->join('product','translate_in.product_id','=','product.id')
                 ->where($where)
-                ->orderBy('translate_in.updated_at','DESC')
+                ->orderBy('translate_in.id','DESC')
                 ->paginate($count,['*'],'page',$page);
         /*}else{
             return response()->json(['error' => 'Failed'], 200);
@@ -557,7 +561,10 @@ class TranslateController extends Controller
         $input = $request->all();
         $do_command = "trans -t '".$input['lang']."' -b ".$input['translate_contents'];
         //$do_command = "nohup bash -c "."'".$cd_dir.$co_dir.$command."' >/media/1.log &";
-        exec($do_command,$res,$code);
+        var_dump($do_command);
+	exec($do_command,$res,$code);
+	var_dump($res);
+	die();
         if($code === 0){
             return response()->json(['result' => $res], 200); 
         }else{

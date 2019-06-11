@@ -1,7 +1,7 @@
 <template>
   <div id="projectDetailMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/projectlist'}">Project List</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/projectlist'}">Overview</el-breadcrumb-item>
       <el-breadcrumb-item>Detail</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="projectDetailCon">
@@ -13,9 +13,9 @@
               <el-button class="operationBtn" size="large" type="text" @click="openEditProject">Edit</el-button>
               <el-button class="operationBtn" size="large" type="text" style="color:orange" @click="deleteProject">Delete</el-button>
             </div>
-            <div>
+            <div class="infoItemCon">
               <div class="infoItem">Project: <span>{{currentProject.product}}</span></div>
-              <div class="infoItem">Attribute: <span>{{currentProject.attribute}}</span></div>
+              <div class="infoItem">Visibility: <span>{{currentProject.attribute}}</span></div>
               <div class="infoItem">Priority: 
                 <span v-if="currentProject.priority=='1'">Low</span>
                 <span v-if="currentProject.priority=='2'">Normal</span>
@@ -31,36 +31,36 @@
           <el-card class="box-card" shadow="always">
             <div slot="header">
               <span class="cardTitle">Add Members</span>
-              <el-button class="operationBtn" size="large" type="text" v-if="!membersFlag" @click="membersFlag = true">Edit</el-button>
-              <el-button class="operationBtn submitBtn" size="large" type="text" v-if="membersFlag" @click="allSubmitMembers">All Submit</el-button>
-              <el-button class="operationBtn cancelBtn" size="large" type="text" v-if="membersFlag" @click="membersFlag=false">Cancel</el-button>
+              <el-button class="operationBtn" size="large" type="text" v-if="!translatorMembersFlag&&!approverMembersFlag&&!viewerMembersFlag" @click="membersEdit">Edit</el-button>
+              <el-button class="operationBtn submitBtn" size="large" type="text" v-if="translatorMembersFlag||approverMembersFlag||viewerMembersFlag" @click="allSubmitMembers">All Submit</el-button>
+              <el-button class="operationBtn cancelBtn" size="large" type="text" v-if="translatorMembersFlag||approverMembersFlag||viewerMembersFlag" @click="memberCancel">Cancel</el-button>
             </div>
             <el-form :model="addMembersForm" ref="addMembersForm" label-position="left" label-width="100px">
               <el-form-item prop="translate_users" label="Translator">
                 <div class="membersInput">
                   <div><span v-for="(item,index) in currentProject.translatorName" :key="index" style="margin-right:6px;">{{item}}</span></div>
-                  <el-select v-model="addMembersForm.translate_users" :disabled="!membersFlag" placeholder="please select translator" multiple @change="changeUser('t',$event)">
+                  <el-select v-model="addMembersForm.translate_users" :disabled="!translatorMembersFlag" placeholder="please select translator" multiple @change="changeUser('t',$event)">
                     <el-option v-for="(item,index) in currentProject.remainingUserList" :key="'Translator'+index" :label="item.name" :value="item.id" v-if="item.status==='t'||item.status===''"></el-option>
                   </el-select>
-                  <el-button v-if="membersFlag" size="medium" type="warning" @click="submitMembers('translator')">Submit</el-button>
+                  <el-button v-if="translatorMembersFlag" size="medium" type="warning" @click="submitMembers('translator')">Submit</el-button>
                 </div>
               </el-form-item>
-              <el-form-item prop="approve_users" label="Approver">
+              <el-form-item prop="approve_users" label="Reviewer">
                 <div class="membersInput">
                   <div><span v-for="(item,index) in currentProject.approverName" :key="index" style="margin:6px;">{{item}}</span></div>
-                  <el-select v-model="addMembersForm.approve_users" :disabled="!membersFlag" placeholder="please select approver" multiple @change="changeUser('a',$event)">
+                  <el-select v-model="addMembersForm.approve_users" :disabled="!approverMembersFlag" placeholder="please select approver" multiple @change="changeUser('a',$event)">
                     <el-option v-for="(item,index) in currentProject.remainingUserList" :key="'approver'+index" :label="item.name" :value="item.id" v-if="item.status==='a'||item.status===''"></el-option>
                   </el-select>
-                  <el-button v-if="membersFlag" size="medium" type="warning" @click="submitMembers('reviewer')">Submit</el-button>
+                  <el-button v-if="approverMembersFlag" size="medium" type="warning" @click="submitMembers('reviewer')">Submit</el-button>
                 </div>
               </el-form-item>
               <el-form-item prop="viewed_users" label="Viewer">
                 <div class="membersInput">
                   <div><span v-for="(item,index) in currentProject.viewerName" :key="index" style="margin:6px;">{{item}}</span></div>
-                  <el-select v-model="addMembersForm.viewed_users" :disabled="(currentProject.attribute==='private')||!membersFlag" placeholder="please select viewer" multiple @change="changeUser('v',$event)">
+                  <el-select v-model="addMembersForm.viewed_users" :disabled="(currentProject.attribute==='public')||!viewerMembersFlag" placeholder="please select viewer" multiple @change="changeUser('v',$event)">
                     <el-option v-for="(item,index) in currentProject.remainingUserList" :key="'Viewer'+index" :label="item.name" :value="item.id" v-if="item.status==='v'||item.status===''"></el-option>
                   </el-select>
-                  <el-button v-if="(currentProject.attribute==='public')&&membersFlag" size="medium" type="warning" @click="submitMembers('viewer')">Submit</el-button>
+                  <el-button v-if="(currentProject.attribute==='private')&&viewerMembersFlag" size="medium" type="warning" @click="submitMembers('viewer')">Submit</el-button>
                 </div>
               </el-form-item>
             </el-form>
@@ -70,20 +70,20 @@
           <el-card class="box-card" shadow="always">
             <div slot="header">
               <span class="cardTitle">Project Schedule</span>
-              <el-button class="operationBtn" size="large" type="text" @click="viewAllocationList">Entry List</el-button>
-              <el-button class="operationBtn" size="large" type="text" @click="viewObjectionList">Objection List</el-button>
+              <el-button class="operationBtn" size="large" type="text" @click="viewAllocationList">Assignment</el-button>
+              <el-button class="operationBtn" size="large" type="text" @click="viewObjectionList">Feedback</el-button>
             </div>
             <div class="statisticsCon">
               <span style="margin-right:10px;">Total number of entries: {{statisticInfo.total_nums}}</span>
-              <div class="progressItem">
-                <span>Allocation:</span>
+              <div>
+                <span>Assignment:</span>
                 <el-progress :stroke-width="4" :percentage="statisticInfo.allocationPercentage"></el-progress>
               </div>
-              <div class="progressItem">
+              <div>
                 <span>Translation:</span>
                 <el-progress :stroke-width="4" :percentage="statisticInfo.translationPercentage"></el-progress>
               </div>
-              <div class="progressItem">
+              <div>
                 <span>Approval:</span>
                 <el-progress :stroke-width="4" :percentage="statisticInfo.approvalPercentage"></el-progress>
               </div>
@@ -91,11 +91,11 @@
           </el-card>
           <el-card class="box-card" shadow="always">
             <div slot="header">
-              <span class="cardTitle">Members Schedule</span>
+              <span class="cardTitle">Member Schedule</span>
             </div>
             <div class="statisticsCon">
               <div class="progressItem">
-                <span>Allocator:
+                <span>Owner:
                   <div style="margin:6px 20px;">
                     {{currentProject.users_name}}
                     <el-progress :stroke-width="4" :percentage="statisticInfo.allocationPercentage"></el-progress>
@@ -105,15 +105,16 @@
               <div class="progressItem">
                 <span>Translators:
                   <div v-for="(item,index) in currentProject.translatorName" :key="index" style="margin:6px 20px;">{{item}}
-                    <el-progress :stroke-width="4" :percentage="translatorsStatistics[item]&&(translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item]['Re-translated']+translatorsStatistics[item].Unreviewed+translatorsStatistics[item].Untranslated)?(translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item].Unreviewed)*100/(translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item]['Re-translated']+translatorsStatistics[item].Unreviewed+translatorsStatistics[item].Untranslated):0" v-if='translatorsStatistics[item]'></el-progress>
-                    <span v-if='!translatorsStatistics[item]' style="color:#aaa;font-size:14px">[ Unassigned task ]</span>
+                    <el-progress :stroke-width="4" :percentage="translatorsStatistics[item]&&(translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item]['Re-translated']+translatorsStatistics[item].Unreviewed+translatorsStatistics[item].Untranslated)?parseInt((translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item].Unreviewed)*100/(translatorsStatistics[item].Error+translatorsStatistics[item].Qualified+translatorsStatistics[item]['Re-translated']+translatorsStatistics[item].Unreviewed+translatorsStatistics[item].Untranslated)):0" v-if='translatorsStatistics[item]'></el-progress>
+                    <span v-if='!translatorsStatistics[item]' style="color:#aaa;font-size:12px;margin-left:10px">[ Unassigned task ]</span>
                   </div>
                 </span>
               </div>
               <div class="progressItem">
-                <span>Approvers:
+                <span>Reviewers:
                   <div v-for="(item,index) in currentProject.approverName" :key="index" style="margin:6px 20px;">{{item}}
-                    <el-progress :stroke-width="4" :percentage="approversStatistics[item]&&(approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated']+approversStatistics[item].Unreviewed)?(approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated'])*100/(approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated']+approversStatistics[item].Unreviewed):0" v-if='approversStatistics[item]'></el-progress>
+                    <el-progress :stroke-width="4" :percentage="approversStatistics[item]&&(approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated']+approversStatistics[item].Unreviewed)?parseInt((approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated'])*100/(approversStatistics[item].Error+approversStatistics[item].Qualified+approversStatistics[item]['Re-translated']+approversStatistics[item].Unreviewed)):0"  v-if="JSON.stringify(translatorsStatistics)!='{}'"></el-progress>
+                    <span v-if="JSON.stringify(translatorsStatistics)=='{}'" style="color:#aaa;font-size:12px;margin-left:10px">[ Unassigned task ]</span>
                   </div>
                 </span>
               </div>
@@ -126,33 +127,48 @@
               <span class="cardTitle">Upload</span>
             </div>
             <div>
-              <el-button type="primary" size="large" @click="downloadFileFormat">Export Format</el-button>
-              <el-button type="primary" size="large" @click="openUploadModal">Upload File</el-button>
+              <el-button type="primary" size="small" @click="downloadFileFormat">Download Template</el-button>
+              <el-button type="primary" size="small" @click="openUploadModal">Upload File</el-button>
             </div>
             <div class="recordListCon">Import records:
-              <span style="color:#ccc;" v-if="importList.length===0">[ No Record ]</span>
-              <div v-if="importList.lenght>0" v-for="(item,index) in importList" :key="index" class="versionHistoryItem" title="export this version">
-                <span>{{item}}</span>
-                <span style="margin-left:30px;">时间</span>
+              <span style="color:#41babc" v-show="importVersionLoading">
+                <i class="el-icon-loading"></i> Requesting...
+              </span>
+              <span style="color:#ccc;" v-if="!importVersionLoading&&importList.length===0">[ No Record ]</span>
+              <div style="padding: 6px 30px;font-weight:bold;" v-if="importList.length>0">
+                <span style="display:inline-block;width:100px;text-align:center;">Total</span>
+                <span style="display:inline-block;width:200px;text-align:center;">Time</span>
               </div>
+              <div v-if="importList.length>0" v-for="(item,index) in importList" :key="index" class="versionHistoryItem" title="export this version" @click="downloadImportFile(item)">
+                <span style="display:inline-block;width:100px;text-align:center;">{{item.nums}}</span>
+                <span style="display:inline-block;width:200px;text-align:center;">{{item.updated_at}}</span>
+              </div>
+              <el-pagination v-if="importList.length>0" :total="importTotal" @current-change="importCurrentChange" layout="prev, pager, next"></el-pagination>
             </div>
           </el-card>
         </el-tab-pane>
-        <el-tab-pane label="Export" name="export">
+        <el-tab-pane label="Release" name="export">
           <el-card class="box-card" shadow="always">
             <div slot="header">
-              <span class="cardTitle">Version Export & History</span>
+              <span class="cardTitle">Version Control</span>
             </div>
             <div>
-              <el-button size="small" type="primary" @click="openExportVersionModal">Export New Version</el-button>
+              <el-button size="small" type="primary" @click="openExportVersionModal">Release New Version</el-button>
             </div>
             <div class="recordListCon">Export records:
-              <span style="color:#ccc;" v-if="!versionList[0].version_name">[ No Record ]</span>
-              <div v-if="versionList[0].version_name" v-for="(item,index) in versionList" :key="index" class="versionHistoryItem" title="export the version" @click="exportHistoryVersion(item.version_name)">
-                <span>{{item.version_name}}</span>
-                <span style="margin-left:30px;">时间</span>
-                <span style="margin-left:30px;"><el-button size="small" type="text" @click="openExportVersionModal">download</el-button></span>
+              <span style="color:#41babc" v-show="exportVersionLoading">
+                <i class="el-icon-loading"></i> Requesting...
+              </span>
+              <span style="color:#ccc;" v-if="!exportVersionLoading&&!versionList[0].version_name">[ No Record ]</span>
+              <div style="padding: 6px 30px;font-weight:bold;" v-if="versionList[0].version_name">
+                <span style="display:inline-block;width:100px;text-align:center;">Name</span>
+                <span style="display:inline-block;width:200px;text-align:center;">Time</span>
               </div>
+              <div v-if="versionList[0].version_name" v-for="(item,index) in versionList" :key="index" class="versionHistoryItem" title="click to export the version" @click="exportHistoryVersion(item.version_name)">
+                <span style="display:inline-block;width:100px;text-align:center;">{{item.version_name}}</span>
+                <span style="display:inline-block;width:200px;text-align:center;">{{item.version_created_at}}</span>
+              </div>
+              <el-pagination v-if="versionList[0].version_name" :total="versionsTotal" @current-change="versionCurrentChange" layout="prev, pager, next"></el-pagination>
             </div>
           </el-card>
         </el-tab-pane>
@@ -173,15 +189,30 @@
           <span style="font-weight:bold;">{{uploadFile.name?uploadFile.name:''}}</span>
           <i class="el-icon-loading" v-show="uploadLoadingFlag"></i>
         </div>
-        <el-dialog width="50%" title="Upload Result" :visible.sync="resultVisible" @close="closeResultModal" append-to-body :close-on-click-modal="false" :close-on-press-escape="false">
-          <div>
-            <div v-for="(item, key, index) in uploadResult" style="border-bottom:1px dashed #ccc;margin-bottom:20px;">
-              <div v-for="(item2, key2, index2) in item">
-                <span>{{key2}}:</span>
-                <span style="font-weight:bold;margin-left:5px;">{{item2}}</span>
+        <el-dialog width="40%" title="Upload Result" :visible.sync="resultVisible" @close="closeResultModal" append-to-body :close-on-click-modal="false" :close-on-press-escape="false">
+          <div style="max-height:500px;overflow:auto;">
+            <div v-for="(item, index) in uploadResult.success_nums" style="margin-bottom:20px;">
+              <span>success_nums:</span>
+              <span style="font-weight:bold;margin-left:5px;">{{item.success_nums}}</span>
+            </div>
+            <div v-for="(item, index) in uploadResult.error_row" style="margin-bottom:20px;">
+              <span>error:</span>
+              <span style="font-weight:bold;margin-left:5px;">{{item.error}}</span>
+            </div>
+            <div v-show="uploadResult.row_key.length>0">
+              <div style="margin-bottom:20px;font-wieght:bold;">
+                <span style="font-weight:bold;display:inline-block;width:20%;">Rows</span>
+                <span style="font-weight:bold;margin-left:5px;">Tip</span>
+              </div>
+              <div v-for="(item, index) in uploadResult.row_key" style="border-bottom:1px dashed #ccc;margin-bottom:20px;">
+                <span style="display:inline-block;width:20%;">{{item.row_key}}:</span>
+                <span style="font-weight:bold;margin-left:5px;">{{item.tips}}</span>
               </div>
             </div>
           </div>
+          <span slot="footer" class="dialog-footer" v-if="uploadResult.success_nums[0].success_nums>0">
+            <el-button @click="$router.push('/assignment?id='+$route.query.id+'&name='+currentProject.product)">Go to Assign</el-button>
+          </span>
         </el-dialog>
       </el-dialog>
       <el-dialog title="Edit" :visible.sync="editDialogVisible" width="40%">
@@ -189,7 +220,7 @@
           <el-form-item prop="product" label="Project:">
             <el-input v-model.trim="editProjectForm.product" style="width:100%" placeholder="please enter project name"></el-input>
           </el-form-item>
-          <el-form-item prop="attribute" label="Attribute:">
+          <el-form-item prop="attribute" label="Visibility:">
             <el-radio-group v-model="editProjectForm.attribute">
               <el-radio label="public">Public</el-radio>
               <el-radio label="private" disabled>Private</el-radio>
@@ -204,12 +235,18 @@
           </el-form-item>
           <el-form-item prop="lang" label="Language:">
             <el-select v-model="editProjectForm.slang" style="width:49%" placeholder="source language">
-              <el-option label="ZH-CN" value="ZH-CN"></el-option>
-              <el-option label="EN" value="EN"></el-option>
+              <el-option v-for="item in langList" :key="item.code" :label="item.code" :value="item.code">
+                <span style="float: left">{{ item.code }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.language }}</span>
+              </el-option>
+              <el-pagination small layout="prev, pager, next" :current-page="langCurrentPage" @current-change="handleCurrentPage" :page-size="langPageSize" :total="langTotal"></el-pagination>
             </el-select>
             <el-select v-model="editProjectForm.tlang" style="width:49%" placeholder="target language">
-              <el-option label="ZH-CN" value="ZH-CN"></el-option>
-              <el-option label="EN" value="EN"></el-option>
+              <el-option v-for="item in langList" :key="item.code" :label="item.code" :value="item.code">
+                <span style="float: left">{{ item.code }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.language }}</span>
+              </el-option>
+              <el-pagination small layout="prev, pager, next" :current-page="langCurrentPage2" @current-change="handleCurrentPage2" :page-size="langPageSize2" :total="langTotal2"></el-pagination>
             </el-select>
           </el-form-item>
           <el-form-item prop="deadline" label="Deadline:">
@@ -262,19 +299,27 @@ export default {
     this.$http.post("/api/Statistic/ProductAccount",qs.stringify({product_id:this.$route.query.id})).then(response=>{
       // console.log(response.data.data;
       response.data.result.allocationPercentage = response.data.result.total_nums?parseInt(((response.data.result.total_nums-response.data.result.Unassigned)/response.data.result.total_nums)*1000)/10:0
-      response.data.result.translationPercentage = response.data.result.total_nums-response.data.result.Unassigned>0?parseInt(((response.data.result.total_nums-response.data.result.Unassigned-response.data.result.Untranslated-response.data.result['Re-translated'])/(response.data.result.total_nums-response.data.result.Unassigned))*1000)/10:0
-      response.data.result.approvalPercentage = response.data.result.Qualified+response.data.result.Unreviewed?parseInt((response.data.result.Qualified/(response.data.result.Qualified+response.data.result.Unreviewed))*1000)/10:0
+      // response.data.result.translationPercentage = response.data.result.total_nums-response.data.result.Unassigned>0?parseInt(((response.data.result.total_nums-response.data.result.Unassigned-response.data.result.Untranslated-response.data.result['Re-translated'])/(response.data.result.total_nums-response.data.result.Unassigned))*1000)/10:0
+      // response.data.result.approvalPercentage = response.data.result.Qualified+response.data.result.Unreviewed?parseInt((response.data.result.Qualified/(response.data.result.Qualified+response.data.result.Unreviewed))*1000)/10:0
+      response.data.result.translationPercentage = response.data.result.total_nums?parseInt(((response.data.result.Qualified+response.data.result.Unreviewed)/response.data.result.total_nums)*1000)/10:0
+      response.data.result.approvalPercentage = response.data.result.total_nums?parseInt((response.data.result.Qualified/response.data.result.total_nums)*1000)/10:0
       this.statisticInfo = response.data.result
+
     })
     this.$http.post('/api/Statistic/Accout_task_p',qs.stringify({product_id:this.$route.query.id})).then(response=>{
       this.translatorsStatistics = response.data.result['static_t']
       for(let k in response.data.result['static_a']){
         if(k!=='Unreviewed'){
           this.approversStatistics[k] = response.data.result['static_a'][k]
-          this.approversStatistics[k].Unreviewed = response.data.result['static_a'].Unreviewed
+          this.approversStatistics[k].Unreviewed = response.data.result['static_a'].Unreviewed?response.data.result['static_a'].Unreviewed:0
         }
       }
       // console.log(this.approversStatistics)
+    })
+    this.$http.post("/api/Import/import_list",qs.stringify({product_id:this.$route.query.id})).then(response=>{
+      // console.log(response.data.data)
+      this.importList = response.data.data
+      this.importVersionLoading = false;
     })
     
   },
@@ -299,6 +344,13 @@ export default {
         }
       },
       editDialogVisible:false,
+      langList:[],
+      langCurrentPage:1,
+      langPageSize:30,
+      langTotal:0,
+      langCurrentPage2:1,
+      langPageSize2:30,
+      langTotal2:0,
       editProjectForm:{
         product:'',
         attribute:'',
@@ -313,8 +365,12 @@ export default {
       statisticsFlag:false,
       translatorsStatistics:{},
       approversStatistics:{},
+      importVersionLoading:true,
       importList:[],
+      importTotal:0,
+      exportVersionLoading:true,
       versionList:[{version_name:''}],
+      versionsTotal:0,
       currentProject:{},
       userList:[],
       // remainingUserList:[],
@@ -327,7 +383,9 @@ export default {
       // translatorList:[],
       // approverList:[],
       // viewerList:[],
-      membersFlag:false,
+      translatorMembersFlag:false,
+      approverMembersFlag:false,
+      viewerMembersFlag:false,
       addMembersForm: {
         translate_users:[],
         approve_users:[],
@@ -339,7 +397,7 @@ export default {
       resultVisible: false,
       uploadLoadingFlag:false,
       uploadResult:{
-        success_nums:[],
+        success_nums:[{success_nums:0}],
         error_row:[],
         row_key:[]
       },
@@ -383,13 +441,13 @@ export default {
   watch:{
     'editProjectForm.slang':{
       handler(val,oldVal){
-        this.editProjectForm.lang = this.editProjectForm.slang+'->'+this.editProjectForm.tlang
+        this.editProjectForm.lang = this.editProjectForm.slang+' -> '+this.editProjectForm.tlang
       },
       deep:true
     },
     'editProjectForm.tlang':{
       handler(val,oldVal){
-        this.editProjectForm.lang = this.editProjectForm.slang+'->'+this.editProjectForm.tlang
+        this.editProjectForm.lang = this.editProjectForm.slang+' -> '+this.editProjectForm.tlang
       },
       deep:true
     },
@@ -506,6 +564,9 @@ export default {
               item11===item22.id?item.approverName.push(item22.name):null
             })
           })
+          if(!item.viewed_users){
+            item.viewed_users='[]'
+          }
           JSON.parse(item.viewed_users).forEach(item111=>{
             this.userList.forEach(item222=>{
               item111===item222.id?item.viewerName.push(item222.name):null
@@ -535,7 +596,9 @@ export default {
         })
 
         this.versionList = response.data.data
+        this.versionsTotal = response.data.total
         this.currentProject = response.data.data[0]
+        this.exportVersionLoading = false
       })
     },
     handleClick(tab, event) {
@@ -553,7 +616,9 @@ export default {
           id:this.$route.query.id,
         })).then(response=>{
           if(response.data.success){
-
+            this.$router.push('/projectlist')
+          }else{
+            this.$message('Failed to delete!')
           }
         })
       }).catch(() => {
@@ -567,8 +632,29 @@ export default {
       this.editProjectForm.priority = this.currentProject.priority
       this.editProjectForm.deadline = this.currentProject.deadline
       this.editProjectForm.product_desc = this.currentProject.product_desc
-      this.editProjectForm.slang = this.currentProject.lang.split('->')[0]
-      this.editProjectForm.tlang = this.currentProject.lang.split('->')[1]
+      this.editProjectForm.slang = this.currentProject.lang.split(' -> ')[0]
+      this.editProjectForm.tlang = this.currentProject.lang.split(' -> ')[1]
+      this.$http.post("/api/product/lang_list",qs.stringify({count:30})).then(response=>{
+        this.langList = response.data.data
+        this.langTotal = response.data.total
+        this.langTotal2 = response.data.total
+      })
+    },
+    handleCurrentPage(val){
+      // console.log(val)
+      this.langCurrentPage = val
+      this.$http.post("/api/product/lang_list",qs.stringify({page:val,count:this.langPageSize})).then(response=>{
+        this.langList = response.data.data
+        this.langTotal = response.data.total
+      })
+    },
+    handleCurrentPage2(val){
+      // console.log(val)
+      this.langCurrentPage2 = val
+      this.$http.post("/api/product/lang_list",qs.stringify({page:val,count:this.langPageSize2})).then(response=>{
+        this.langList = response.data.data
+        this.langTotal2 = response.data.total
+      })
     },
     submitProject(formName){
       this.$refs[formName].validate(valid => {
@@ -581,7 +667,7 @@ export default {
             priority:this.editProjectForm.priority,
             deadline:this.editProjectForm.deadline,
             product_desc:this.editProjectForm.product_desc,
-            lang:this.editProjectForm.slang+'->'+this.editProjectForm.tlang,
+            lang:this.editProjectForm.slang+' -> '+this.editProjectForm.tlang,
           }
           // console.log(obj);
           this.$http.post("/api/product/edit_product",qs.stringify(obj)).then(response=>{
@@ -592,6 +678,16 @@ export default {
           })
         }
       })
+    },
+    membersEdit(){
+      this.translatorMembersFlag=true
+      this.approverMembersFlag=true
+      this.viewerMembersFlag=true
+    },
+    memberCancel(){
+      this.translatorMembersFlag=false
+      this.approverMembersFlag=false
+      this.viewerMembersFlag=false
     },
     allSubmitMembers(){
       let arr = []
@@ -617,17 +713,40 @@ export default {
         arr.push(obj2)
       }
       if(arr.length===0){
-        this.membersFlag=false
+        this.translatorMembersFlag=false
+        this.approverMembersFlag=false
+        this.viewerMembersFlag=false
       }else{
-        arr.forEach(item=>{
+        arr.forEach((item,index)=>{
           this.$http.post('/api/product/add_t_ap',qs.stringify({id:this.$route.query.id,users:item.users,role:item.role})).then(response=>{
+            // if(response.data.success){
+            //   this.translatorMembersFlag=false
+            //   this.approverMembersFlag=false
+            //   this.viewerMembersFlag=false
+            //   this.addMembersForm.translate_users=[]
+            //   this.addMembersForm.approve_users=[]
+            //   this.addMembersForm.viewed_users=[]
+            //   this.projectDetail()
+            // }
             if(response.data.success){
-              this.membersFlag=false
-              this.addMembersForm.translate_users=[]
-              this.addMembersForm.approve_users=[]
-              this.addMembersForm.viewed_users=[]
+              switch (item.role){
+                case 'translator':
+                  this.translatorMembersFlag=false
+                  this.addMembersForm.translate_users=[]
+                break;
+                case 'reviewer':
+                  this.approverMembersFlag=false
+                  this.addMembersForm.approve_users=[]
+                break;
+                case 'viewer':
+                  this.viewerMembersFlag=false
+                  this.addMembersForm.viewed_users=[]
+                break;
+              }
+            if(index===arr.length-1){
               this.projectDetail()
             }
+          }
           })
         })
       }
@@ -658,17 +777,19 @@ export default {
       if(JSON.parse(obj.users).length!==0){
         this.$http.post('/api/product/add_t_ap',qs.stringify(obj)).then(response=>{
           if(response.data.success){
-            this.membersFlag=false
             switch (role){
               case 'translator':
+                this.translatorMembersFlag=false
                 this.addMembersForm.translate_users=[]
                 this.projectDetail()
               break;
               case 'reviewer':
+                this.approverMembersFlag=false
                 this.addMembersForm.approve_users=[]
                 this.projectDetail()
               break;
               case 'viewer':
+                this.viewerMembersFlag=false
                 this.addMembersForm.viewed_users=[]
                 this.projectDetail()
               break;
@@ -676,7 +797,23 @@ export default {
           }
         })
       }else{
-        this.membersFlag=false
+        switch (role){
+          case 'translator':
+            this.translatorMembersFlag=false
+            this.addMembersForm.translate_users=[]
+            this.projectDetail()
+          break;
+          case 'reviewer':
+            this.approverMembersFlag=false
+            this.addMembersForm.approve_users=[]
+            this.projectDetail()
+          break;
+          case 'viewer':
+            this.viewerMembersFlag=false
+            this.addMembersForm.viewed_users=[]
+            this.projectDetail()
+          break;
+        }
         this.$message({
           message: 'No one is selected!',
           type: 'warning'
@@ -715,6 +852,23 @@ export default {
         break;
       }
     },
+    downloadImportFile(item){
+      this.$confirm('Confirm to download this file?', 'Download', {
+        confirmButtonText: 'Download',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        this.$http.post("/api/Import/export_import",qs.stringify({id:item.id})).then(response=>{
+          if(response.data.require){
+            window.open('','_self').location.href = response.data.require
+          }
+          if(response.data.error){
+            this.$message.warning("Download failed!" + response.data.error)
+          }
+        })
+      })
+    },
     openExportVersionModal(){
       if(this.currentProject.version_name){
         this.newVersionID = Number(this.currentProject.version_name.substr(1))+0.1
@@ -734,17 +888,19 @@ export default {
           this.$http.post("/api/product/details",qs.stringify({product_id:this.$route.query.id})).then(response=>{
             // console.log(response.data.data;
             this.versionList = response.data.data
+            this.versionsTotal = response.data.total
             this.currentProject = response.data.data[0]
           })
           this.dialogVisible = false
 
         }
         if(response.data.error){
-          this.$message.warning("Export failed!" + response.data.error)
+          this.$Message.warning("Export failed!" + response.data.error)
         }
       })
     },
     exportHistoryVersion(version_name){
+      // console.log(version_name)
       this.$confirm('Confirm to download '+version_name+'?', 'Download', {
         confirmButtonText: 'Download',
         cancelButtonText: 'Cancel',
@@ -764,6 +920,20 @@ export default {
       })
       
     },
+    importCurrentChange(val){
+      this.$http.post("/api/Import/import_list",qs.stringify({product_id:this.$route.query.id,page:val})).then(response=>{
+        // console.log(response.data.data)
+        this.importList = response.data.data
+        this.importVersionLoading = false;
+      })
+    },
+    versionCurrentChange(val){
+      this.$http.post("/api/product/details",qs.stringify({product_id:this.$route.query.id,page:val})).then(response=>{
+        // console.log(response.data.data;
+        this.versionList = response.data.data
+        this.versionsTotal = response.data.total
+      })
+    },
     downloadFileFormat(){
       this.$http.post("/api/translate/download").then(response=>{
         if(response.data.require){
@@ -781,8 +951,9 @@ export default {
     },
     closeResultModal(){
       this.resultVisible= false
+      this.dialogUploadVisible = false
       this.uploadResult={
-        success_nums:[],
+        success_nums:[{success_nums:0}],
         error_row:[],
         row_key:[]
       }
@@ -794,17 +965,22 @@ export default {
       this.uploadFile={}
     },
     viewAllocationList(){
-      this.$router.push({path:'/allocationlist',query:{id:this.$route.query.id}})
+      this.$router.push({path:'/assignment',query:{id:this.$route.query.id,name:this.currentProject.product}})
     },
     viewObjectionList(){
-      this.$router.push({path:'/objectionlist',query:{id:this.$route.query.id}})
+      this.$router.push({path:'/feedback',query:{id:this.$route.query.id,name:this.currentProject.product}})
     },
     changeImportFile(event){
       // console.log(event.target.files[0]);
-      this.uploadFile = event.target.files[0]
-      this.uploadLoadingFlag = true
-      // console.log(this.uploadFile)
-      this.submitUpload()
+      if(/.csv$/.test(event.target.files[0].name)){
+        this.uploadFile = event.target.files[0]
+        this.uploadLoadingFlag = true
+        // console.log(this.uploadFile)
+        this.submitUpload()
+      }else{
+        this.$message.warning("Only files with a suffix of .csv are supported!")
+      }
+      
     },
     procductImport(){
       $("#translateUpload").trigger("click")
@@ -821,6 +997,12 @@ export default {
           this.uploadLoadingFlag = false
           this.resultVisible = true
           this.uploadResult = response.data.result
+          // 刷新导入历史列表
+           this.$http.post("/api/Import/import_list",qs.stringify({product_id:this.$route.query.id,page:1})).then(response=>{
+            // console.log(response.data.data)
+            this.importList = response.data.data
+            this.importVersionLoading = false;
+          })
         })
     },
   }

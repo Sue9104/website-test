@@ -1,9 +1,8 @@
 <template>
   <div id="transListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item v-if="$route.path==='/translationlist'">Translation List</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="$route.path==='/retranslationlist'">Re-translation List</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="$route.path==='/qualifiedlist'">Qualified List</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="$route.path==='/translation'">Translation</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="$route.path==='/retranslation'">Re-translation</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
@@ -14,15 +13,15 @@
           <el-form-item label="Keywords:">
             <el-input v-model.trim="searchForm.key" placeholder="please enter keywords"></el-input>
           </el-form-item>
+          <el-form-item label="Deadline:">
+            <el-date-picker v-model.trim="searchForm.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="please select deadline"></el-date-picker>
+          </el-form-item>
           <el-form-item label="Priority:">
             <el-select v-model="searchForm.priority" placeholder="please select priority">
               <el-option label="High" value="3"></el-option>
               <el-option label="Normal" value="2"></el-option>
               <el-option label="Low" value="1"></el-option>
             </el-select>
-          </el-form-item>
-          <el-form-item label="Deadline:">
-            <el-date-picker v-model.trim="searchForm.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="please select deadline"></el-date-picker>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" class="searchBtn" @click="onSearch">
@@ -59,10 +58,6 @@
             <div v-if="scope.row.priority=='3'" style="color:red">High</div>
           </template>
         </el-table-column>
-        <el-table-column prop="lang" label="Language" align="center">
-        </el-table-column>
-        <el-table-column prop="allocate_users_name" label="Creator" align="center">
-        </el-table-column>
         <el-table-column prop="deadline" label="Deadline" align="center">
           <template slot-scope="scope">
             <div>{{scope.row.deadline&&(scope.row.deadline.split(" ")[1])?scope.row.deadline.split(" ")[0]:scope.row.deadline}}</div>
@@ -70,13 +65,13 @@
         </el-table-column>
         <el-table-column label="Operation" align="center">
           <template slot-scope="scope">
-          <el-button type="text" size="medium" title="translate" @click="transItem(scope.row,'/ontrans')" v-if="scope.row.status === 'Untranslated'">Translation</el-button>
-          <el-button type="text" size="medium" title="view" @click="transItem(scope.row,'/retrans')" v-if="scope.row.status === 'Re-translated'">Retranslation</el-button>
+          <el-button type="text" size="medium" title="translate" @click="transItem(scope.row,'/ontrans')" v-if="scope.row.status === 'Untranslated'">Translate</el-button>
+          <el-button type="text" size="medium" title="view" @click="transItem(scope.row,'/retrans')" v-if="scope.row.status === 'Re-translated'">Retranslate</el-button>
           <el-button type="text" size="medium" title="view" @click="transItem(scope.row,'/viewqualified')" v-if="scope.row.status === 'Qualified'">View</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 50, 100, 200, 500]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" @size-change="handleSizeChange" :page-sizes="[10, 20, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </div>
@@ -87,12 +82,13 @@ export default {
   mounted() {
     this.loading = true
     this.searchForm.product_name = this.$route.query.name||''
-    this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,status:this.status})).then(response=>{
-      // console.log(response.data);
-      this.TransListTable = response.data.result.data;
-      this.total = response.data.result.total;
-      this.loading = false
-    })
+    this.onSearch()
+    // this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,status:this.status})).then(response=>{
+    //   // console.log(response.data);
+    //   this.TransListTable = response.data.result.data;
+    //   this.total = response.data.result.total;
+    //   this.loading = false
+    // })
     // console.log(this.status);
   },
   data() {
@@ -114,12 +110,10 @@ export default {
   },
   computed:{
     status(){
-      if(this.$route.path==='/translationlist'){
+      if(this.$route.path==='/translation'){
         return 'Untranslated'
-      }else if(this.$route.path==='/retranslationlist'){
+      }else if(this.$route.path==='/retranslation'){
         return 'Re-translated'
-      }else if(this.$route.path==='/qualifiedlist'){
-        return 'Qualified'
       }else{
         return null
       }
@@ -144,7 +138,7 @@ export default {
       this.loading = true
       this.currentPage = 1
       this.searchForm.product_name===''&&this.searchForm.key===''&&this.searchForm.priority===''&&this.searchForm.deadline===''?this.searchFlag = false:this.searchFlag = true
-      this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status})).then(response=>{
+      this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:this.currentPage,count:this.pageSize})).then(response=>{
         // console.log(response.data);
         this.TransListTable = response.data.result.data;
         this.total = response.data.result.total;
@@ -163,9 +157,6 @@ export default {
         case 'Re-translated':
           path='/retrans'
         break;
-        case 'Qualified':
-          path='/viewqualified'
-        break;
       }
       this.$router.push({path:path,query:{id:row.id}})
     },
@@ -174,18 +165,23 @@ export default {
       // this.$store.state.translateSearchForm = this.searchForm;
       this.$router.push({path:path,query:{id:row.id}})
     },
+    handleSizeChange(size){
+      this.pageSize = size
+      this.currentPage = 1
+      this.handleCurrentChange(this.currentPage)
+    },
     handleCurrentChange(val) {
       this.loading = true
       this.currentPage = val;
       if(this.searchFlag){
-        this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:val})).then(response=>{
+        this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.TransListTable = response.data.result.data;
           this.total = response.data.result.total;
           this.loading = false
         })
       }else{
-        this.$http.post("/api/translate/translate_list",qs.stringify({status:this.status,page:val})).then(response=>{
+        this.$http.post("/api/translate/translate_list",qs.stringify({status:this.status,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.TransListTable = response.data.result.data;
           this.total = response.data.result.total;

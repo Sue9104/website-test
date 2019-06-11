@@ -35,6 +35,8 @@ Route::middleware(['auth:api'])->group(function () {
 	Route::post('product/add_t_ap','API\ProductController@add_t_ap');
 	Route::post('product/edit_product','API\ProductController@edit_product');
 	Route::post('product/delete_p','API\ProductController@delete_p');
+
+	Route::post('product/lang_list','API\ProductController@lang_list');
 	
 	Route::post('user/list','API\ProductController@list_users');
 
@@ -62,6 +64,7 @@ Route::middleware(['auth:api'])->group(function () {
 	Route::post('view/list_version','API\ViewedController@list_version');
 	Route::post('view/list_items','API\ViewedController@list_items');
 	Route::post('view/advise','API\ViewedController@advise');
+	Route::post('view/list_conflict_mine','API\ViewedController@list_conflict_mine');
 
 	Route::post('version/list_items','API\VersionController@list_items');
 
@@ -75,6 +78,11 @@ Route::middleware(['auth:api'])->group(function () {
    	//Route::post('Statistic/Accout_task','API\StatisticController@Accout_task');
     Route::post('Statistic/Accout_task_p','API\StatisticController@Accout_task_p');
     Route::post('Statistic/Accout_task_nums','API\StatisticController@Accout_task_nums');
+	Route::post('Statistic/Products_Conflict','API\StatisticController@Products_Conflict');
+
+    Route::post('Import/import_list','API\ImportController@import_list');
+	Route::post('Import/export_import','API\ImportController@export_import');
+
 });
 
 

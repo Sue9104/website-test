@@ -1,45 +1,48 @@
 <template>
   <div id="onTransTaskMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/translationlist'}" v-if="$route.path==='/ontrans'">Translation List</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/retranslationlist' }" v-if="$route.path==='/retrans'">Re-translation List</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/qualifiedlist' }" v-if="$route.path==='/viewqualified'">Qualified List</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/translation'}" v-if="$route.path==='/ontrans'">Translation</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/retranslation' }" v-if="$route.path==='/retrans'">Re-translation</el-breadcrumb-item>
       <el-breadcrumb-item>Translate</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="onTransCon">
       <div>
-        <el-tag type="info">Project Name:{{currentItem.product}}</el-tag>
+        <el-tag type="info">Project Name: {{currentItem.product}}</el-tag>
         <el-tag type="info">Priority:
           <span v-if="currentItem.priority=='1'">Low</span>
           <span v-if="currentItem.priority=='2'">Normal</span>
           <span v-if="currentItem.priority=='3'" style="color:red">High</span>
         </el-tag>
-        <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
-        <el-tag type="info">Creator:{{currentItem.allocate_users_name}}</el-tag>
-        <el-tag type="info">Deadline:{{currentItem.deadline&&(currentItem.deadline.split(" ")[1])?currentItem.deadline.split(" ")[0]:currentItem.deadline}}</el-tag>
-        <el-button type="success" size="small"  id="submitBtn" @click='submit' v-if="currentItem.status==='Untranslated'||currentItem.status==='Re-translated'">Submit</el-button>
+        <el-tag type="info">Language: {{currentItem.lang}}</el-tag>
+        <el-tag type="info">Creator: {{currentItem.allocate_users_name}}</el-tag>
+        <el-tag type="info">Deadline: {{currentItem.deadline&&(currentItem.deadline.split(" ")[1])?currentItem.deadline.split(" ")[0]:currentItem.deadline}}</el-tag>
+        <el-button type="success" size="small" id="submitBtn" @click='submit' v-if="currentItem.status==='Untranslated'||currentItem.status==='Re-translated'">Submit</el-button>
       </div>
       <div id="transBox">
-        <div>
+        <div class='boxTitleCon'>
+          <p>Source</p>
+          <p>Translation</p>
+        </div>
+        <div class="st_con">
           <el-card class="boxCard">
-            <div id="rawDataText1" class="rawDataText">{{currentItem.key?currentItem.key:'Please select the content you need to translate.'}}</div>
+            <div id="rawDataText1" class="rawDataText">{{currentItem.key}}</div>
             <div class="btnCon">
-              <el-button type="primary" id="googleBtn1" @click="googleTrans(currentItem.key,'k')">Google</el-button>
+              <el-button type="primary" size="small" id="googleBtn1" @click="googleTrans(currentItem.key,'k')">Google</el-button>
             </div>
           </el-card>
           <el-card class="boxCard">
-            <el-input v-model="currentItem.targetKey" type="textarea" placeholder="Please enter content"></el-input>
+            <el-input id="afterDataText1" class="afterDataText" v-model="currentItem.targetKey" type="textarea" placeholder="Please enter content"></el-input>
           </el-card>
         </div>
-        <div v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2">
+        <div v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2" class="st_con">
           <el-card class="boxCard">
-            <div :id="'rawDataText'+(index+2)" class="rawDataText">{{item?item:'Please select the content you need to translate.'}}</div>
+            <div :id="'rawDataText'+(index+2)" class="rawDataText">{{item}}</div>
               <div class="btnCon">
-                <el-button type="primary" :id="'googleBtn'+(index+2)" @click="googleTrans(item,index)">Google</el-button>
+                <el-button type="primary" size="small" :id="'googleBtn'+(index+2)" @click="googleTrans(item,index)">Google</el-button>
               </div>
             </el-card>
             <el-card class="boxCard">
-              <el-input v-model="currentItem.target[index]" type="textarea" placeholder="Please enter content"></el-input>
+              <el-input :id="'afterDataText'+(index+2)" class="afterDataText" v-model="currentItem.target[index]" type="textarea" placeholder="Please enter content"></el-input>
             </el-card>
         </div>
       </div>
@@ -55,22 +58,39 @@ export default {
           id: this.$route.query.id,
           status:this.status
         })).then(response=>{
-      // console.log(response.data);
-      response.data.result.data.forEach(item=>{
-        this.$set(item,'target',[])
-        this.$set(item,'targetKey','')
-      })
+      // console.log(response.data)
+      if(this.status==='Untranslated'){
+        response.data.result.data.forEach(item=>{
+          this.$set(item,'target',[])
+          this.$set(item,'targetKey','')
+        })
+        JSON.parse(response.data.result.data[0].translate).forEach(item=>{
+          // console.log(item)
+          response.data.result.data[0].target.push('')
+        })
+      }
+      if(this.status==='Re-translated'){
+        response.data.result.data.forEach(item=>{
+          this.$set(item,'target',[])
+          JSON.parse(item.approve.translate).forEach((item1,index)=>{
+            item.target.push(item1[JSON.parse(item.translate)[index]])
+          })
+          this.$set(item,'targetKey',JSON.parse(item.approve.key)[0][item.key])
+        })
+      }
+      
       // console.log(response.data.result.data)
       this.currentItem = response.data.result.data[0];
-      for(let i = 0;i<JSON.parse(this.currentItem.translate).length;i++){
-        this.activeName.push(i+2)
-      }
     })
   },
   data() {
     return {
       currentItem: {
-        translate:'[]'
+        translate:'[]',
+        approve:{
+          key:'[]',
+          translate:'[]'
+        }
       },
     }
   },
@@ -80,8 +100,6 @@ export default {
         return 'Untranslated'
       }else if(this.$route.path==='/retrans'){
         return 'Re-translated'
-      }else if(this.$route.path==='/viewqualified'){
-        return 'Qualified'
       }else{
         return null
       }
@@ -134,8 +152,10 @@ export default {
       googleBtn.html('Opening..')
       setTimeout(()=> {
         googleBtn.html('Google')
+        let slang = this.currentItem.lang.split(" -> ")[0]
+        let tlang = this.currentItem.lang.split(" -> ")[1]
         window.open(
-          'https://translate.google.cn/#view=home&op=translate&sl=en&tl=zh-CN&text='+c
+          'https://translate.google.cn/#view=home&op=translate&sl='+slang+'&tl='+tlang+'&text='+encodeURIComponent(c)
         )
       }, 500)
     },
@@ -172,19 +192,14 @@ export default {
       obj.status = this.currentItem.status
       // console.log(obj);
       this.$http.post("/api/translate/translate",qs.stringify(obj)).then(response=>{
-        this.$notify({
-          title: 'Notice',
-          message: 'Save successfully!',
-          type: 'success'
-        })
         setTimeout(()=>{
           if(this.$route.path==='/ontrans'){
             this.$store.state.taskList.Untranslated_nums -= 1
-            this.$router.push("/translationlist")
+            this.$router.push("/translation")
           }
           if(this.$route.path==='/retrans'){
             this.$store.state.taskList['Re_translated_nums'] -= 1
-            this.$router.push("/retranslationlist")
+            this.$router.push("/retranslation")
           }
         }, 500)
       })

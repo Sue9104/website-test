@@ -79,6 +79,95 @@ class StatisticController extends Controller{
 		
 	}
 
+	public function Products_Conflict(Request $request){// query allocation of product list
+
+		$user = Auth::user();
+		$user_id = $user->id;
+		$users_name = $user->name;
+
+		$product_name = $request->get('product_name');
+		$page=$request->get('page',1);
+		$count=$request->get('count',10);
+		$priority = $request->get('priority');
+		
+		$where[] = array('product.users_name','=',$users_name);
+		if(!empty($product_name)){
+            $where[] = array('product','like','%'.$product_name.'%');
+        }
+        if(!empty($priority)){
+        	$where[] = array('priority','=',$priority);
+        }
+		$product_get =  Product::where($where)
+				->paginate($count,['*'],'page',$page)
+				->toArray();
+		//get product_get_id as array
+		$i = 0;
+		$product_id_array = array();
+	    while ( $i < count($product_get['data'])) {
+	       	$product_id_array[] = $product_get['data'][$i]['id'];
+	        $i++;
+	    }
+	    //get total_nums
+	    $Count_status = array();
+	    $where[] = array('translate_approve.advise_user','<>',NULL);
+	    if(!empty($product_id_array)){
+		    $Count_total = Translate_approve::select(DB::raw("count(translate_approve.id) as nums"))
+		    				->addselect('translate_approve.product_id')
+		    				->join('product','product.id','=','translate_approve.product_id')
+			           		->where($where)
+			            	->whereIn('product.id',$product_id_array)
+			            	->groupBy('translate_approve.product_id')
+			            	->get()
+			            	->toArray();
+
+			$where[] = array('translate_approve.conflict','=',1);
+        	$where[] = array('translate_approve.status','=','Qualified');
+			
+			$Count_task = Translate_approve::select(DB::raw("count(translate_approve.id) as nums"))
+		    				->addselect('translate_approve.product_id')
+		    				->join('product','product.id','=','translate_approve.product_id')
+			           		->where($where)
+			            	->whereIn('product.id',$product_id_array)
+			            	->groupBy('translate_approve.product_id')
+			            	->get()
+			            	->toArray();
+		}
+		
+		$static = array();
+		if(!empty($Count_total)){
+			foreach ($Count_total as $key => $value) {
+			    $static[$value['product_id']]['total_conflict'] = $value['nums'];			     
+			}
+		}
+
+		$static_t = array();
+		if(!empty($Count_task)){
+			foreach ($Count_task as $key_t => $value_t) {
+			    $static_t[$value_t['product_id']]['task_conflict'] = $value_t['nums'];			     
+			}
+		}
+
+
+		//logic
+		if(!empty($product_get['data'])){
+			foreach ($product_get['data'] as $key_data => $value_data) {
+				if(array_key_exists($value_data['id'],$static)){
+					$product_get['data'][$key_data]['total_conflict'] = $static[$value_data['id']]['total_conflict'];
+				}else{
+					$product_get['data'][$key_data]['total_conflict'] = 0;
+				}
+				if(array_key_exists($value_data['id'],$static_t)){
+					$product_get['data'][$key_data]['task_conflict'] = $static_t[$value_data['id']]['task_conflict'];
+				}else{
+					$product_get['data'][$key_data]['task_conflict'] = 0;
+				}
+			}
+		}
+
+		return response()->json(['result' => $product_get], 200);
+
+	}
+
 	public function Accout_list_p(Request $request){
 
 		$validator = Validator::make($request->all(), [
@@ -275,7 +364,7 @@ class StatisticController extends Controller{
 		            ->groupBy('translate_approve.status','translate_approve.approve_users_name')
 		            ->get()
 		            ->toArray();
-		
+
 		if(!empty($static_a_get)){
 			foreach ($static_a_get as $key_a => $value_a) {
 				if($value_a['approve_users_name'] === NULL){
@@ -284,7 +373,7 @@ class StatisticController extends Controller{
 					$static_a[$value_a['approve_users_name']][$value_a['status']] = $value_a['nums'];
 				}			
 			}
-
+			
 			foreach ($static_a as $key_aa => $value_aa) {
 				if($key_aa === 'Unreviewed'){
 					continue;

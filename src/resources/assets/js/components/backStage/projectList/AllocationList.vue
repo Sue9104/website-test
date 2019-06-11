@@ -1,13 +1,12 @@
 <template>
   <div id="missionListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/projectlist' }">Project List</el-breadcrumb-item>
-      <el-breadcrumb-item>Allocation List</el-breadcrumb-item>
+      <el-breadcrumb-item>Assignment</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
         <el-form :inline="true" :model="searchForm" ref="searchForm" :rules="rules" label-position="left" class="demo-form-inline" size="small">
-          <el-form-item label="Project Name:" v-if="!$route.query.id">
+          <el-form-item label="Project Name:">
             <div class="searchInp">
               <el-input v-model.trim="searchForm.product_name" placeholder="plese enter project name"></el-input>
             </div>
@@ -45,6 +44,8 @@
             </ol>
           </template>
         </el-table-column>
+        <el-table-column prop="product" label="Project Name" align="center">
+        </el-table-column>
         <el-table-column prop="key" label="Keywords" align="center">
         </el-table-column>
         <el-table-column prop="lang" label="Language" align="center">
@@ -60,16 +61,16 @@
         </el-table-column>
         <el-table-column label="Operation" align="center">
           <template slot-scope="scope">
-            <el-button type="text" size="medium" title="submit" @click="submit(scope.row)" icon="el-icon-upload" v-if="scope.row.status==='Unassigned'">Allocate</el-button>
+            <el-button type="text" size="medium" title="submit" @click="submit(scope.row)" v-if="scope.row.status==='Unassigned'">Assign</el-button>
             <!--<el-button type="text" size="medium" title="remove" @click="deleteCurrent(scope.row)" icon="el-icon-delete">Delete</el-button>-->
           </template>
         </el-table-column>
       </el-table>
       <div id="batchSelected">
         {{multipleSelection.length}} {{multipleSelection.length>1?'entries':'entry'}} selected
-        <el-button type="text" @click="batchSubmitOpen">Bulk Allocation</el-button>
+        <el-button type="text" style="color:rgb(255, 208, 75);" @click="batchSubmitOpen">Bulk Allocation</el-button>
       </div>
-      <el-pagination background  @current-change="handleCurrentChange" :current-page="currentPage" @size-change="handleSizeChange" :page-sizes="[10, 50, 100, 200, 500]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background  @current-change="handleCurrentChange" :current-page="currentPage" @size-change="handleSizeChange" :page-sizes="[10, 20, 50, 100, 200]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
       <el-dialog
       title="Confirm"
@@ -103,6 +104,7 @@ export default {
         resolve()
       })
     }).then(()=>{
+      // this.onSearch()
       this.$http.post("/api/translate/list",qs.stringify({product_id:this.$route.query.id||'',status:'Unassigned'})).then(response=>{
         response.data.data.forEach(item=>{
           this.$set(item,'translate_users_name',"")
@@ -296,6 +298,7 @@ export default {
     },
     handleSizeChange(size){
       this.pageSize = size
+      this.currentPage = 1
       this.handleCurrentChange(this.currentPage)
     },
     handleCurrentChange(val) {
@@ -305,7 +308,7 @@ export default {
       // this.currentPageTable = this.missionListTable.slice((this.currentPage-1)*this.pageSize,this.currentPage*this.pageSize);
       this.loading = true
       if(this.searchFlag){
-        this.$http.post("/api/translate/list",qs.stringify({product_id:this.$route.query.id,product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:this.currentPage,count:this.pageSize})).then(response=>{
+        this.$http.post("/api/translate/list",qs.stringify({product_id:this.$route.query.id||'',product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:this.currentPage,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           response.data.data.forEach(item=>{
           this.$set(item,'translate_users_name',"")

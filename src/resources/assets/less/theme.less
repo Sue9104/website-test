@@ -59,11 +59,12 @@
 }
 
 footer {
-  height: 100px;
-  line-height: 100px;
+  height: 40px;
+  line-height: 40px;
   text-align: center;
   color: #728398;
   background-color: #27374d;
+  opacity: 0.5;
 }
 
 
@@ -466,19 +467,18 @@ ul {
   #projectDetailCon {
     .el-card {
       >.el-card__header {
-        // height: 60px;
       }
 
       >.el-card__body {
-        // height: 200px;
         overflow-y: auto;
         padding: 10px 20px;
       }
     }
     .box-card {
       width:95%;
-      min-height: 260px;
+      min-height: 160px;
       margin: 10px;
+      padding-bottom: 10px;
       display: inline-block;
 
       .el-form-item {
@@ -515,32 +515,42 @@ ul {
       .el-form-item__label{
         font-weight: bold;
       }
+      .infoItemCon{
 
-      .infoItem {
-        >span {
-          font-weight: bold;
-          line-height: 20px;
+        .infoItem {
+          width:49%;
+          display: inline-block;
+          >span {
+            font-weight: bold;
+            line-height: 20px;
+          }
         }
+      }
 
-        .progressItem {
-          >.el-progress {
-            width: 70%;
-            display: inline-block;
-            .el-progress-bar__innerText{
-              font-size:10px;
-            }
+      
+      .progressItem {
+        padding-bottom:20px;
+        >.el-progress {
+          width: 70%;
+          display: inline-block;
+          .el-progress-bar__innerText{
+            font-size:10px;
           }
         }
       }
       .recordListCon{
-        padding-top:10px;
+        padding-top:20px;
         .versionHistoryItem {
-          padding: 0 15px;
+          padding: 6px 30px;
           cursor: pointer;
 
           &:hover {
             color: @themeColor;
           }
+        }
+        .el-pagination{
+          float:none;
+          padding-left: 20px;
         }
       }
     }
@@ -609,11 +619,13 @@ ul {
 }
 
 
-// OnTrans.vue & BrowApprovalItem.vue & BrowHistoryItem.vue & ViewDetail.vue
+// ViewObjection.vue OnTrans.vue & BrowApprovalItem.vue & BrowHistoryItem.vue & ViewDetail.vue
+#objectionItemMain,
 #onTransTaskMain,
 #approvalItemMain,
 #historyItemMain,
 #viewDetailItemMain {
+  #objectionItemCon,
   #onTransCon,
   #approvalItemCon,
   #historyItemCon,
@@ -624,11 +636,25 @@ ul {
       padding: 0 15px;
       margin: 5px 0 5px 10px;
     }
-
+    
+    #objectionItemBox,
     #transBox,
     #approvalItemBox,
     #historyItemBox,
     #viewDetailItemBox {
+      .boxTitleCon{
+        p{
+          width: 47%;
+          text-align: center;
+          font-weight:bold;
+          display: inline-block;
+          margin: 15px 5px 0;
+          padding: 0 5px;
+        }
+      }
+      .st_con{
+        display: flex;
+      }
       .boxCard {
         position: relative;
         display: inline-block;
@@ -639,7 +665,13 @@ ul {
         padding: 5px;
 
         .el-card__body {
-
+          height:100%;
+          .el-textarea{
+            height:100%;
+            >textarea{
+              height:100%;
+            }
+          }
           .rawDataText,
           .afterDataText {
             width: 100%;
@@ -649,23 +681,25 @@ ul {
           .btnCon {
             text-align: center;
             margin-top: 5px;
-            float: right;
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
           }
         }
       }
     }
 
-    .source {
-      padding: 0 20px 10px 20px;
-      border-bottom: 1px dashed #ccc;
-      cursor: pointer;
-      font-weight: bold;
-    }
+    // .source {
+    //   padding: 0 20px 10px 20px;
+    //   border-bottom: 1px dashed #ccc;
+    //   cursor: pointer;
+    //   font-weight: bold;
+    // }
 
-    .target {
-      padding: 10px 20px 0px 20px;
-      font-weight: bold;
-    }
+    // .target {
+    //   padding: 10px 20px 0px 20px;
+    //   font-weight: bold;
+    // }
   }
 }
 
@@ -679,32 +713,13 @@ ul {
   }
 }
 
-#versionList {
-  margin-bottom: 10px;
-
-  li {
-    padding: 10px 0 2px;
-    border-bottom: 1px dashed #ccc;
-
-    &:hover {
-      cursor: pointer;
-      color: @themeColor;
-      border-bottom-color: @themeColor;
-    }
-    .versionNameCon{
-      font-weight:bold;
-    }
-    .versionIdCon{
-      font-size:12px;
-      // color:#ccc;
-    }
-    // >span:hover {
-    //   cursor: pointer;
-    //   color: @themeColor;
-    //   border-bottom-color: @themeColor;
-    // }
+.timestampCon{
+  cursor:pointer;
+  &:hover{
+    color:@themeColor;
   }
 }
+
 
 .requestLoadingCon {
   font-size: 16px;

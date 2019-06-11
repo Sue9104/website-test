@@ -19,6 +19,7 @@ use App\Models\Translate_approve;
 use App\Models\Product;
 use App\Models\Export_version;
 use App\Models\Version;
+use App\Models\Advices;
 
 
 class ViewedController extends Controller 
@@ -96,7 +97,7 @@ class ViewedController extends Controller
             }
         }
 
-        return Version::select('version.id','version.version_id','version_name')
+        return Version::select('version.id','version.version_id','version_name','version.created_at')
         					->where('version.product_id',$input['product_id'])
                             ->leftjoin('export_version','version.version_id','=','export_version.version_id')	
         					->groupBy('version.version_id')
@@ -256,13 +257,60 @@ class ViewedController extends Controller
         }
         //logic processing
         $t_appove_id = $items_find[0]['t_appove_id'];
-        $items_update = Translate_approve::where('id',$t_appove_id)->update(['conflict'=>1,'objection'=>$input['objection']]);
+        $items_update = Translate_approve::where('id',$t_appove_id)->update(['conflict'=>1,'objection'=>$input['objection'],'advise_user'=>$users_name]);
+
+        $insert_advices = new Advices;
+        $insert_advices->t_app_id = $t_appove_id;
+        $insert_advices->user_name = $users_name;
+        $insert_advices->objection = $input['objection'];
+        $insert_advices->save();
+
         if($items_update){
             return response()->json(['success' => 'Successful'], 200);           
         }else{
             return response()->json(['error' => 'Failed'], 200);
         }
         
+
+    }
+
+    public function list_conflict_mine(Request $request){
+
+        //get data
+        $page=$request->get('page',1);
+        $count=$request->get('count',10);
+     
+        //$status = $request->get('status');
+        $key = $request->get('key');
+        $id = $request->get('id');
+        $product_name = $request->get('product_name');
+        //get permission by user 
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+ 
+        //below
+        $where[] = array('advices.user_name','=',$users_name);     
+        //conflict is 1 and status is Qualified             
+        //other conditions 
+        if(!empty($id)){
+            $where[] = array('advices.id','=',$id);
+        }
+        if(!empty($key)){
+            $where[] = array('translate_approve.key','like','%'.$key.'%');
+        }
+        if(!empty($product_name)){
+            $where[] = array('product.product','like','%'.$product_name.'%');
+        }
+        
+        return Advices::select('translate_approve.id','translate_approve.key','translate_approve.translate')
+                ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')//
+                ->addselect('product.lang','product.product')//product
+                ->addselect('advices.id','advices.user_name','advices.objection','advices.created_at')//advices
+                ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
+                ->join('product','translate_approve.product_id','=','product.id')
+                ->where($where)
+                ->paginate($count,['*'],'page',$page);
 
     }
 

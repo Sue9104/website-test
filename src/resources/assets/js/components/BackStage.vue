@@ -19,6 +19,7 @@
             <el-dropdown-item>
               <div size="small" @click="myDetail">My Profile</div>
             </el-dropdown-item>
+            <el-dropdown-item @click.native="help">Help</el-dropdown-item>
             <el-dropdown-item @click.native="logOut">Exit</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -36,53 +37,61 @@
                 <span>Project Management</span>
               </template>
               <el-menu-item index="projectlist" @click="selectMenu('projectlist')">
-                <span slot="title" id="projectlist">Project List</span>
+                <span slot="title" id="projectlist">Overview</span>
               </el-menu-item>
-              <el-menu-item index="allocationlist" @click="selectMenu('allocationlist')">
-                <span slot="title" id="allocationlist">Allocation List</span>
+              <el-menu-item index="assignment" @click="selectMenu('assignment')">
+                <span slot="title" id="assignment">Assignment</span>
               </el-menu-item>
-              <el-menu-item index="objectionlist" @click="selectMenu('objectionlist')">
-                <span slot="title" id="objectionlist">Objection List</span>
+              <el-menu-item index="feedback" @click="selectMenu('feedback')">
+                <span slot="title" id="feedback">Feedback</span>
               </el-menu-item>
             </el-submenu>
             <el-submenu index="translationManagement" v-if="role=='1'">
               <template slot="title">
                 <span>Translation Management</span>
               </template>
-              <el-menu-item index="t_overviewlist" @click="selectMenu('t_overviewlist')">
-                <span slot="title" id="t_overviewlist">Overview</span>
+              <el-menu-item index="t_overview" @click="selectMenu('t_overview')">
+                <span slot="title" id="t_overview">Overview</span>
               </el-menu-item>
-              <el-menu-item index="translationlist" @click="selectMenu('translationlist')">
-                <span slot="title" id="translationlist">Translation List</span>
+              <el-menu-item index="translation" @click="selectMenu('translation')">
+                <span slot="title" id="translation">Translation</span>
               </el-menu-item>
-              <el-menu-item index="retranslationlist" @click="selectMenu('retranslationlist')">
-                <span slot="title" id="retranslationlist">Re-translation List</span>
+              <el-menu-item index="retranslation" @click="selectMenu('retranslation')">
+                <span slot="title" id="retranslation">Re-translation</span>
               </el-menu-item>
-              <el-menu-item index="t_historylist" @click="selectMenu('t_historylist')">
-                <span slot="title" id="t_historylist">History List</span>
+              <el-menu-item index="t_history" @click="selectMenu('t_history')">
+                <span slot="title" id="t_history">History</span>
               </el-menu-item>
             </el-submenu>
-            <el-submenu index="approvalManagement" v-if="role=='1'">
+            <el-submenu index="reviewManagement" v-if="role=='1'">
               <template slot="title">
-                <span>Approval management</span>
+                <span>Review Management</span>
               </template>
-              <el-menu-item index="a_overviewlist" @click="selectMenu('a_overviewlist')">
-                <span slot="title" id="a_overviewlist">Overview</span>
+              <el-menu-item index="a_overview" @click="selectMenu('a_overview')">
+                <span slot="title" id="a_overview">Overview</span>
               </el-menu-item>
-              <el-menu-item index="approvallist" @click="selectMenu('approvallist')">
-                <span slot="title" id="approvallist">approval List</span>
+              <el-menu-item index="review" @click="selectMenu('review')">
+                <span slot="title" id="review">Review</span>
               </el-menu-item>
-              <el-menu-item index="a_historylist" @click="selectMenu('a_historylist')">
-                <span slot="title" id="a_historylist">History List</span>
+              <el-menu-item index="a_history" @click="selectMenu('a_history')">
+                <span slot="title" id="a_history">History</span>
               </el-menu-item>
             </el-submenu>
-            <el-menu-item index="viewlist" @click="selectMenu('viewlist')" v-if="role=='1'">
-              <span slot="title" id="viewlist">View List</span>
-            </el-menu-item>
-            <el-menu-item index="personalstatistics" @click="selectMenu('personalstatistics')" v-if="role=='1'">
+            <el-submenu index="viewManagement" v-if="role=='1'">
+              <template slot="title">
+                <span>Released Projects</span>
+              </template>
+              <el-menu-item index="viewlist" @click="selectMenu('viewlist')">
+                <span slot="title" id="viewlist">Projects</span>
+              </el-menu-item>
+              <el-menu-item index="v_history" @click="selectMenu('v_history')">
+                <span slot="title" id="v_history">Suggestion</span>
+              </el-menu-item>
+            </el-submenu>
+            <!--<el-menu-item index="personalstatistics" @click="selectMenu('personalstatistics')" v-if="role=='1'">
               <span slot="title" id="personalstatistics">Personal Statistics</span>
             </el-menu-item>
-            <!--<el-menu-item index="selfuserinfo" @click="selectMenu('selfuserinfo')" >
+            <el-menu-item index="selfuserinfo" @click="selectMenu('selfuserinfo')" >
               <span slot="title">Personal Information</span>
             </el-menu-item>-->
             <el-menu-item index="userinfo" @click="selectMenu('userinfo')" v-if="role=='2'">
@@ -118,8 +127,8 @@
     <el-dialog width="40%" title="My Profile" :visible.sync="myProfileOuterVisible" :close-on-click-modal="false">
       <p><span>Name: </span><span style="font-weight:bold;">{{personalInfo.name}}</span></p>
       <p><span>Email: </span><span style="font-weight:bold;">{{personalInfo.email}}</span></p>
-      <p v-if="role=='1'">
-        <el-button type="primary" size="small" @click="innerVisible = true">Modify password</el-button>
+      <p>
+        <el-button type="primary" size="small" @click="innerVisible = true">Change Password</el-button>
       </p>
       
       <el-dialog width="40%" title="Modify Password" :visible.sync="innerVisible" :close-on-click-modal="false" append-to-body>
@@ -145,11 +154,11 @@
     </el-dialog>
     <div id="taskListCon" v-if="role!=2">
       <el-card class="box-card" v-show="taskVisibleFlag" style="text-align:left;">
-        <div class="per_task" @click="$router.push('/allocationlist')">Unallocated: <b>{{$store.state.taskList.Unassigned_nums}}</b></div>
-        <div class="per_task" @click="$router.push('/objectionlist')">Conflict: <b>{{$store.state.taskList.Conflict_nums}}</b></div>
-        <div class="per_task" @click="$router.push('/translationlist')">Untranslated: <b>{{$store.state.taskList.Untranslated_nums}}</b></div>
-        <div class="per_task" @click="$router.push('/retranslationlist')">Retranslated: <b>{{$store.state.taskList['Re_translated_nums']}}</b></div>
-        <div class="per_task" @click="$router.push('/approvallist')">Unreviewed: <b>{{$store.state.taskList.Approve_nums}}</b></div>
+        <div class="per_task" @click="$router.push('/assignment')">Unassigned: <b>{{$store.state.taskList.Unassigned_nums}}</b></div>
+        <div class="per_task" @click="$router.push('/translation')">Untranslated: <b>{{$store.state.taskList.Untranslated_nums}}</b></div>
+        <div class="per_task" @click="$router.push('/retranslation')">Retranslated: <b>{{$store.state.taskList['Re_translated_nums']}}</b></div>
+        <div class="per_task" @click="$router.push('/Review')">Unreviewed: <b>{{$store.state.taskList.Approve_nums}}</b></div>
+        <div class="per_task" @click="$router.push('/feedback')">suggested: <b>{{$store.state.taskList.Conflict_nums}}</b></div>
       </el-card>
       <el-button round size="small" type="warning" @click="taskVisibleFlag=!taskVisibleFlag">My Task<el-badge :value="$store.state.taskList.Unassigned_nums+$store.state.taskList.Conflict_nums+$store.state.taskList.Untranslated_nums+$store.state.taskList['Re_translated_nums']+$store.state.taskList.Approve_nums" :max="99" v-show="$store.state.taskList.Unassigned_nums+$store.state.taskList.Conflict_nums+$store.state.taskList.Untranslated_nums+$store.state.taskList['Re_translated_nums']+$store.state.taskList.Approve_nums>0"></el-badge></el-button>
     </div>
@@ -175,11 +184,13 @@ export default {
     $('#asideUl').css('minHeight', winHeight - headerHeight + 'px')
     $('#main').css('minHeight', winHeight - headerHeight - footerHeight + 'px')
 
-    this.myMessage()
-    // // 启动任务检查定时器
-    this.$taskListTimer = setInterval(() => {
+    if(this.role!=2){
       this.myMessage()
-    }, 60000)
+      // 启动任务检查定时器
+      this.$taskListTimer = setInterval(() => {
+        this.myMessage()
+      }, 60000)
+    }
 
   },
   beforeDestroy() {
@@ -207,7 +218,7 @@ export default {
       loginEmail: this.$cookies.get('email').split('@')[0],
       currentLoginID:this.$cookies.get('ID'),
       exitModal: false,
-      asidedefaultOpened: ['projectManagement','translationManagement','approvalManagement'],
+      asidedefaultOpened: ['projectManagement','translationManagement','reviewManagement','viewManagement'],
       // taskVisible: false,
       taskVisibleFlag:false,
       myProfileOuterVisible: false,
@@ -308,6 +319,10 @@ export default {
     resetPassForm(formName) {
       this.$refs[formName].resetFields();
     },
+    help(){
+      window.open('/help/index.html','_blank')
+      // window.open('','_blank').location.href = response.data.require
+    },
     //退出登录
     logOut() {
       this.$confirm('Confirm to log out?', 'Confirm', {
@@ -330,7 +345,7 @@ export default {
       switch (index) {
         case 'dashboard':
           // this.$store.state.translateSearchForm = {}
-          this.$router.push('/dashboard')
+          this.$router.push('/dashboard?tab='+(this.$route.query.tab||'allocation'))
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 0) {
               $(ele).css({'color': '#fff'}).children().css('color', '#fff')
@@ -370,8 +385,8 @@ export default {
             }
           })
           break
-        case 'allocationlist':
-          !this.$route.query.id?this.$router.push('/allocationlist'):this.$router.push('/allocationlist?id='+this.$route.query.id)
+        case 'assignment':
+          !this.$route.query.name?this.$router.push('/assignment'):this.$router.push('/assignment?id='+this.$route.query.id+'&name='+this.$route.query.name)
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 2) {
               $(ele).css({'color': '#fff'}).children().css('color', '#fff')
@@ -380,10 +395,10 @@ export default {
             }
           })
           break
-        case 'objectionlist':
+        case 'feedback':
           // this.$store.state.missionSearchForm = {}
-          !this.$route.query.id?this.$router.push('/objectionlist'):this.$router.push('/objectionlist?id='+this.$route.query.id)
-          // this.$router.push('/objectionlist')
+          !this.$route.query.name?this.$router.push('/feedback'):this.$router.push('/feedback?id='+this.$route.query.id+'&name='+this.$route.query.name)
+          // this.$router.push('/feedback')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 3) {
               $(ele).css({'color': '#fff'}).children().css('color', '#fff')
@@ -392,7 +407,7 @@ export default {
             }
           })
           break
-        case 'viewobjection':
+        case 'viewfeedback':
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 3) {
               $(ele).css({'color': '#fff'}).children().css('color', '#fff')
@@ -401,8 +416,8 @@ export default {
             }
           })
           break
-        case 't_overviewlist':
-          this.$router.push('/t_overviewlist')
+        case 't_overview':
+          this.$router.push('/t_overview')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 4) {
               $(ele).css({'color': '#fff'}).children().css('color', '#fff')
@@ -411,8 +426,8 @@ export default {
             }
           })
           break
-          case 'translationlist':
-          !this.$route.query.name?this.$router.push('/translationlist'):this.$router.push('/translationlist?name='+this.$route.query.name)
+          case 'translation':
+          !this.$route.query.name?this.$router.push('/translation'):this.$router.push('/translation?name='+this.$route.query.name)
           // this.$router.push('/translationlist')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 5) {
@@ -431,8 +446,8 @@ export default {
             }
           })
           break
-        case 'retranslationlist':
-          !this.$route.query.name?this.$router.push('/retranslationlist'):this.$router.push('/retranslationlist?name='+this.$route.query.name)
+        case 'retranslation':
+          !this.$route.query.name?this.$router.push('/retranslation'):this.$router.push('/retranslation?name='+this.$route.query.name)
           // this.$router.push('/retranslationlist')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 6) {
@@ -452,9 +467,9 @@ export default {
             }
           })
           break
-        case 't_historylist':
+        case 't_history':
           // this.$store.state.translateSearchForm = {}
-          this.$router.push('/t_historylist')
+          this.$router.push('/t_history')
           // this.asidedefaultOpened.push('translationManagement')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 7) {
@@ -466,7 +481,7 @@ export default {
           break
         case 't_browhistoryitem':
           // this.$store.state.translateSearchForm = {}
-          this.$router.push('/t_browhistoryitem')
+          // this.$router.push('/t_browhistoryitem')
           // this.asidedefaultOpened.push('translationManagement')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 7) {
@@ -476,9 +491,9 @@ export default {
             }
           })
           break
-        case 'a_overviewlist':
+        case 'a_overview':
           // this.$store.state.translateSearchForm = {}
-          this.$router.push('/a_overviewlist')
+          this.$router.push('/a_overview')
           // this.asidedefaultOpened.push('translationManagement')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 8) {
@@ -488,9 +503,9 @@ export default {
             }
           })
           break
-        case 'approvallist':
-          !this.$route.query.name?this.$router.push('/approvallist'):this.$router.push('/approvallist?name='+this.$route.query.name)
-          // this.$router.push('/approvallist')
+        case 'review':
+          !this.$route.query.name?this.$router.push('/review'):this.$router.push('/review?name='+this.$route.query.name)
+          // this.$router.push('/review')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 9) {
               $(ele).css('color', '#fff').children().css('color', '#fff')
@@ -499,8 +514,8 @@ export default {
             }
           })
           break
-        case 'browapprovalitem':
-          // this.asidedefaultOpened.push('approvalManagement')
+        case 'browreviewitem':
+          // this.asidedefaultOpened.push('reviewManagement')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 9) {
               $(ele).css('color', '#fff').children().css('color', '#fff')
@@ -509,9 +524,9 @@ export default {
             }
           })
           break
-        case 'a_historylist':
-          // this.asidedefaultOpened.push('approvalManagement')
-          this.$router.push('/a_historylist')
+        case 'a_history':
+          // this.asidedefaultOpened.push('reviewManagement')
+          this.$router.push('/a_history')
           // this.$store.state.approveSearchForm = {}
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 10) {
@@ -522,8 +537,8 @@ export default {
           })
           break
         case 'a_browhistoryitem':
-          // this.asidedefaultOpened.push('approvalManagement')
-          this.$router.push('/a_browhistoryitem')
+          // this.asidedefaultOpened.push('reviewManagement')
+          // this.$router.push('/a_browhistoryitem')
           // this.$store.state.approveSearchForm = {}
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 10) {
@@ -567,8 +582,10 @@ export default {
             }
           })
           break
-        case 'personalstatistics':
-          this.$router.push('/personalstatistics?sta_pane='+(this.$route.query.sta_pane||'translator'))
+        case 'v_history':
+          // this.$store.state.approveSearchForm = {}
+          this.$router.push('/v_history')
+          // this.asidedefaultOpened.push('transManage')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
             if (i != 12) {
               $(ele).css('color', '#fff').children().css('color', '#fff')
@@ -577,6 +594,28 @@ export default {
             }
           })
           break
+          case 'v_browhistoryitem':
+          // this.$store.state.approveSearchForm = {}
+          // this.$router.push('/v_browhistoryitem')
+          // this.asidedefaultOpened.push('transManage')
+          $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
+            if (i != 12) {
+              $(ele).css('color', '#fff').children().css('color', '#fff')
+            }else{
+              $(ele).css('color', '#ffd04b').children().css('color', '#ffd04b')
+            }
+          })
+          break
+        // case 'personalstatistics':
+        //   this.$router.push('/personalstatistics?sta_pane='+(this.$route.query.sta_pane||'translator'))
+        //   $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {
+        //     if (i != 13) {
+        //       $(ele).css('color', '#fff').children().css('color', '#fff')
+        //     }else{
+        //       $(ele).css('color', '#ffd04b').children().css('color', '#ffd04b')
+        //     }
+        //   })
+        //   break
         case 'userinfo':
           this.$router.push('/userinfo')
           $('.el-menu-vertical-demo .el-menu-item').each(function(i, ele) {

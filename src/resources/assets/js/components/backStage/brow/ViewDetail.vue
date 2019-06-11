@@ -1,8 +1,8 @@
 <template>
   <div id="viewDetailItemMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/viewlist'}">View List</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/viewentry',query:{id:$route.query.id} }">Entry List</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/viewlist'}">Released Projects</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/viewentry',query:{id:$route.query.id} }">Entry</el-breadcrumb-item>
       <el-breadcrumb-item>View</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="viewDetailItemCon">
@@ -11,11 +11,16 @@
         <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
         <el-tag type="info">Status:{{currentItem.status}}</el-tag>
         <el-tag type="info">Version:{{currentItem.version_name}}</el-tag>
-        <el-button type="warning" size="small" id="objectionBtn" @click='openAgreeModal' v-if="!currentItem.objection&&(this.newest_version_name===currentItem.version_name)">Objection</el-button>
-        <span style="font-size:12px;color:orange;margin-left:10px;">Tips: Only object to the latest version.</span>
+        <el-button type="warning" size="small" id="objectionBtn" @click='openAgreeModal' v-if="(currentItem.conflict===0)&&(this.newest_version_name===currentItem.version_name)">Suggestion</el-button>
+        <span style="font-size:14px;color:red;margin-left:10px;" v-if="(currentItem.conflict===1)&&(this.newest_version_name===currentItem.version_name)">Suggestion is under review...</span>
+        <span style="font-size:12px;color:orange;margin-left:10px;" v-if="!(this.newest_version_name===currentItem.version_name)">Tips: Only object to the latest version.</span>
       </div>
       <div id="viewDetailItemBox">
-         <div>
+        <div class='boxTitleCon'>
+          <p>Source</p>
+          <p>Translation</p>
+        </div>
+        <div class="st_con">
           <el-card class="boxCard">
             <div id="rawDataText1" class="rawDataText">{{Object.keys(JSON.parse(currentItem.key)[0])[0]}}</div>
           </el-card>
@@ -23,7 +28,7 @@
             <div id="rawDataText1" class="rawDataText">{{JSON.parse(currentItem.key)[0][Object.keys(JSON.parse(currentItem.key)[0])[0]]}}</div>
           </el-card>
         </div>
-        <div v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2">
+        <div v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2" class="st_con">
           <el-card class="boxCard">
             <div :id="'rawDataText'+(index+2)" class="rawDataText">{{Object.keys(item)[0]}}</div>
             </el-card>
@@ -62,7 +67,6 @@ export default {
   },
   data() {
     return {
-      activeName: 1,
       currentItem: {
         key:'[{}]',
         translate:'[{}]'

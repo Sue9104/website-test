@@ -16,6 +16,7 @@ use App\Models\Translate_in;
 use App\Models\Translate_job;
 use App\Models\Translate_approve;
 use App\Models\Product;
+use Illuminate\Validation\Rule;
 
 class ApproveController extends Controller 
 {
@@ -146,6 +147,7 @@ class ApproveController extends Controller
 
         $validator = Validator::make($request->all(), [
             'product_id' => 'present',
+            'is_done' => ['required',Rule::in([0,1])],
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
@@ -153,6 +155,7 @@ class ApproveController extends Controller
         $input = $request->all();
 
         $product_id = $input['product_id'];
+        $is_done = $input['is_done'];
         //get data
         $page=$request->get('page',1);
         $count=$request->get('count',10);
@@ -180,10 +183,14 @@ class ApproveController extends Controller
         }else{
             $where[] = array('product.users_name','=',$users_name);
         }   
-        //below 
-        //conflict is 1 and status is Qualified      
-        $where[] = array('translate_approve.conflict','=',1);
-        $where[] = array('translate_approve.status','=','Qualified');
+        //below
+        if($is_done){//all 1
+            $where[] = array('translate_approve.advise_user','<>',NULL);
+        }else{//waiting 0
+            $where[] = array('translate_approve.conflict','=',1);
+            $where[] = array('translate_approve.status','=','Qualified');
+        }      
+        //conflict is 1 and status is Qualified             
         //other conditions 
         if(!empty($t_approve_id)){
             $where[] = array('translate_approve.id','=',$t_approve_id);

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 use App\Models\Product;
 use App\Models\Translate_in;
+use App\Models\Lang_code;
 //use App\Models\Role;
 use App\User;
 use Validator;
@@ -33,13 +34,17 @@ class ProductController extends Controller{
 		$page=$request->get('page',1);
 		$count=$request->get('count',10);
 		$priority = $request->get('priority');
-		
+		$deadline = $request->get('deadline');
+
 		$where[] = array('product.users_name','=',$users_name);
 		if(!empty($product_name)){
             $where[] = array('product','like','%'.$product_name.'%');
         }
         if(!empty($priority)){
         	$where[] = array('priority','=',$priority);
+        }
+        if(!empty($deadline)){
+        	$where[] = array('deadline','<=',$deadline);
         }
 		$product_get =  Product::where($where)
 				->paginate($count,['*'],'page',$page)
@@ -62,6 +67,7 @@ class ProductController extends Controller{
 			            	->get()
 			            	->toArray();
 		}
+		
 		$static = array();
 		if(!empty($Count_status)){
 			foreach ($Count_status as $key => $value) {
@@ -78,14 +84,15 @@ class ProductController extends Controller{
 			foreach ($product_get['data'] as $key_data => $value_data) {
 				if(array_key_exists($value_data['id'],$static)){
 					array_key_exists('Qualified',$static[$value_data['id']]) ? ($Qualified_nums_p = $static[$value_data['id']]['Qualified']) : ($Qualified_nums_p = 0);
+					array_key_exists('Unassigned',$static[$value_data['id']]) ? ($Unassigned_nums_p = $static[$value_data['id']]['Unassigned']) : ($Unassigned_nums_p = 0);
 			       	$Total_nums_p = $static[$value_data['id']]['total_nums'];
-			       	if($Qualified_nums_p === $Total_nums_p){
-			       		$product_get['data'][$key_data]['is_completed'] = 1;
-			       	}else{
-			       		$product_get['data'][$key_data]['is_completed'] = 0;
-			       	}
+			       	$product_get['data'][$key_data]['total_nums'] = $Total_nums_p;
+			       	$product_get['data'][$key_data]['Unassigned_nums'] = $Unassigned_nums_p;
+			       	$product_get['data'][$key_data]['Qualified_nums'] = $Qualified_nums_p;
 				}else{
-					$product_get['data'][$key_data]['is_completed'] = 1;
+					$product_get['data'][$key_data]['total_nums'] = 0;
+					$product_get['data'][$key_data]['Unassigned_nums'] = 0;
+					$product_get['data'][$key_data]['Qualified_nums'] = 0;					
 				}
 			}
 		}
@@ -132,7 +139,6 @@ class ProductController extends Controller{
         $Product->product_desc = $input['product_desc'];
 
         $res = $Product->save();
-
         /* $Role = new Role;
 
         $Role->users_id = $user->id;
@@ -142,12 +148,15 @@ class ProductController extends Controller{
         $res2 = $Role->save();
         ///when create a new project,should update the role table and return new permission
         $new_permission = uppermission_mem($user->id,$user->email);*/
-
+        $return = array();
         if($res){
-			return response()->json(['success' => 'Successful'], 200);
+        	$return['status'] = 'Successful';
+        	$return['product_id'] = $Product->id;
 		}else{
-			return response()->json(['error' => 'Failed'], 200);
+			$return['status'] = 'Failed';
+        	$return['product_id'] = NULL;
 		}
+		return response()->json(['result' => $return], 200);
 	}
 
 
@@ -284,6 +293,7 @@ class ProductController extends Controller{
             'attribute'=>['required',Rule::in(['public','private'])],
             'priority'=>['required',Rule::in([1,2,3])],
             'product_desc' => 'present',
+            'lang' => 'required',
         ]); 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 200);
@@ -296,6 +306,7 @@ class ProductController extends Controller{
         $priority = $input['priority'];
         $product = $input['product'];
         $product_desc = $input['product_desc'];
+        $lang = $input['lang'];
 
         $user = Auth::user();
         $uid = $user->id;
@@ -321,6 +332,9 @@ class ProductController extends Controller{
 		}
 		if($product_find->product_desc !== $product_desc){
 			$product_find->product_desc = $product_desc;
+		}
+		if($product_find->lang !== $lang){
+			$product_find->lang = $lang;
 		}
 
 		$res = $product_find->save();
@@ -363,6 +377,14 @@ class ProductController extends Controller{
 		}else{
 			return response()->json(['error' => 'Failed'], 200);
 		}
+	}
+
+	public function lang_list(Request $request){
+
+		$page=$request->get('page',1);
+		$count=$request->get('count',10);
+		return Lang_code::paginate($count,['*'],'page',$page);
+
 	}
 }
 

@@ -11,7 +11,7 @@
             <el-input v-model.trim="addProjectForm.product" placeholder="please enter project name"></el-input>
           </div>
         </el-form-item>
-        <el-form-item prop="attribute" label="Attribute">
+        <el-form-item prop="attribute" label="Visibility">
           <div class="namePwdInp">
             <el-radio-group v-model="addProjectForm.attribute">
               <el-radio label="public">Public</el-radio>
@@ -31,12 +31,18 @@
         <el-form-item prop="lang" label="Language">
           <div class="namePwdInp">
             <el-select v-model="addProjectForm.slang" style="width:49%" placeholder="source language">
-              <el-option label="ZH-CN" value="ZH-CN"></el-option>
-              <el-option label="EN" value="EN"></el-option>
+              <el-option v-for="item in langList" :key="item.code" :label="item.code" :value="item.code">
+                <span style="float: left">{{ item.code }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.language }}</span>
+              </el-option>
+              <el-pagination small layout="prev, pager, next" :current-page="langCurrentPage" @current-change="handleCurrentPage" :page-size="langPageSize" :total="langTotal"></el-pagination>
             </el-select>
             <el-select v-model="addProjectForm.tlang" style="width:49%" placeholder="target language">
-              <el-option label="ZH-CN" value="ZH-CN"></el-option>
-              <el-option label="EN" value="EN"></el-option>
+              <el-option v-for="item in langList" :key="item.code" :label="item.code" :value="item.code">
+                <span style="float: left">{{ item.code }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.language }}</span>
+              </el-option>
+              <el-pagination small layout="prev, pager, next" :current-page="langCurrentPage2" @current-change="handleCurrentPage2" :page-size="langPageSize2" :total="langTotal2"></el-pagination>
             </el-select>
           </div>
         </el-form-item>
@@ -52,14 +58,14 @@
             </el-select>
           </div>
         </el-form-item>
-        <el-form-item prop="approve_users" label="Approver">
+        <el-form-item prop="approve_users" label="Reviewer">
           <div class="namePwdInp">
             <el-select v-model="addProjectForm.approve_users" placeholder="please select approver" multiple @change="changeUser('a',$event)">
               <el-option v-for="(item,index) in userList" :key="'approver'+index" :label="item.name" :value="item.id" v-if="item.status==='a'||item.status===''"></el-option>
             </el-select>
           </div>
         </el-form-item>
-        <el-form-item label="Viewer">
+        <el-form-item  :prop="addProjectForm.attribute==='public'?'':'viewed_users'" label="Viewer">
           <div class="namePwdInp">
             <el-select v-model="addProjectForm.viewed_users" placeholder="please select viewer" multiple :disabled="addProjectForm.attribute==='public'" @change="changeUser('v',$event)">
               <el-option v-for="(item,index) in userList" :key="'Viewer'+index" :label="item.name" :value="item.id" v-if="item.status==='v'||item.status===''"></el-option>
@@ -84,6 +90,11 @@
 export default {
   mounted() {
     this.addProjectForm.product=this.$route.query.name||''
+    this.$http.post("/api/product/lang_list",qs.stringify({count:30})).then(response=>{
+      this.langList = response.data.data
+      this.langTotal = response.data.total
+      this.langTotal2 = response.data.total
+    })
     this.$http.post("/api/user/list").then(response=>{
       // console.log(response.data);
       response.data.data.forEach(item=>{
@@ -91,15 +102,14 @@ export default {
         item.status = ''
         this.userList.push(item)
       })
-      
     })
   },
   data() {
     const validateProject = (rule,value,callback)=>{
       // console.log(this)
-      let nameReg =  /^[A-Za-z0-9']{2,20}$|^[\u4e00-\u9fa5.']{2,20}$/;
+      let nameReg =  /^[A-Za-z0-9-.]{2,20}$|^[\u4e00-\u9fa50-9-.]{2,20}$/;
       if(!nameReg.test(value)){
-        callback(new Error("Supports Chinese, English, Number, etc.)"));
+        callback(new Error("Supports Chinese, English, Number, -, ., etc."));
       }else if(value.length<2){
         callback(new Error("Cannot be less than two characters in length."));
       }else if(value.length>20){
@@ -127,6 +137,13 @@ export default {
           return date && date.valueOf() <= Date.now();
         }
       },
+      langList:[],
+      langCurrentPage:1,
+      langPageSize:30,
+      langTotal:0,
+      langCurrentPage2:1,
+      langPageSize2:30,
+      langTotal2:0,
       userList:[],
       addProjectForm: {
         product: '',
@@ -185,6 +202,12 @@ export default {
             required: true,
             message: 'Please enter approver.'
           }
+        ],
+        viewed_users: [
+          {
+            required: true,
+            message: 'Please enter viewer.'
+          }
         ]
       }
     }
@@ -192,13 +215,13 @@ export default {
   watch:{
     'addProjectForm.slang':{
       handler(val,oldVal){
-        this.addProjectForm.lang = this.addProjectForm.slang+'->'+this.addProjectForm.tlang
+        this.addProjectForm.lang = this.addProjectForm.slang+' -> '+this.addProjectForm.tlang
       },
       deep:true
     },
     'addProjectForm.tlang':{
       handler(val,oldVal){
-        this.addProjectForm.lang = this.addProjectForm.slang+'->'+this.addProjectForm.tlang
+        this.addProjectForm.lang = this.addProjectForm.slang+' -> '+this.addProjectForm.tlang
       },
       deep:true
     },
@@ -290,6 +313,22 @@ export default {
     }
   },
   methods: {
+    handleCurrentPage(val){
+      // console.log(val)
+      this.langCurrentPage = val
+      this.$http.post("/api/product/lang_list",qs.stringify({page:val,count:this.langPageSize})).then(response=>{
+        this.langList = response.data.data
+        this.langTotal = response.data.total
+      })
+    },
+    handleCurrentPage2(val){
+      // console.log(val)
+      this.langCurrentPage2 = val
+      this.$http.post("/api/product/lang_list",qs.stringify({page:val,count:this.langPageSize2})).then(response=>{
+        this.langList = response.data.data
+        this.langTotal2 = response.data.total
+      })
+    },
     changeUser(mode,list){
       switch(mode){
         case 't':
@@ -329,7 +368,7 @@ export default {
             product:this.addProjectForm.product,
             attribute:this.addProjectForm.attribute,
             priority:this.addProjectForm.priority,
-            lang:this.addProjectForm.slang+'->'+this.addProjectForm.tlang,
+            lang:this.addProjectForm.slang+' -> '+this.addProjectForm.tlang,
             translate_users:JSON.stringify(this.addProjectForm.translate_users),
             approve_users:JSON.stringify(this.addProjectForm.approve_users),
             viewed_users:JSON.stringify(this.addProjectForm.viewed_users),
@@ -338,9 +377,11 @@ export default {
           }
           // console.log(obj);
           this.$http.post("/api/product/create",qs.stringify(obj)).then(response=>{
-            setTimeout(()=>{
-              this.$router.push('/projectlist')
-            },1500)
+            if(response.data.result.status==='Successful'){
+              this.$router.push('/projectdetail?id='+response.data.result.product_id+'&pane=upload')
+            }else{
+              this.$message.warning("Add failed!")
+            }
           })
         } else {
           // console.log('error submit!!')

@@ -149,6 +149,7 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
                 ->toArray();
 
         foreach ($this->invoices as $KEY => $VALUE) {
+
           $tmp_array = array();
 
           $tmp_array['ProjectName'] = $VALUE['product'];
@@ -169,9 +170,13 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
 
           $i = 1;
           foreach ($translate_array as $KEY_t => $VALUE_t) {//t and t_t
-            $tmp_array['Value'.$i] = array_keys($VALUE_t)[0];
-            $tmp_array['Value_translate'.$i] = array_values($VALUE_t)[0];
-            
+            if(empty($VALUE_t)){
+              $tmp_array['Value'.$i] = '';
+               $tmp_array['Value_translate'.$i] ='';
+            }else{
+              $tmp_array['Value'.$i] = array_keys($VALUE_t)[0];
+              $tmp_array['Value_translate'.$i] = array_values($VALUE_t)[0];
+            }                     
             $i++;
           }
 
@@ -184,7 +189,6 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
               }
           }
           
-
           $tmp_array['Status'] = $VALUE['status'];
           $tmp_array['Allocate_users_name'] = $VALUE['allocate_users_name'];
           $tmp_array['Translate_users_name'] = $VALUE['translate_users_name'];

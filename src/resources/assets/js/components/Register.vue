@@ -12,8 +12,8 @@
           <b-form-input id="emailRegister" type="email" v-model.trim="registerForm.email" :state="emailState" required placeholder="please enter E-mail">
           </b-form-input>
         </b-form-group>
-        <b-form-group label="Employee Name:" label-for="nameRegister">
-          <b-form-input id="nameRegister" v-model.trim="registerForm.name" :state="nameState" required placeholder="please enter employee name">
+        <b-form-group label="User Name:" label-for="nameRegister">
+          <b-form-input id="nameRegister" v-model.trim="registerForm.name" :state="nameState" required placeholder="please enter user name">
           </b-form-input>
         </b-form-group>
         <b-form-group label="Password:" label-for="pwdRegister">

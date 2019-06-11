@@ -1,7 +1,7 @@
 <template>
   <div id="viewProjectMain" class="clearfix">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>View List</el-breadcrumb-item>
+      <el-breadcrumb-item>Released Projects</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
@@ -36,14 +36,19 @@
       </el-table>
       <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="pageSize" layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
-      <el-dialog title="version list" width="450px" :visible.sync="dialogTableVisible" @close="closeUploadModal" :close-on-click-modal="false">
+      <el-dialog title="Versions" width="450px" :visible.sync="dialogTableVisible" @close="closeUploadModal" :close-on-click-modal="false">
         <div class="requestLoadingCon" v-show="versionLoading">
           <i class="el-icon-loading"></i> Requesting...
         </div>
         <div style="color:#aaa;text-align:center;" v-if="!versionLoading&&(versionList.length===0)">[ No Version ]</div>
-        <ol id="versionList" v-show="!versionLoading">
-          <li v-for="(item,index) in versionList" :key="index" style="text-align:center" title="select the version" @click="selectVersion(item.version_name)"><span class="versionNameCon">{{item.version_name}}</span><span class="versionIdCon">{{' ------ ' +item.version_id}}</span></li>
-        </ol>
+        <el-timeline v-show="!versionLoading">
+          <el-timeline-item v-for="(item, index) in versionList" :key="index" :timestamp="item.created_at">
+            <div @click="selectVersion(item.version_name)" class="timestampCon">
+              <span class="versionNameCon">{{item.version_name}}</span>
+              <span class="versionIdCon">{{' ------ ' +item.version_id}}</span>
+            </div>
+          </el-timeline-item>
+        </el-timeline>
         <el-pagination small @current-change="versionHandleCurrentChange" :current-page="versionCurrentPage" :page-size="versionPageSize" layout="total, prev, pager, next, jumper" :total="versionTotal" v-show="!versionLoading&&versionList.length>0"></el-pagination>
       </el-dialog>
     </div>
@@ -59,11 +64,12 @@ export default {
     }).then(data=>{
       // 这里的data是上面resolve()里的值
       // console.log(data);
-      this.$http.post("/api/view/list_project").then(response=>{
-        this.viewProjectListTable = response.data.data;
-        this.total = response.data.total;
-        this.loading = false
-      })
+      this.onSearch()
+      // this.$http.post("/api/view/list_project").then(response=>{
+      //   this.viewProjectListTable = response.data.data;
+      //   this.total = response.data.total;
+      //   this.loading = false
+      // })
     },error=>{
       // 这里的error是上面reject()里的值
       console.log(error);
@@ -116,6 +122,7 @@ export default {
       this.currentProjectId = row.id
       this.$http.post("/api/view/list_version",qs.stringify({product_id:row.id})).then(response=>{
         this.versionList = response.data.data;
+        this.activities = this.versionList
         this.versionTotal = response.data.total;
         this.versionLoading = false
       })
@@ -130,14 +137,12 @@ export default {
       this.$router.push({path:'/viewentry',query:{id:this.currentProjectId,v:versionName}})
     },
     versionHandleCurrentChange(val){
-      this.$http.post("/api/view/list_version",qs.stringify({page:val,product_id:row.id})).then(response=>{
+      this.$http.post("/api/view/list_version",qs.stringify({page:val,product_id:this.currentProjectId})).then(response=>{
         this.versionList = response.data.data;
         this.versionTotal = response.data.total;
       })
     },
     handleCurrentChange(val) {
-      // console.log(`当前页: ${val}`)
-      // this.currentPage = val;
       this.loading = true
       if(this.searchFlag){
         this.$http.post("/api/view/list_project",qs.stringify({product_name:this.searchForm.product_name,page:val})).then(response=>{

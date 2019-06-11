@@ -1,8 +1,8 @@
 <template>
   <div id="transListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{path:'/viewlist'}">View List</el-breadcrumb-item>
-      <el-breadcrumb-item>Entry List</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{path:'/viewlist'}">Released Projects</el-breadcrumb-item>
+      <el-breadcrumb-item>Entry</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
@@ -46,7 +46,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 50, 100, 200, 500]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @current-change="handleCurrentChange" :current-page="currentPage" @size-change="handleSizeChange" :page-sizes="[10, 20, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </div>
@@ -57,12 +57,13 @@ export default {
   mounted() {
     this.loading = true
     this.$route.query.v?this.searchForm.version_name=this.$route.query.v:this.searchForm.version_name=''
-    this.$http.post("/api/view/list_items",qs.stringify({product_id:this.$route.query.id,version_name:this.$route.query.v})).then(response=>{
-      // console.log(response.data);
-      this.viewItemListTable = response.data.result.data;
-      this.total = response.data.result.total;
-      this.loading = false
-    })
+    this.onSearch()
+    // this.$http.post("/api/view/list_items",qs.stringify({product_id:this.$route.query.id,version_name:this.$route.query.v})).then(response=>{
+    //   // console.log(response.data);
+    //   this.viewItemListTable = response.data.result.data;
+    //   this.total = response.data.result.total;
+    //   this.loading = false
+    // })
   },
   data() {
     return {
@@ -84,7 +85,7 @@ export default {
       this.loading = true
       this.currentPage = 1
       this.searchForm.key===''&&this.searchForm.version_name===''?this.searchFlag = false:this.searchFlag = true
-      this.$http.post("/api/view/list_items",qs.stringify({key:this.searchForm.key,version_name:this.searchForm.version_name,product_id:this.$route.query.id})).then(response=>{
+      this.$http.post("/api/view/list_items",qs.stringify({key:this.searchForm.key,version_name:this.searchForm.version_name,product_id:this.$route.query.id,page:this.currentPage,count:this.pageSize})).then(response=>{
         // console.log(response.data);
         this.viewItemListTable = response.data.result.data;
         this.total = response.data.result.total;
@@ -92,9 +93,6 @@ export default {
       })
     },
     rowDblClick(row, column, event){
-      // console.log(row);
-      // console.log(column);
-      // console.log(event);
       this.$router.push({path:'/viewdetail',query:{id:row.product_id,eid:row.export_id}})
     },
     transItem(row) {
@@ -102,17 +100,22 @@ export default {
       // this.$store.state.translateSearchForm = this.searchForm;
       this.$router.push({path:'/viewdetail',query:{id:row.product_id,eid:row.export_id}})
     },
+    handleSizeChange(size){
+      this.pageSize = size
+      this.currentPage = 1
+      this.handleCurrentChange(this.currentPage)
+    },
     handleCurrentChange(val) {
       this.loading = true
       if(this.searchFlag){
-        this.$http.post("/api/view/list_items",qs.stringify({key:this.searchForm.key,version_name:this.searchForm.version_name,product_id:this.$route.query.id,page:val})).then(response=>{
+        this.$http.post("/api/view/list_items",qs.stringify({key:this.searchForm.key,version_name:this.searchForm.version_name,product_id:this.$route.query.id,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.viewItemListTable = response.data.result.data;
           this.total = response.data.result.total;
           this.loading = false
         })
       }else{
-        this.$http.post("/api/view/list_items",qs.stringify({product_id:this.$route.query.id,page:val})).then(response=>{
+        this.$http.post("/api/view/list_items",qs.stringify({product_id:this.$route.query.id,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.viewItemListTable = response.data.result.data;
           this.total = response.data.result.total;

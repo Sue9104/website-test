@@ -8,8 +8,8 @@
           </b-link>
           <div class="modeTitle">Sign In</div>
         </b-form-group>
-        <b-form-group label="UserName:" label-for="emailLogin">
-          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required placeholder="please enter user email">
+        <b-form-group label="Email:" label-for="emailLogin">
+          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required placeholder="please enter email">
           </b-form-input>
         </b-form-group>
         <b-form-group label="Password:" label-for="pwdLogin">
@@ -39,7 +39,7 @@
 <script>
 export default {
   mounted(){
-    $("#formCon").get(0).style.minHeight=window.innerHeight-100+"px"
+    $("#formCon").get(0).style.minHeight=window.innerHeight-40+"px"
     if(this.$cookies.get('loginStatus')==='remember'){
       this.$cookies.get('email')?this.loginForm.email = this.$cookies.get('email'):this.loginForm.email = ''
       this.$cookies.get('tp')?this.loginForm.password = Base64.decode(this.$cookies.get('tp')):this.loginForm.password = ''

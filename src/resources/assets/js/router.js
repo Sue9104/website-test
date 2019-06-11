@@ -30,7 +30,7 @@ const BrowApprovalItem = () => import('./components/backStage/approvalManagement
 const HistoryList = () => import('./components/backStage/historyList/HistoryList.vue')
 const BrowHistoryItem = () => import('./components/backStage/historyList/BrowHistoryItem.vue')
 
-const PersonalStatistics = () => import('./components/backStage/Statistics/PersonalStatistics.vue')
+// const PersonalStatistics = () => import('./components/backStage/Statistics/PersonalStatistics.vue')
 
 const Dashboard = () => import('./components/backStage/Dashboard.vue')
 const Desc = () => import('./components/backStage/Desc.vue')
@@ -118,7 +118,7 @@ export default new VueRouter({
           }
         },
         {
-          path: '/objectionlist',
+          path: '/feedback',
           component: ObjectionList,
           meta: {
             auth: true,
@@ -126,7 +126,7 @@ export default new VueRouter({
           }
         },
         {
-          path: '/viewobjection',
+          path: '/viewfeedback',
           component: ViewObjection,
           meta: {
             auth: true,
@@ -134,7 +134,7 @@ export default new VueRouter({
           }
         },
         {
-          path: '/allocationlist',
+          path: '/assignment',
           component: AllocationList,
           meta: {
             auth: true,
@@ -142,7 +142,7 @@ export default new VueRouter({
           }
         },
         {
-          path:'/t_overviewlist',
+          path:'/t_overview',
           component: OverviewList,
           meta: {
             auth: true,
@@ -150,7 +150,7 @@ export default new VueRouter({
           }
         },
         {
-          path:'/a_overviewlist',
+          path:'/a_overview',
           component: OverviewList,
           meta: {
             auth: true,
@@ -158,7 +158,7 @@ export default new VueRouter({
           }
         },
         {
-          path:'/translationlist',
+          path:'/translation',
           component: TranslationList,
           meta: {
             auth: true,
@@ -166,15 +166,7 @@ export default new VueRouter({
           }
         },
         {
-          path:'/retranslationlist',
-          component: TranslationList,
-          meta: {
-            auth: true,
-            role: 1
-          }
-        },
-        {
-          path: '/qualifiedlist',
+          path:'/retranslation',
           component: TranslationList,
           meta: {
             auth: true,
@@ -198,15 +190,7 @@ export default new VueRouter({
           }
         },
         {
-          path: 'viewqualified',
-          component: OnTrans,
-          meta: {
-            auth: true,
-            role: 1
-          }
-        },
-        {
-          path: 'approvallist',
+          path: 'review',
           component: ApprovalList,
           meta: {
             auth: true,
@@ -214,7 +198,7 @@ export default new VueRouter({
           }
         },
         {
-          path: 'browapprovalitem',
+          path: 'browreviewitem',
           component: BrowApprovalItem,
           meta: {
             auth: true,
@@ -222,7 +206,7 @@ export default new VueRouter({
           }
         },
         {
-          path: 't_historylist',
+          path: 't_history',
           component: HistoryList,
           meta: {
             auth: true,
@@ -238,7 +222,7 @@ export default new VueRouter({
           }
         },
         {
-          path: 'a_historylist',
+          path: 'a_history',
           component: HistoryList,
           meta: {
             auth: true,
@@ -247,6 +231,22 @@ export default new VueRouter({
         },
         {
           path: 'a_browhistoryitem',
+          component: BrowHistoryItem,
+          meta: {
+            auth: true,
+            role: 1
+          }
+        },
+        {
+          path: 'v_history',
+          component: HistoryList,
+          meta: {
+            auth: true,
+            role: 1
+          }
+        }, 
+        {
+          path: 'v_browhistoryitem',
           component: BrowHistoryItem,
           meta: {
             auth: true,
@@ -277,18 +277,18 @@ export default new VueRouter({
             role: 1
           }
         },
-        {
-          path: 'personalstatistics',
-          component: PersonalStatistics,
-          meta: {
-            auth: true,
-            role: 1
-          }
-        },
-        {
-          path: 'desc',
-          component: Desc
-        },
+        // {
+        //   path: 'personalstatistics',
+        //   component: PersonalStatistics,
+        //   meta: {
+        //     auth: true,
+        //     role: 1
+        //   }
+        // },
+        // {
+        //   path: 'desc',
+        //   component: Desc
+        // },
       ]
     },
     {

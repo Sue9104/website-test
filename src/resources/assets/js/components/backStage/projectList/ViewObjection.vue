@@ -1,9 +1,7 @@
 <template>
   <div id="objectionItemMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/projectlist'}">Project List</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/projectdetail',query:{id:$route.query.id}}">Detail</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/objectionlist',query:{id:$route.query.id}}">Objection List</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/feedback' }">Feedback</el-breadcrumb-item>
       <el-breadcrumb-item>View</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="objectionItemCon">
@@ -11,32 +9,36 @@
         <el-tag type="info">Project Name:{{currentItem.product}}</el-tag>
         <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
         <el-tag type="info">Status:{{currentItem.status}}</el-tag>
-        <el-button type="success" size="small" id="redistributeBtn" @click='openAgreeModal(1)'>Redistribute</el-button>
-        <el-button type="danger" size="small" id="ignoreBtn" @click='openAgreeModal(2)'>Ignore</el-button>
+        <el-button type="success" size="small" id="redistributeBtn" @click='openAgreeModal(1)' v-if="currentItem.conflict===1">Accept</el-button>
+        <el-button type="danger" size="small" id="ignoreBtn" @click='openAgreeModal(0)' v-if="currentItem.conflict===1">Ignore</el-button>
       </div>
       <div>
-        <el-alert title="Objection" :description="currentItem.objection" type="warning" show-icon :closable="false"></el-alert>
+        <el-alert :title="currentItem.objection" type="warning" show-icon :closable="false"></el-alert>
       </div>
       <div id="objectionItemBox">
-         <el-collapse v-model="activeName" accordion>
-          <el-collapse-item :name="1">
-            <template slot="title">
-              Keywords
-            </template>
-            <div class="source">{{Object.keys(JSON.parse(currentItem.key)[0])[0]}}</div>
-            <div class="target">{{JSON.parse(currentItem.key)[0][Object.keys(JSON.parse(currentItem.key)[0])[0]]}}</div>
-          </el-collapse-item>
-          <el-collapse-item v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2">
-            <template slot="title">
-              {{"Content"+(index+1)}}
-            </template>
-            <div class="source">{{Object.keys(item)[0]}}</div>
-            <div class="target">{{item[Object.keys(item)[0]]}}</div>
-          </el-collapse-item>
-        </el-collapse>
+         <div class='boxTitleCon'>
+          <p>Source</p>
+          <p>Translation</p>
+        </div>
+        <div class="st_con">
+          <el-card class="boxCard">
+            <div id="rawDataText1" class="rawDataText">{{Object.keys(JSON.parse(currentItem.key)[0])[0]}}</div>
+          </el-card>
+          <el-card class="boxCard">
+            <div id="rawDataText1" class="rawDataText">{{JSON.parse(currentItem.key)[0][Object.keys(JSON.parse(currentItem.key)[0])[0]]}}</div>
+          </el-card>
+        </div>
+        <div v-for="(item,index) in JSON.parse(currentItem.translate)" :key="index" :name="index+2" class="st_con">
+          <el-card class="boxCard">
+            <div :id="'rawDataText'+(index+2)" class="rawDataText">{{Object.keys(item)[0]}}</div>
+          </el-card>
+          <el-card class="boxCard">
+            <div id="rawDataText1" class="rawDataText">{{item[Object.keys(item)[0]]}}</div>
+          </el-card>
+        </div>
       </div>
-      <el-dialog title="Select" width="35%" :visible.sync="dialogVisible">
-        <span v-if="agreeFlag===0">Are you sure to ignore the objection?</span>
+      <el-dialog :title="agreeFlag===1?'Select':'Tips'" width="35%" :visible.sync="dialogVisible">
+        <span v-if="agreeFlag===0">Are you sure to ignore the suggestion?</span>
         <el-form :model="distributeForm" :rules="rules" ref="distributeForm" class="demo-ruleForm" v-if="agreeFlag===1" @submit.native.prevent>
           <el-form-item prop="translate_users_name">
             <el-select v-model.trim="distributeForm.translate_users_name" placeholder="please select translator." style="width:100%;">
@@ -66,7 +68,8 @@ export default {
     }).then(()=>{
       this.$http.post("/api/approve/list_conflict",qs.stringify({
           product_id:this.$route.query.id,
-          t_approve_id:this.$route.query.oid
+          t_approve_id:this.$route.query.oid,
+          is_done:'1'
         })).then(response=>{
         // console.log(response.data);
         if(response.data.data.length>0){
@@ -125,7 +128,7 @@ export default {
             })).then(response=>{
               // console.log(response.data);
               setTimeout(()=>{
-                this.$router.push("/objectionlist?id="+this.$route.query.id)
+                this.$router.push("/feedback?id="+this.$route.query.id)
               }, 500)
             })
           }else{
@@ -135,15 +138,15 @@ export default {
         })
       }
       //拒绝
-      if(this.agreeFlag===2){
+      if(this.agreeFlag===0){
         this.$http.post("/api/approve/approve_conflict",qs.stringify({
-          translate_approve_id: this.$route.query.id,
+          t_approve_id: this.$route.query.oid,
           approved: this.agreeFlag,
-          translate_users_name:this.distributeForm.translate_users_name
+          translate_users_name:''
         })).then(response=>{
           // console.log(response.data);
           setTimeout(()=>{
-            this.$router.push("/objectionlist?id="+this.$route.query.id)
+            this.$router.push("/feedback?id="+this.$route.query.id)
           }, 500)
         })
       }

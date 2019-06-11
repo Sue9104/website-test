@@ -1,7 +1,7 @@
 <template>
   <div id="projectMain" class="clearfix">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>Project List</el-breadcrumb-item>
+      <el-breadcrumb-item>Overview</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
@@ -9,15 +9,15 @@
           <el-form-item label="Project Name:" prop="product_name">
             <el-input v-model.trim="searchForm.product_name" placeholder="please enter project name"></el-input>
           </el-form-item>
+          <el-form-item label="Deadline:" prop="deadline">
+            <el-date-picker v-model.trim="searchForm.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="please select deadline"></el-date-picker>
+          </el-form-item>
           <el-form-item label="Priority:" prop="priority">
             <el-select v-model="searchForm.priority" placeholder="please select priority">
               <el-option label="High" value="3"></el-option>
               <el-option label="Normal" value="2"></el-option>
               <el-option label="Low" value="1"></el-option>
             </el-select>
-          </el-form-item>
-          <el-form-item label="Deadline:" prop="deadline">
-            <el-date-picker v-model.trim="searchForm.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="please select deadline"></el-date-picker>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" class="searchBtn" @click="onSearch">
@@ -32,9 +32,11 @@
       <el-table ref="ProjectTable" :data="projectListTable" v-loading="loading" stripe border style="width: 100%" @row-dblclick="rowDblClick">
         <el-table-column prop="product" label="Project Name" align="center">
         </el-table-column>
-        <el-table-column label="Attribute" align="center">
+        <el-table-column prop="lang" label="Language" align="center">
+        </el-table-column>
+        <el-table-column prop="deadline" label="Deadline" align="center">
           <template slot-scope="scope">
-            <div :title="scope.row.attribute" :style="scope.row.attribute==='private'?'color:orange':''">{{scope.row.attribute}}</div>
+            <div>{{scope.row.deadline&&(scope.row.deadline.split(" ")[1])?scope.row.deadline.split(" ")[0]:scope.row.deadline}}</div>
           </template>
         </el-table-column>
         <el-table-column prop="priority" label="Priority" align="center">
@@ -44,17 +46,11 @@
             <div v-if="scope.row.priority=='3'" style="color:red">High</div>
           </template>
         </el-table-column>
-        <el-table-column prop="lang" label="Language" align="center">
+        <el-table-column prop="total_nums" label="Total" align="center">
         </el-table-column>
         <el-table-column prop="is_completed" label="completed" align="center">
           <template slot-scope="scope">
-            <div v-if="scope.row.is_completed=='0'" style="color:red">NO</div>
-            <div v-if="scope.row.is_completed=='1'">OK</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="deadline" label="Deadline" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.deadline&&(scope.row.deadline.split(" ")[1])?scope.row.deadline.split(" ")[0]:scope.row.deadline}}</div>
+            <div :style="scope.row.completePercentage==='0%'?'color:red':''">{{scope.row.completePercentage}}</div>
           </template>
         </el-table-column>
         <el-table-column label="Operation" align="center">
@@ -85,6 +81,19 @@ export default {
       // 这里的data是上面resolve()里的值
       // console.log(data);
       this.$http.post("/api/product/list").then(response=>{
+        response.data.result.data.forEach(item=>{
+          let p = '0%';
+          if(!item.total_nums){
+            p="0%"
+          }else{
+            if(!item.Qualified_nums){
+              p="0%"
+            }else{
+              p = parseInt(item.Qualified_nums*100/item.total_nums)+'%'
+            }
+          }
+          this.$set(item,'completePercentage',p)
+        })
         this.projectListTable = response.data.result.data;
         this.total = response.data.result.total;
         this.loading = false

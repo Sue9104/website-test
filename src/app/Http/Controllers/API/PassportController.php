@@ -141,10 +141,10 @@ class PassportController extends Controller
 
         $input = $request->all();
         $user = Auth::user();
-        if($user->email === 'Admin'){
+        /*if($user->email === 'Admin'){
             return response()->json(['error' => 'Do not change administrator password'], $this->successStatus);
             die();
-        }
+        }*/
 
         $id = $user->id;
         $password_now = DB::table('users')->where('id','=',$id)->value('password');

@@ -33,10 +33,11 @@ CREATE TABLE `advices` (
   `t_app_id` int(11) NOT NULL,
   `user_name` varchar(20) NOT NULL,
   `objection` varchar(255) DEFAULT NULL,
+  `approved` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +57,7 @@ CREATE TABLE `export_version` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +76,7 @@ CREATE TABLE `import_log` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,16 +95,6 @@ CREATE TABLE `lang_code` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `lang_code`
---
-
-LOCK TABLES `lang_code` WRITE;
-/*!40000 ALTER TABLE `lang_code` DISABLE KEYS */;
-INSERT INTO `lang_code` VALUES (1,'af','Afrikaans'),(2,'sq','Albanian'),(3,'am','Amharic'),(4,'ar','Arabic'),(5,'hy','Armenian'),(6,'az','Azerbaijani'),(7,'eu','Basque'),(8,'be','Belarusian'),(9,'bn','Bengali'),(10,'bs','Bosnian'),(11,'bg','Bulgarian'),(12,'ca','Catalan'),(13,'ce','Cebuano'),(14,'ny','Chichewa'),(15,'zh-CN','Chinese'),(16,'co','Corsican'),(17,'hr','Croatian'),(18,'cs','Czech'),(19,'da','Danish'),(20,'nl','Dutch'),(21,'en','English'),(22,'eo','Esperanto'),(23,'et','Estonian'),(24,'fo','Faroese'),(25,'tl','Filipino'),(26,'fi','Finnish'),(27,'fr','French'),(28,'fy','Frisian'),(29,'gl','Galician'),(30,'ka','Georgian'),(31,'de','German'),(32,'el','Greek'),(33,'gu','Gujarati'),(34,'ht','Haitian Creole'),(35,'ha','Hausa'),(36,'haw','Hawaiian'),(37,'he','Hebrew'),(38,'hi','Hindi'),(39,'hmn','Hmong'),(40,'hu','Hungarian'),(41,'is','Icelandic'),(42,'ig','Igbo'),(43,'id','Indonesian'),(44,'ga','Irish'),(45,'it','Italian'),(46,'ja','Japanese'),(47,'jv','Javanese'),(48,'kn','Kannada'),(49,'kk','Kazakh'),(50,'km','khmer'),(51,'ko','Korean'),(52,'ku','Kurdish'),(53,'ky','Kyrgyz'),(54,'lo','Lao'),(55,'la','Latin'),(56,'lv','Latvian'),(57,'lt','Lithuanian'),(58,'lb','Luxembourgish'),(59,'mk','Macedonian'),(60,'mg','Malagasy'),(61,'ms','Malay'),(62,'ml','Malayalam'),(63,'mt','Maltese'),(64,'mi','Maori'),(65,'mr','Marathi'),(66,'mn','Mongolian'),(67,'my','Myanmar'),(68,'ne','Nepali'),(69,'no','Norwegian'),(70,'ps','Pashto'),(71,'fa','Persian'),(72,'pl','Polish'),(73,'pt','Portuguese'),(74,'pa','Punjabi'),(75,'ro','Romanian'),(76,'ru','Russian'),(77,'sm','Samoan'),(78,'gd','Scots Gaelic'),(79,'sr','Serbian'),(80,'st','Sesotho'),(81,'sn','Shona'),(82,'sd','Sindhi'),(83,'si','Sinhala'),(84,'sk','Slovak'),(85,'sl','Slovenian'),(86,'so','Somali'),(87,'es','Spanish'),(88,'su','Sundanese'),(89,'sw','Swahili'),(90,'sv','Swedish'),(91,'tg','Tajik'),(92,'ta','Tamil'),(93,'te','Telugu'),(94,'th','Thai'),(95,'tr','Turkish'),(96,'uk','Ukrainian'),(97,'uz','Uzbek'),(98,'vi','Vietnamese'),(99,'cy','Welsh'),(100,'xh','Xhosa'),(101,'yi','Yiddish'),(102,'yo','Yoruba'),(103,'zu','Zulu');
-/*!40000 ALTER TABLE `lang_code` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `migrations`
 --
 
@@ -117,7 +108,6 @@ CREATE TABLE `migrations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 
 --
 -- Table structure for table `oauth_access_tokens`
@@ -255,7 +245,7 @@ CREATE TABLE `product` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -302,7 +292,7 @@ CREATE TABLE `translate_approve` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +312,7 @@ CREATE TABLE `translate_in` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -345,7 +335,7 @@ CREATE TABLE `translate_job` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -390,9 +380,9 @@ CREATE TABLE `version` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -402,7 +392,16 @@ CREATE TABLE `version` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-11 13:47:13
+-- Dump completed on 2019-06-12 14:18:20
+
+--
+-- Dumping data for table `lang_code`
+--
+
+LOCK TABLES `lang_code` WRITE;
+/*!40000 ALTER TABLE `lang_code` DISABLE KEYS */;
+INSERT INTO `lang_code` VALUES (1,'af','Afrikaans'),(2,'sq','Albanian'),(3,'am','Amharic'),(4,'ar','Arabic'),(5,'hy','Armenian'),(6,'az','Azerbaijani'),(7,'eu','Basque'),(8,'be','Belarusian'),(9,'bn','Bengali'),(10,'bs','Bosnian'),(11,'bg','Bulgarian'),(12,'ca','Catalan'),(13,'ce','Cebuano'),(14,'ny','Chichewa'),(15,'zh-CN','Chinese'),(16,'co','Corsican'),(17,'hr','Croatian'),(18,'cs','Czech'),(19,'da','Danish'),(20,'nl','Dutch'),(21,'en','English'),(22,'eo','Esperanto'),(23,'et','Estonian'),(24,'fo','Faroese'),(25,'tl','Filipino'),(26,'fi','Finnish'),(27,'fr','French'),(28,'fy','Frisian'),(29,'gl','Galician'),(30,'ka','Georgian'),(31,'de','German'),(32,'el','Greek'),(33,'gu','Gujarati'),(34,'ht','Haitian Creole'),(35,'ha','Hausa'),(36,'haw','Hawaiian'),(37,'he','Hebrew'),(38,'hi','Hindi'),(39,'hmn','Hmong'),(40,'hu','Hungarian'),(41,'is','Icelandic'),(42,'ig','Igbo'),(43,'id','Indonesian'),(44,'ga','Irish'),(45,'it','Italian'),(46,'ja','Japanese'),(47,'jv','Javanese'),(48,'kn','Kannada'),(49,'kk','Kazakh'),(50,'km','khmer'),(51,'ko','Korean'),(52,'ku','Kurdish'),(53,'ky','Kyrgyz'),(54,'lo','Lao'),(55,'la','Latin'),(56,'lv','Latvian'),(57,'lt','Lithuanian'),(58,'lb','Luxembourgish'),(59,'mk','Macedonian'),(60,'mg','Malagasy'),(61,'ms','Malay'),(62,'ml','Malayalam'),(63,'mt','Maltese'),(64,'mi','Maori'),(65,'mr','Marathi'),(66,'mn','Mongolian'),(67,'my','Myanmar'),(68,'ne','Nepali'),(69,'no','Norwegian'),(70,'ps','Pashto'),(71,'fa','Persian'),(72,'pl','Polish'),(73,'pt','Portuguese'),(74,'pa','Punjabi'),(75,'ro','Romanian'),(76,'ru','Russian'),(77,'sm','Samoan'),(78,'gd','Scots Gaelic'),(79,'sr','Serbian'),(80,'st','Sesotho'),(81,'sn','Shona'),(82,'sd','Sindhi'),(83,'si','Sinhala'),(84,'sk','Slovak'),(85,'sl','Slovenian'),(86,'so','Somali'),(87,'es','Spanish'),(88,'su','Sundanese'),(89,'sw','Swahili'),(90,'sv','Swedish'),(91,'tg','Tajik'),(92,'ta','Tamil'),(93,'te','Telugu'),(94,'th','Thai'),(95,'tr','Turkish'),(96,'uk','Ukrainian'),(97,'uz','Uzbek'),(98,'vi','Vietnamese'),(99,'cy','Welsh'),(100,'xh','Xhosa'),(101,'yi','Yiddish'),(102,'yo','Yoruba'),(103,'zu','Zulu');
+/*!40000 ALTER TABLE `lang_code` ENABLE KEYS */;
 
 -- insert administator root/123456
 insert into users (name, email, password, created_at, role) values ("root", "root", '$2y$10$5WV.eTXqNXzDIOtZkwak6eKgcmeOTJyhTePCDyv5Cf6Y8MBZJdaku', now(), 2);

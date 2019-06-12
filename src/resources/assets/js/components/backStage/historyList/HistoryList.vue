@@ -50,14 +50,21 @@
             <div>{{Object.keys(JSON.parse(scope.row.key)[0])[0]}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="status" key="ta_histioryStatus" label="Status" align="center" v-if="$route.path === '/t_history'||$route.path === '/a_history'">
+        <el-table-column prop="status" key="ta_historyStatus" label="Status" align="center" v-if="$route.path === '/t_history'||$route.path === '/a_history'">
+        </el-table-column>
+        <el-table-column label="Status" key="v_historyStatus" align="center" v-if="$route.path === '/v_history'">
+          <template slot-scope="scope">
+            <div v-if="scope.row.approved===2">Ignore</div>
+            <div v-else-if="scope.row.approved===1">Agree</div>
+            <div v-else-if="scope.row.approved===0" style="color:#E6A23C">Unprocessed</div>
+          </template>
         </el-table-column>
         <el-table-column key="t_historyCreate_at" prop="created_at" label="TranslationDate" align="center" v-if="$route.path === '/t_history'">
           <template slot-scope="scope">
             <div :title="scope.row.created_at">{{scope.row.created_at&&(scope.row.created_at.split(" ")[1])?scope.row.created_at.split(" ")[0]:scope.row.created_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column key="v_historyCreate_at" prop="created_at" label="Date" align="center" v-if="$route.path === '/v_history'">
+        <el-table-column key="v_historyCreate_at" prop="created_at" label="SuggestionDate" align="center" v-if="$route.path === '/v_history'">
           <template slot-scope="scope">
             <div :title="scope.row.created_at">{{scope.row.created_at&&(scope.row.created_at.split(" ")[1])?scope.row.created_at.split(" ")[0]:scope.row.created_at}}</div>
           </template>

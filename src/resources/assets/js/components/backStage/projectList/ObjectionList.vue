@@ -43,7 +43,22 @@
         </el-table-column>
         <el-table-column prop="lang" label="Language" align="center">
         </el-table-column>
-        <el-table-column prop="status" label="Status" align="center">
+        <el-table-column label="SuggestionDate" align="center">
+          <template slot-scope="scope">
+            <div :title="scope.row.created_at">{{scope.row.created_at&&(scope.row.created_at.split(" ")[1])?scope.row.created_at.split(" ")[0]:scope.row.created_at}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="ReplyDate" align="center">
+          <template slot-scope="scope">
+            <div :title="scope.row.advice_updated_at">{{scope.row.advice_updated_at&&(scope.row.advice_updated_at.split(" ")[1])?scope.row.advice_updated_at.split(" ")[0]:scope.row.advice_updated_at}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Status" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.approved===2">Ignore</div>
+            <div v-else-if="scope.row.approved===1">Agree</div>
+            <div v-else-if="scope.row.approved===0" style="color:#E6A23C">Unprocessed</div>
+          </template>
         </el-table-column>
         <el-table-column label="Operation" align="center">
           <template slot-scope="scope">
@@ -104,7 +119,7 @@ export default {
     transItem(row) {
       // console.log(row);
       // this.$store.state.translateSearchForm = this.searchForm;
-      this.$router.push({path:'/viewfeedback',query:{id:row.product_id,oid:row.id}})
+      this.$router.push({path:'/viewfeedback',query:{id:row.id}})
     },
     handleSizeChange(size){
       this.pageSize = size

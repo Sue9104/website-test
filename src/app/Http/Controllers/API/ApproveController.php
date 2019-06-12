@@ -17,6 +17,7 @@ use App\Models\Translate_job;
 use App\Models\Translate_approve;
 use App\Models\Product;
 use Illuminate\Validation\Rule;
+use App\Models\Advices;
 
 class ApproveController extends Controller 
 {
@@ -145,63 +146,57 @@ class ApproveController extends Controller
 
     public function list_conflict(Request $request){
 
-        $validator = Validator::make($request->all(), [
-            'product_id' => 'present',
-            'is_done' => ['required',Rule::in([0,1])],
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 200);
-        }
         $input = $request->all();
-
-        $product_id = $input['product_id'];
-        $is_done = $input['is_done'];
+       
+        $product_name = $request->get('product_name');
+        $is_done = $request->get('is_done');
         //get data
         $page=$request->get('page',1);
         $count=$request->get('count',10);
      
         //$status = $request->get('status');
         $key = $request->get('key');
-        $t_approve_id = $request->get('t_approve_id');
+        $id = $request->get('id');
         //get permission by user 
         $user = Auth::user();
         $users_name = $user->name;
         $user_id = $user->id;
 
-        if($product_id !== NULL){
-            if(!preg_match("/^[1-9][0-9]*$/" ,$product_id)){//not empty must be int
+        if($product_name !== NULL){
+            /*if(!preg_match("/^[1-9][0-9]*$/" ,$product_id)){//not empty must be int
                 return response()->json(['error' => 'Failed'], 200);
-            }
+            }*/
             //make sure user have access to viewed
-            $users_name_get = Product::where('id',$product_id)
+            $users_name_get = Product::where('product',$product_name)
                                 ->value('users_name');
             if($users_name_get !== $users_name){
                 return response()->json(['error' => 'Failed'], 200);
                 die();
             }
-            $where[] = array('translate_approve.product_id','=',$product_id);
+            $where[] = array('product.product','=',$product_name);
         }else{
             $where[] = array('product.users_name','=',$users_name);
         }   
         //below
-        if($is_done){//all 1
-            $where[] = array('translate_approve.advise_user','<>',NULL);
-        }else{//waiting 0
-            $where[] = array('translate_approve.conflict','=',1);
-            $where[] = array('translate_approve.status','=','Qualified');
+        if(($is_done !== NULL) &&( (int)$is_done === 0)){//all 1
+                    //waiting 0
+            $where[] = array('advices.approved','=',0);
         }      
         //conflict is 1 and status is Qualified             
         //other conditions 
-        if(!empty($t_approve_id)){
-            $where[] = array('translate_approve.id','=',$t_approve_id);
-        }
         if(!empty($key)){
             $where[] = array('translate_approve.key','like','%'.$key.'%');
         }
+        if(!empty($id)){
+            $where[] = array('advices.id','=',$id);
+        }
         
-        return Translate_approve::select('translate_approve.id','translate_approve.translate_id','translate_approve.product_id','translate_approve.key','translate_approve.translate','translate_approve.status','translate_approve.tips','translate_approve.created_at','translate_approve.updated_at','translate_approve.conflict','translate_approve.objection')
+
+        return Advices::select('advices.id','advices.t_app_id','advices.user_name','advices.approved','advices.created_at as advice_created_at','advices.updated_at as advice_updated_at')
+                ->addselect('translate_approve.translate_id','translate_approve.product_id','translate_approve.key','translate_approve.translate','translate_approve.tips','translate_approve.created_at','translate_approve.updated_at','translate_approve.objection')
                 ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')
                 ->addselect('product.translate_users','product.lang','product.product')
+                ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
                 ->join('product','translate_approve.product_id','=','product.id')
                 ->where($where)
                 ->paginate($count,['*'],'page',$page);
@@ -211,7 +206,7 @@ class ApproveController extends Controller
     public function approve_conflict(Request $request){
 
         $validator = Validator::make($request->all(), [
-            't_approve_id' => 'required | integer',
+            'id' => 'required | integer',
             'approved'=>'required',//1 Error 0 refused and Qualified
             'translate_users_name'=>'present',
         ]);
@@ -220,7 +215,7 @@ class ApproveController extends Controller
         }
         $input = $request->all();
 
-        $t_approve_id = $input['t_approve_id'];//id of item in table 'translate_approve'
+        $id = $input['id'];//id of item in table 'advices'
         $approved = $input['approved'];
         $translate_users_name = $input['translate_users_name'];
         //get permission by user 
@@ -228,20 +223,24 @@ class ApproveController extends Controller
         $users_name = $user->name;
         $user_id = $user->id;
         //make sure user have access to viewed and status and confict is right
-        $condition_get = Translate_approve::where('translate_approve.id',$t_approve_id)
-                                            ->select('translate_approve.translate_id','translate_approve.translate_job_id','translate_approve.status','translate_approve.conflict','product.users_name','product.translate_users')
+        $condition_get = Advices::where('advices.id',$id)
+                                            ->select('translate_approve.id','translate_approve.translate_id','translate_approve.translate_job_id','translate_approve.status','translate_approve.conflict','product.users_name','product.translate_users')
+                                            ->addselect('advices.approved')
+                                            ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
                                             ->join('product','product.id','=','translate_approve.product_id')
                                             ->first();
-        
+        $t_approve_id = $condition_get->id;
         $users_name_get = $condition_get->users_name;
         $conflict_get = $condition_get->conflict;
         $status_get = $condition_get->status;
+        $approved_get = $condition_get->approved;
+
         $translate_users_get = $condition_get->translate_users;
         $translate_id = $condition_get->translate_id;
         $translate_job_id = $condition_get->translate_job_id;
-        $res1 = $res2 = $res3 = $res4 = true;
+        $res1 = $res2 = $res3 = $res4 = $res5 = true;
 
-        if(($users_name_get !== $users_name)||($conflict_get !== 1)||($status_get !== 'Qualified')){
+        if(($users_name_get !== $users_name)||($conflict_get !== 1)||($status_get !== 'Qualified') || ($approved_get !== 0)){
             return response()->json(['error' => 'Failed'], 200);
             die();
         }
@@ -289,6 +288,7 @@ class ApproveController extends Controller
                     $res2 = DB::table('translate_in')->where('id',$translate_id)->update(['status'=>'Untranslated','updated_at'=>$date_time]);
                     $res3 = DB::table('translate_approve')->where('id',$t_approve_id)->update(['status'=>'Error','updated_at'=>$date_time]);
                     $res4 = DB::table('translate_job')->where('id',$translate_job_id)->update(['status'=>'Error','updated_at'=>$date_time]);
+                    $res5 = DB::table('advices')->where('id',$id)->update(['approved'=>1]);
 
                     DB::commit();
                 }catch(Exception $e){
@@ -298,7 +298,16 @@ class ApproveController extends Controller
             }
         }else{
             $date_time = date("Y-m-d H:i:s");
-            $res3 = DB::table('translate_approve')->where('id',$t_approve_id)->update(['status'=>'Qualified','conflict'=>0,'updated_at'=>$date_time]);
+            DB::beginTransaction();
+                try{
+                    $res1= DB::table('translate_approve')->where('id',$t_approve_id)->update(['status'=>'Qualified','conflict'=>0,'updated_at'=>$date_time]);
+                    $res2 = DB::table('advices')->where('id',$id)->update(['approved'=>2]);
+                    DB::commit();
+                }catch(Exception $e){
+                    DB::rollBack();
+                    return response()->json(['error' => 'Failed'], 200);
+                }
+            
         }
 
         if($res1&$res2&$res3&$res4){

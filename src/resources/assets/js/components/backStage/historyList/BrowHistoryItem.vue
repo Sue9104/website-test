@@ -9,8 +9,14 @@
         <el-tag type="info">Project Name:{{currentItem.product}}</el-tag>
         <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
         <el-tag type="info" v-if="($route.path === '/t_browhistoryitem')||($route.path === '/a_browhistoryitem')">Status:{{currentItem.status}}</el-tag>
-        <el-tag type="info" v-if="($route.path === '/t_browhistoryitem')||($route.path === '/v_browhistoryitem')">Date:{{currentItem.created_at}}</el-tag>
-        <el-tag type="info" v-if="($route.path === '/a_browhistoryitem')">Date:{{currentItem.updated_at}}</el-tag>
+        <el-tag type="info" v-if="($route.path === '/v_browhistoryitem')">Status:
+          <span v-if="currentItem.approved===2">Ignore</span>
+          <span v-if="currentItem.approved===1">Agree</span>
+          <span v-if="currentItem.approved===0">Unprocessed</span>
+        </el-tag>
+        <el-tag type="info" v-if="($route.path === '/t_browhistoryitem')">TranslationDate:{{currentItem.created_at}}</el-tag>
+        <el-tag type="info" v-if="($route.path === '/a_browhistoryitem')">ApprovalDate:{{currentItem.updated_at}}</el-tag>
+        <el-tag type="info" v-if="($route.path === '/v_browhistoryitem')">SuggestionDate:{{currentItem.created_at}}</el-tag>
       </div>
       <div v-if="($route.path === '/a_browhistoryitem')&&currentItem.tips">
         <el-alert :title="currentItem.tips" type="warning" show-icon :closable="false"></el-alert>

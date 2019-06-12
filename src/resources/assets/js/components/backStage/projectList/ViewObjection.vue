@@ -8,9 +8,15 @@
       <div>
         <el-tag type="info">Project Name:{{currentItem.product}}</el-tag>
         <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
-        <el-tag type="info">Status:{{currentItem.status}}</el-tag>
-        <el-button type="success" size="small" id="redistributeBtn" @click='openAgreeModal(1)' v-if="currentItem.conflict===1">Accept</el-button>
-        <el-button type="danger" size="small" id="ignoreBtn" @click='openAgreeModal(0)' v-if="currentItem.conflict===1">Ignore</el-button>
+        <el-tag type="info">SuggestionDate: <span>{{currentItem.created_at&&(currentItem.created_at.split(" ")[1])?currentItem.created_at.split(" ")[0]:currentItem.created_at}}</span></el-tag>
+        <el-tag type="info">ReplyDate: <span>{{currentItem.advice_updated_at&&(currentItem.advice_updated_at.split(" ")[1])?currentItem.advice_updated_at.split(" ")[0]:currentItem.advice_updated_at}}</span></el-tag>
+        <el-tag type="info">Status:
+          <span v-if="currentItem.approved===2">Ignore</span>
+          <span v-if="currentItem.approved===1">Agree</span>
+          <span v-if="currentItem.approved===0">Unprocessed</span>
+        </el-tag>
+        <el-button type="success" size="small" id="redistributeBtn" @click='openAgreeModal(1)' v-if="currentItem.approved===0">Accept</el-button>
+        <el-button type="danger" size="small" id="ignoreBtn" @click='openAgreeModal(0)' v-if="currentItem.approved===0">Ignore</el-button>
       </div>
       <div>
         <el-alert :title="currentItem.objection" type="warning" show-icon :closable="false"></el-alert>
@@ -67,9 +73,7 @@ export default {
       })
     }).then(()=>{
       this.$http.post("/api/approve/list_conflict",qs.stringify({
-          product_id:this.$route.query.id,
-          t_approve_id:this.$route.query.oid,
-          is_done:'1'
+          id:this.$route.query.id
         })).then(response=>{
         // console.log(response.data);
         if(response.data.data.length>0){
@@ -122,7 +126,7 @@ export default {
           if (valid) {
             // console.log(1111);
             this.$http.post("/api/approve/approve_conflict",qs.stringify({
-              t_approve_id: this.$route.query.oid,
+              id: this.$route.query.id,
               approved: this.agreeFlag,
               translate_users_name:this.distributeForm.translate_users_name
             })).then(response=>{
@@ -140,7 +144,7 @@ export default {
       //拒绝
       if(this.agreeFlag===0){
         this.$http.post("/api/approve/approve_conflict",qs.stringify({
-          t_approve_id: this.$route.query.oid,
+          id: this.$route.query.id,
           approved: this.agreeFlag,
           translate_users_name:''
         })).then(response=>{

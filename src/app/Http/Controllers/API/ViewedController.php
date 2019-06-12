@@ -306,7 +306,7 @@ class ViewedController extends Controller
         return Advices::select('translate_approve.id','translate_approve.key','translate_approve.translate')
                 ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')//
                 ->addselect('product.lang','product.product')//product
-                ->addselect('advices.id','advices.user_name','advices.objection','advices.created_at')//advices
+                ->addselect('advices.id','advices.user_name','advices.objection','advices.approved','advices.created_at')//advices
                 ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
                 ->join('product','translate_approve.product_id','=','product.id')
                 ->where($where)

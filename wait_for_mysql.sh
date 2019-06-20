@@ -1,11 +1,9 @@
 #!/bin/bash
 
-HOST=$1
-DB_PASSWORD=$2
-DB_DATABASE=$3
+DB_PASSWORD=$1
 
 echo "Waiting for mysql"
-until mysql --protocol TCP --host=$HOST --port=3306 --user=root --password=$DB_PASSWORD --database=$DB_DATABASE -e '\q'
+until mysql --protocol TCP --host=db --port=3306 --user=root --password=$DB_PASSWORD --database=translate_01 -e '\q'
 do
   printf "."
   sleep 1

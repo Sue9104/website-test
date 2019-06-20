@@ -7,7 +7,7 @@ services:
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_DATABASE: translate_01
     volumes:
       - ./data:/var/lib/mysql
       - ./conf/db.sql:/docker-entrypoint-initdb.d/db.sql
@@ -21,10 +21,10 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
-    command: ["./wait_for_mysql.sh", "db", "${DB_PASSWORD}", "${DB_DATABASE}" ]
+    command: ["./wait_for_mysql.sh", "${DB_PASSWORD}"]
     restart: always
     container_name: trantrace
     ports:
-      - "${WEB_PORT}:80"
+      - "${WEB_PORT}:90"
     stdin_open: true
     tty: true

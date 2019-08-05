@@ -17,7 +17,7 @@ RUN sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.o
   && printf "\n" | pecl install igbinary msgpack memcached \
   && docker-php-ext-enable igbinary msgpack memcached \
   && chmod +x /var/www/trantrace/wait_for_mysql.sh \
-  && \rm -f /var/www/trantrace/storage/*key
+  && \rm -f /var/www/trantrace/public/storage /var/www/trantrace/storage/*key
 
 # run website
 RUN grep "DB_PASSWORD" /var/www/trantrace/docker.env >> /var/www/trantrace/.env \

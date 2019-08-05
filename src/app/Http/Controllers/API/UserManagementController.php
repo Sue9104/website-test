@@ -28,6 +28,8 @@ class UserManagementController extends Controller
         
         $user_id = $request->get('user_id');
         $email = $request->get('email');
+        $name = $request->get('name');
+        $sort = $request->get('sort');
 
         //get permission by user 
         $user = Auth::user();
@@ -44,8 +46,16 @@ class UserManagementController extends Controller
         if(!empty($email)){
             $where[] = array('email','like','%'.$email.'%');
         }
-
-        return User::where($where)->paginate($count,['*'],'page',$page);;
+        if(!empty($name)){
+            $where[] = array('name','like','%'.$name.'%');
+        }
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'id';
+            $sort[] = 'DESC';
+        }
+        return User::where($where)
+                    ->orderBy($sort[0],$sort[1])
+                    ->paginate($count,['*'],'page',$page);
     }
 
     public function ChangePwd_byuid(Request $request){
@@ -75,7 +85,7 @@ class UserManagementController extends Controller
         $newpassword  = bcrypt($input['newpassword']); 
         $user_find->password = $newpassword;
         $user_find->save();
-        
+
         //DB::table('users')->where('id',$uid)->update($update);           
         return response()->json(['success' => 'Password changed successfully'], $this->successStatus);
         
@@ -104,16 +114,16 @@ class UserManagementController extends Controller
 
         $user_name_find = User::where('name',$input['name'])->first();
         if($user_name_find !== NULL){
-            return response()->json(['error' => 'Name already exists,change a new name please'], $this->successStatus);
+            return response()->json(['error' => 'Username is already taken.'], $this->successStatus);
         }
 
         $user_email_find = User::where('email',$input['email'])->first();
         if($user_email_find !== NULL){
-            return response()->json(['error' => 'Email already exists,change a new email please'], $this->successStatus);
+            return response()->json(['error' => 'Email is already take, please choose another one.'], $this->successStatus);
         }
         
         User::create($input);
-        return response()->json(['success' => 'Add account successfully and default password is 123456'], $this->successStatus);
+        return response()->json(['success' => 'Add account successfully and the default password is 123456.'], $this->successStatus);
     }
 
     public function close_open_user(Request $request){
@@ -145,9 +155,9 @@ class UserManagementController extends Controller
 
         DB::table('oauth_access_tokens')->where('user_id','=',$uid)->delete();
         if($status){
-            return response()->json(['success' => 'Successfully open the account'], $this->successStatus);
+            return response()->json(['success' => 'Open the account successfully.'], $this->successStatus);
         }else{
-            return response()->json(['success' => 'Successfully shut down the account'], $this->successStatus);
+            return response()->json(['success' => 'Shut down the account successfully.'], $this->successStatus);
         }
     }
 

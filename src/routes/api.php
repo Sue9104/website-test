@@ -65,6 +65,7 @@ Route::middleware(['auth:api'])->group(function () {
 	Route::post('view/list_items','API\ViewedController@list_items');
 	Route::post('view/advise','API\ViewedController@advise');
 	Route::post('view/list_conflict_mine','API\ViewedController@list_conflict_mine');
+	Route::post('view/list_conflict_all','API\ViewedController@list_conflict_all');
 
 	Route::post('version/list_items','API\VersionController@list_items');
 

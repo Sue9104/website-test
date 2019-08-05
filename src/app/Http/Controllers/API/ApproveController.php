@@ -30,10 +30,11 @@ class ApproveController extends Controller
         $status = $request->get('status');
         $product_id = $request->get('product_id');
         $product_name = $request->get('product_name');
-        $translate_approve_id = $request->get('translate_approve_id');
+        $id = $request->get('id');
 
         $priority = $request->get('priority');
         $deadline = $request->get('deadline');
+        $sort=$request->get('sort');
 
         //get permission by user 
         $user = Auth::user();
@@ -43,8 +44,8 @@ class ApproveController extends Controller
         //product_id
         $where[] = array('translate_approve.id','>',0);
         //key status
-        if(!empty($translate_approve_id)){
-        	$where[] = array('translate_approve.id','=',$translate_approve_id);
+        if(!empty($id)){
+        	$where[] = array('translate_approve.id','=',$id);
         }
         if(!empty($product_id)){
         	$where[] = array('translate_approve.product_id','=',$product_id);
@@ -70,6 +71,15 @@ class ApproveController extends Controller
         if(!empty($deadline)){
             $where[] = array('product.deadline', '<=', $deadline);
         }
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'product.deadline';
+            $sort[] = 'ASC';
+            $sort[] = 'product.priority';
+            $sort[] = 'DESC';
+        }else{
+            $sort[2] = 'product.priority';
+            $sort[3] = 'DESC';
+        }
         
         return Translate_approve::select('translate_approve.id','translate_approve.translate_id','translate_approve.product_id','translate_approve.key','translate_approve.translate','translate_approve.status','translate_approve.tips','translate_approve.created_at','translate_approve.updated_at')
                 ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')
@@ -77,7 +87,8 @@ class ApproveController extends Controller
                 ->join('product','translate_approve.product_id','=','product.id')
                 ->whereJsonContains('product.approve_users',$user_id)
                 ->where($where)
-                ->orderBy('translate_approve.id','DESC')
+                ->orderBy($sort[0],$sort[1])
+                ->orderBy($sort[2],$sort[3])
                 ->paginate($count,['*'],'page',$page);
                   
     }
@@ -130,7 +141,7 @@ class ApproveController extends Controller
         	if($tips === NULL){
         		return response()->json(['error' => 'If not, please note the reason'], 200);
         	}
-        	$status_update = 'Re-translated';
+        	$status_update = 'Unretranslated';
         }
 
         $res1 = Translate_approve::where('id',$translate_approve_id)->update(['status'=>$status_update,'approve_users_name'=>$users_name,'tips'=>$tips]);
@@ -138,7 +149,7 @@ class ApproveController extends Controller
         $res3 = Translate_in::where('id',$translate_id)->update(['status'=>$status_update]);
 
         if($res1 & $res2 & $res3){
-            return response()->json(['success' => 'Successful'], 200);           
+            return response()->json(['success' => 'Success'], 200);           
         }else{
             return response()->json(['error' => 'Failed'], 200);
         }
@@ -157,6 +168,7 @@ class ApproveController extends Controller
         //$status = $request->get('status');
         $key = $request->get('key');
         $id = $request->get('id');
+        $sort = $request->get('sort');
         //get permission by user 
         $user = Auth::user();
         $users_name = $user->name;
@@ -178,9 +190,10 @@ class ApproveController extends Controller
             $where[] = array('product.users_name','=',$users_name);
         }   
         //below
-        if(($is_done !== NULL) &&( (int)$is_done === 0)){//all 1
-                    //waiting 0
-            $where[] = array('advices.approved','=',0);
+        if($is_done !== NULL){//all 1
+            if((int)$is_done !== 3){
+                $where[] = array('advices.approved','=',(int)$is_done);
+            }
         }      
         //conflict is 1 and status is Qualified             
         //other conditions 
@@ -189,6 +202,10 @@ class ApproveController extends Controller
         }
         if(!empty($id)){
             $where[] = array('advices.id','=',$id);
+        }
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'advices.id';
+            $sort[] = 'DESC';
         }
         
 
@@ -199,6 +216,7 @@ class ApproveController extends Controller
                 ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
                 ->join('product','translate_approve.product_id','=','product.id')
                 ->where($where)
+                ->orderBy($sort[0],$sort[1])
                 ->paginate($count,['*'],'page',$page);
 
     }
@@ -311,7 +329,7 @@ class ApproveController extends Controller
         }
 
         if($res1&$res2&$res3&$res4){
-            return response()->json(['success' => 'Successful'], 200);
+            return response()->json(['success' => 'Success'], 200);
         }else{
             return response()->json(['error' => 'Failed'], 200);
         }

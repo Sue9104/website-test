@@ -2,22 +2,22 @@
   <div id="transListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item v-if="$route.path==='/translation'">Translation</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="$route.path==='/retranslation'">Re-translation</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="$route.path==='/retranslation'">Retranslation</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
-        <el-form :inline="true" :model="searchForm" ref="searchForm" :rules="rules" label-position="left" class="demo-form-inline" size="small">
-          <el-form-item label="Project:">
-            <el-input v-model.trim="searchForm.product_name" placeholder="please enter project name"></el-input>
+        <el-form :inline="true" :model="searchForm_raw" ref="searchForm_raw" :rules="rules" label-position="left" label-width="120px" class="demo-form-inline" size="small">
+          <el-form-item label="Project Name:">
+            <el-input v-model="searchForm_raw.product_name" placeholder="enter project name"></el-input>
           </el-form-item>
-          <el-form-item label="Keywords:">
-            <el-input v-model.trim="searchForm.key" placeholder="please enter keywords"></el-input>
+          <el-form-item label="Keyword:">
+            <el-input v-model="searchForm_raw.key" placeholder="enter keyword"></el-input>
           </el-form-item>
           <el-form-item label="Deadline:">
-            <el-date-picker v-model.trim="searchForm.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="please select deadline"></el-date-picker>
+            <el-date-picker v-model="searchForm_raw.deadline" type="date" :default-value="new Date()" value-format="yyyy-MM-dd" placeholder="select deadline"></el-date-picker>
           </el-form-item>
           <el-form-item label="Priority:">
-            <el-select v-model="searchForm.priority" placeholder="please select priority">
+            <el-select v-model="searchForm_raw.priority" clearable placeholder="select priority">
               <el-option label="High" value="3"></el-option>
               <el-option label="Normal" value="2"></el-option>
               <el-option label="Low" value="1"></el-option>
@@ -28,7 +28,7 @@
               <i class="el-icon-search">Search</i></el-button>
           </el-form-item>
          <!-- <el-form-item label="Status:">
-            <el-select v-model.trim="searchForm.status" clearable placeholder="please select status">
+            <el-select v-model="searchForm_raw.status" clearable placeholder="select status">
               <el-option label="Untranslated" value="Untranslated"></el-option>
               <el-option label="Unreviewed" value="Unreviewed"></el-option>
             </el-select>
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="showTransList">
-      <el-table ref="translationTable" :data="TransListTable" v-loading="loading" stripe border style="width: 100%" @row-dblclick="rowDblClick">
+      <el-table ref="translationTable" :data="TransListTable" v-loading="loading" style="width: 100%" @row-dblclick="rowDblClick" @sort-change="sortChange" :row-class-name="deadlineHighlight">
         <el-table-column label="Source" align="center" type="expand" width="75">
           <template slot-scope="scope">
             <ol style="padding-left: 20px;">
@@ -47,27 +47,27 @@
             </ol>
           </template>
         </el-table-column>
-        <el-table-column prop="product" label="Project Name" align="center">
+        <el-table-column prop="product" label="Project Name" align="center" sortable="custom">
         </el-table-column>
-        <el-table-column prop="key" label="Keywords" align="center">
+        <el-table-column prop="key" label="Keyword" align="center" sortable="custom" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="priority" label="Priority" align="center">
+        <el-table-column prop="deadline" label="Deadline" align="center" sortable="custom">
+          <template slot-scope="scope">
+            <div>{{scope.row.deadline&&(scope.row.deadline.split(" ")[1])?scope.row.deadline.split(" ")[0]:scope.row.deadline}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="priority" label="Priority" align="center" sortable="custom">
           <template slot-scope="scope">
             <div v-if="scope.row.priority=='1'">Low</div>
             <div v-if="scope.row.priority=='2'">Normal</div>
             <div v-if="scope.row.priority=='3'" style="color:red">High</div>
           </template>
         </el-table-column>
-        <el-table-column prop="deadline" label="Deadline" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.deadline&&(scope.row.deadline.split(" ")[1])?scope.row.deadline.split(" ")[0]:scope.row.deadline}}</div>
-          </template>
-        </el-table-column>
         <el-table-column label="Operation" align="center">
           <template slot-scope="scope">
-          <el-button type="text" size="medium" title="translate" @click="transItem(scope.row,'/ontrans')" v-if="scope.row.status === 'Untranslated'">Translate</el-button>
-          <el-button type="text" size="medium" title="view" @click="transItem(scope.row,'/retrans')" v-if="scope.row.status === 'Re-translated'">Retranslate</el-button>
-          <el-button type="text" size="medium" title="view" @click="transItem(scope.row,'/viewqualified')" v-if="scope.row.status === 'Qualified'">View</el-button>
+          <el-button type="text" size="medium" title="Translate" @click="transItem(scope.row,'/ontrans')" v-if="scope.row.status === 'Untranslated'">Translate</el-button>
+          <el-button type="text" size="medium" title="Retranslate" @click="transItem(scope.row,'/retrans')" v-if="scope.row.status === 'Unretranslated'">Retranslate</el-button>
+          <el-button type="text" size="medium" title="View" @click="transItem(scope.row,'/viewqualified')" v-if="scope.row.status === 'Qualified'">View</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -80,32 +80,41 @@
 <script>
 export default {
   mounted() {
-    this.loading = true
-    this.searchForm.product_name = this.$route.query.name||''
-    this.onSearch()
-    // this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,status:this.status})).then(response=>{
-    //   // console.log(response.data);
-    //   this.TransListTable = response.data.result.data;
-    //   this.total = response.data.result.total;
-    //   this.loading = false
-    // })
-    // console.log(this.status);
+    // this.searchForm.product_name = this.$route.query.name||''
+    // this.onSearch()
+
+    // this.$router.push(this.$route.path+'?page=1&count=10')
+
+
+    // !this.$route.query.name&&!this.$route.query.key&&!this.$route.query.priority&&!this.$route.query.deadline?this.searchFlag = false:this.searchFlag = true
+      this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.$route.query.name,key:this.$route.query.key,priority:this.$route.query.priority,deadline:this.$route.query.deadline,status:this.status,page:this.$route.query.page,count:this.$route.query.count})).then(response=>{
+        // console.log(response.data);
+        this.TransListTable = response.data.result.data;
+        this.total = response.data.result.total;
+      })
   },
   data() {
     return {
+      searchForm_raw: {
+        product_name:this.$route.query.name||'',
+        key: this.$route.query.key||'',
+        priority:this.$route.query.priority||'',
+        deadline:this.$route.query.deadline||''
+      },
       searchForm: {
-        product_name:'',
-        key: '',
-        priority:'',
-        deadline:''
+        product_name:this.$route.query.name||'',
+        key: this.$route.query.key||'',
+        priority:this.$route.query.priority||'',
+        deadline:this.$route.query.deadline||''
       },
       loading:false,
-      searchFlag:false,
+      // searchFlag:false,
+      sort:[],
       rules: {},
       TransListTable: [],
       total:0,
-      currentPage: 1,
-      pageSize: 10
+      currentPage: Number(this.$route.query.page)||1,
+      pageSize: Number(this.$route.query.count)||10
     }
   },
   computed:{
@@ -113,7 +122,7 @@ export default {
       if(this.$route.path==='/translation'){
         return 'Untranslated'
       }else if(this.$route.path==='/retranslation'){
-        return 'Re-translated'
+        return 'Unretranslated'
       }else{
         return null
       }
@@ -122,27 +131,82 @@ export default {
   watch:{
     '$route.path':{
       handler(val,oldVal){
-        this.loading = true
-        this.$http.post("/api/translate/translate_list",qs.stringify({status:this.status})).then(response=>{
-        // console.log(response.data);
-          this.TransListTable = response.data.result.data;
-          this.total = response.data.result.total;
-          this.loading = false
-        })
+        // console.log(this.status)
+        if(val!==oldVal){
+          // console.log(val,oldVal)
+          this.searchForm_raw.product_name=""
+          this.searchForm_raw.key=""
+          this.searchForm_raw.priority=""
+          this.searchForm_raw.deadline=""
+
+          this.searchForm.product_name=""
+          this.searchForm.key=""
+          this.searchForm.priority=""
+          this.searchForm.deadline=""
+          // this.currentPage = 1
+          this.pageSize = 10
+          // this.searchFlag=false
+
+          this.$refs.translationTable.clearSort()
+          this.sort = []
+
+          this.$http.post("/api/translate/translate_list",qs.stringify({status:this.status})).then(response=>{
+          // console.log(response.data);
+            this.TransListTable = response.data.result.data;
+            this.total = response.data.result.total;
+          })
+        }
+        
       },
       deep:true
     }
   },
   methods: {
+    deadlineHighlight({row, rowIndex}) {
+      // console.log(row)
+      if (new Date().valueOf() > new Date(row.deadline).valueOf()) {
+        return 'deadlineOverdueHighlight';
+      }
+      return '';
+    },
     onSearch() {
-      this.loading = true
+      this.$refs.translationTable.clearSort()
+      this.sort = []
+
       this.currentPage = 1
-      this.searchForm.product_name===''&&this.searchForm.key===''&&this.searchForm.priority===''&&this.searchForm.deadline===''?this.searchFlag = false:this.searchFlag = true
+      let obj = {}
+      this.searchForm_raw.product_name?obj.name = this.searchForm_raw.product_name:null
+      this.searchForm_raw.key?obj.key = this.searchForm_raw.key:null
+      this.searchForm_raw.priority?obj.priority = this.searchForm_raw.priority:null
+      this.searchForm_raw.deadline?obj.deadline = this.searchForm_raw.deadline:null
+      this.currentPage?obj.page = this.currentPage:null
+      this.pageSize?obj.count = this.pageSize:null
+      this.$router.push({path:this.$route.path,query:obj})
+
+      this.searchForm.product_name = this.searchForm_raw.product_name
+      this.searchForm.key = this.searchForm_raw.key
+      this.searchForm.priority = this.searchForm_raw.priority
+      this.searchForm.deadline = this.searchForm_raw.deadline
+
+      // this.searchForm.product_name===''&&this.searchForm.key===''&&this.searchForm.priority===''&&this.searchForm.deadline===''?this.searchFlag = false:this.searchFlag = true
       this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:this.currentPage,count:this.pageSize})).then(response=>{
         // console.log(response.data);
         this.TransListTable = response.data.result.data;
         this.total = response.data.result.total;
-        this.loading = false
+      })
+    },
+    sortChange(event){
+      let order=""
+      event.order==="ascending"?order='ASC':null
+      event.order==="descending"?order='DESC':null
+      this.sort[0] = event.prop
+      this.sort[1] = order
+      this.currentPage = 1
+
+      this.$http.post("/api/translate/translate_list",qs.stringify(event.prop?{product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:this.currentPage,count:this.pageSize,sort:this.sort}:{product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:this.currentPage,count:this.pageSize})).then(response=>{
+        // console.log(response.data);
+        this.TransListTable = response.data.result.data;
+        this.total = response.data.result.total;
       })
     },
     rowDblClick(row, column, event){
@@ -154,16 +218,34 @@ export default {
         case 'Untranslated':
           path='/ontrans'
         break;
-        case 'Re-translated':
+        case 'Unretranslated':
           path='/retrans'
         break;
       }
-      this.$router.push({path:path,query:{id:row.id}})
+      let obj = {
+        id:row.id
+      }
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.priority?obj.priority = this.searchForm.priority:null
+      this.searchForm.deadline?obj.deadline = this.searchForm.deadline:null
+      this.currentPage?obj.page = this.currentPage:null
+      this.pageSize?obj.count = this.pageSize:null
+      this.$router.push({path:path,query:obj})
     },
     transItem(row,path) {
       // console.log(row);
       // this.$store.state.translateSearchForm = this.searchForm;
-      this.$router.push({path:path,query:{id:row.id}})
+      let obj = {
+        id:row.id
+      }
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.priority?obj.priority = this.searchForm.priority:null
+      this.searchForm.deadline?obj.deadline = this.searchForm.deadline:null
+      this.currentPage?obj.page = this.currentPage:null
+      this.pageSize?obj.count = this.pageSize:null
+      this.$router.push({path:path,query:obj})
     },
     handleSizeChange(size){
       this.pageSize = size
@@ -171,23 +253,28 @@ export default {
       this.handleCurrentChange(this.currentPage)
     },
     handleCurrentChange(val) {
-      this.loading = true
       this.currentPage = val;
-      if(this.searchFlag){
-        this.$http.post("/api/translate/translate_list",qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:val,count:this.pageSize})).then(response=>{
+      let obj = {}
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.priority?obj.priority = this.searchForm.priority:null
+      this.searchForm.deadline?obj.deadline = this.searchForm.deadline:null
+      this.pageSize?obj.count = this.pageSize:null
+      val?obj.page = val:null
+      this.$router.push({path:this.$route.path,query:obj})
+      // if(this.searchFlag){
+        this.$http.post("/api/translate/translate_list",qs.stringify(this.sort[0]?{product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:val,count:this.pageSize,sort:this.sort}:{product_name:this.searchForm.product_name,key:this.searchForm.key,priority:this.searchForm.priority,deadline:this.searchForm.deadline,status:this.status,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.TransListTable = response.data.result.data;
           this.total = response.data.result.total;
-          this.loading = false
         })
-      }else{
-        this.$http.post("/api/translate/translate_list",qs.stringify({status:this.status,page:val,count:this.pageSize})).then(response=>{
-          // console.log(response.data);
-          this.TransListTable = response.data.result.data;
-          this.total = response.data.result.total;
-          this.loading = false
-        })
-      }
+      // }else{
+      //   this.$http.post("/api/translate/translate_list",qs.stringify(this.sort[0]?{status:this.status,page:val,count:this.pageSize,sort:this.sort}:{status:this.status,page:val,count:this.pageSize})).then(response=>{
+      //     // console.log(response.data);
+      //     this.TransListTable = response.data.result.data;
+      //     this.total = response.data.result.total;
+      //   })
+      // }
     }
   }
 }

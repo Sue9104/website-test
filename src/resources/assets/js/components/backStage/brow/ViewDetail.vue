@@ -1,8 +1,8 @@
 <template>
   <div id="viewDetailItemMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/viewlist'}">Released Projects</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/viewentry',query:{id:$route.query.id} }">Entry</el-breadcrumb-item>
+      <el-breadcrumb-item :to="backUrl2">Projects</el-breadcrumb-item>
+      <el-breadcrumb-item :to="backUrl1">Entries</el-breadcrumb-item>
       <el-breadcrumb-item>View</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="viewDetailItemCon">
@@ -11,9 +11,10 @@
         <el-tag type="info">Language:{{currentItem.lang}}</el-tag>
         <el-tag type="info">Status:{{currentItem.status}}</el-tag>
         <el-tag type="info">Version:{{currentItem.version_name}}</el-tag>
-        <el-button type="warning" size="small" id="objectionBtn" @click='openAgreeModal' v-if="(currentItem.conflict===0)&&(this.newest_version_name===currentItem.version_name)">Suggestion</el-button>
-        <span style="font-size:14px;color:red;margin-left:10px;" v-if="(currentItem.conflict===1)&&(this.newest_version_name===currentItem.version_name)">Suggestion is under review...</span>
-        <span style="font-size:12px;color:orange;margin-left:10px;" v-if="!(this.newest_version_name===currentItem.version_name)">Tips: Only object to the latest version.</span>
+        <el-button type="warning" size="small" id="objectionBtn" @click='openAgreeModal' v-if="(currentItem.conflict===0)&&(this.newest_version_name===currentItem.version_name)">Open Issue</el-button>
+        <span style="font-size:14px;color:red;margin-left:10px;" v-if="(currentItem.conflict===1)&&(this.newest_version_name===currentItem.version_name)&&(currentItem.status==='Qualified')">There is aleady an issue waiting for owner's reply.</span>
+        <span style="font-size:14px;color:red;margin-left:10px;" v-if="(currentItem.conflict===1)&&(this.newest_version_name===currentItem.version_name)&&(currentItem.status==='Error')">The translation is being optimized.</span>
+        <span style="font-size:14px;color:orange;margin-left:10px;" v-if="!(this.newest_version_name===currentItem.version_name)">Issue is only opened for latest version.</span>
       </div>
       <div id="viewDetailItemBox">
         <div class='boxTitleCon'>
@@ -37,15 +38,19 @@
             </el-card>
         </div>
       </div>
-      <el-dialog title="Tips" :visible.sync="dialogVisible" width="30%">
+      <el-dialog title="Open Issue" :visible.sync="dialogVisible" width="30%">
+        <div class="dialog_warning_text">
+          <i class="el-message__icon el-icon-warning"></i>
+          <span>Is this translation wrong?</span>
+        </div>
         <el-form :model="tipsForm" :rules="rules" ref="tipsForm" class="demo-ruleForm">
-          <el-form-item prop="tips">
-            <el-input v-model.trim="tipsForm.tips" placeholder="please enter reason"></el-input>
+          <el-form-item prop="tips" label="Please point out the error or submit your suggestion:">
+            <el-input v-model="tipsForm.tips" placeholder=""></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="submit">Submit</el-button>
+          <el-button type="primary" @click="submit">Yes</el-button>
         </span>
       </el-dialog>
     </div>
@@ -56,6 +61,23 @@
 // import $ from 'jquery/dist/jquery.min.js'
 export default {
   mounted(){
+    let obj1 = {}
+    this.$route.query.id?obj1.id = this.$route.query.id:null
+    this.$route.query.key?obj1.key = this.$route.query.key:null
+    this.$route.query.v?obj1.v = this.$route.query.v:null
+    this.$route.query.page1?obj1.page1 = this.$route.query.page1:null
+    this.$route.query.count1?obj1.count1 = this.$route.query.count1:null
+    this.$route.query.name?obj1.name = this.$route.query.name:null
+    this.$route.query.page?obj1.page = this.$route.query.page:null
+    this.$route.query.count?obj1.count = this.$route.query.count:null
+    this.backUrl1={path:'/viewentry',query:obj1}
+
+    let obj2 = {}
+    this.$route.query.name?obj2.name = this.$route.query.name:null
+    this.$route.query.page?obj2.page = this.$route.query.page:null
+    this.$route.query.count?obj2.count = this.$route.query.count:null
+    this.backUrl2={path:'/viewlist',query:obj2}
+
     this.$http.post("/api/view/list_items",qs.stringify({
           product_id:this.$route.query.id,
           export_id:this.$route.query.eid
@@ -67,6 +89,8 @@ export default {
   },
   data() {
     return {
+      backUrl1:'',
+      backUrl2:'',
       currentItem: {
         key:'[{}]',
         translate:'[{}]'
@@ -80,7 +104,7 @@ export default {
         tips: [
           {
             required: true,
-            message: 'Please enter reason.'
+            message: 'Please enter discription of issue.'
           }
         ],
       }
@@ -100,11 +124,11 @@ export default {
           })).then(response=>{
             // console.log(response.data);
             setTimeout(()=>{
-              this.$router.push({path:"/viewentry",query:{id:this.$route.query.id}})
+              this.$router.push(this.backUrl1)
             }, 500)
           })
         } else {
-          console.log('error submit!!');
+          // console.log('error submit!!');
           return false;
         }
       })

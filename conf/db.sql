@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.24, for Linux (x86_64)
 --
--- Host: 192.168.202.174    Database: translate_01
+-- Host: localhost    Database: translate_01
 -- ------------------------------------------------------
 -- Server version	5.7.24-0ubuntu0.16.04.1
 
@@ -24,7 +24,6 @@ USE translate_01;
 --
 -- Table structure for table `advices`
 --
-
 DROP TABLE IF EXISTS `advices`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -32,12 +31,13 @@ CREATE TABLE `advices` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `t_app_id` int(11) NOT NULL,
   `user_name` varchar(20) NOT NULL,
+  `version_id` varchar(40) DEFAULT NULL,
   `objection` varchar(255) DEFAULT NULL,
   `approved` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,7 +57,7 @@ CREATE TABLE `export_version` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -76,7 +76,7 @@ CREATE TABLE `import_log` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -232,9 +232,10 @@ CREATE TABLE `product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `product` varchar(100) DEFAULT NULL,
   `users_name` varchar(255) DEFAULT NULL,
-  `lang` varchar(20) DEFAULT NULL,
+  `lang` varchar(80) DEFAULT NULL,
   `deadline` datetime DEFAULT NULL,
   `field_num` int(2) DEFAULT NULL,
+  `import_head` longtext,
   `attribute` varchar(15) DEFAULT NULL,
   `priority` tinyint(1) DEFAULT '2',
   `translate_users` varchar(255) DEFAULT NULL,
@@ -245,7 +246,7 @@ CREATE TABLE `product` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,10 +279,10 @@ CREATE TABLE `translate_approve` (
   `translate_id` int(11) NOT NULL,
   `translate_job_id` int(11) NOT NULL,
   `product_id` int(11) DEFAULT NULL,
-  `key` varchar(100) DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
   `translate` longtext,
   `status` varchar(20) DEFAULT NULL,
-  `lang` varchar(20) DEFAULT NULL,
+  `lang` varchar(80) DEFAULT NULL,
   `tips` varchar(255) DEFAULT NULL,
   `conflict` int(1) NOT NULL DEFAULT '0',
   `objection` varchar(255) DEFAULT NULL,
@@ -292,7 +293,7 @@ CREATE TABLE `translate_approve` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -306,13 +307,16 @@ CREATE TABLE `translate_in` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `users_name` varchar(50) DEFAULT NULL,
   `product_id` varchar(11) DEFAULT NULL,
-  `key` varchar(50) DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
   `translate` longtext,
+  `rowid` int(11) DEFAULT NULL,
+  `import_id` int(11) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `product_id` (`product_id`,`key`)
+) ENGINE=InnoDB AUTO_INCREMENT=43312 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -326,16 +330,16 @@ CREATE TABLE `translate_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `translate_id` int(11) NOT NULL,
   `product_id` int(11) DEFAULT NULL,
-  `key` varchar(50) DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
   `translate` longtext,
   `status` varchar(20) DEFAULT NULL,
-  `lang` varchar(20) DEFAULT NULL,
+  `lang` varchar(80) DEFAULT NULL,
   `translate_users_name` varchar(50) DEFAULT NULL,
   `allocate_users_name` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=576 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -362,7 +366,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`),
   UNIQUE KEY `users_name_unique` (`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -380,7 +384,7 @@ CREATE TABLE `version` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -392,8 +396,7 @@ CREATE TABLE `version` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-12 14:18:20
-
+-- Dump completed on 2019-08-05  2:04:56
 --
 -- Dumping data for table `lang_code`
 --

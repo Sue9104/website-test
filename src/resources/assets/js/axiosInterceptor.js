@@ -2,12 +2,15 @@ import Vue from 'vue'
 import router from './router';
 import axios from 'axios'
 import {Message} from 'element-ui'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 Vue.prototype.$http = axios
 window.qs = require('qs')
 
 // 请求拦截器
 axios.interceptors.request.use(config=> {
+  NProgress.start();
   return config;
 }, err=> {
   // console.log(err)
@@ -17,6 +20,7 @@ axios.interceptors.request.use(config=> {
 
 // 返回拦截器
 axios.interceptors.response.use(data=> {
+  NProgress.done();
   // token 已过期，重定向到登录页面
   if (data.data.code == 4){
     localStorage.clear()
@@ -45,7 +49,9 @@ axios.interceptors.response.use(data=> {
         Message.error({ message:'Request error!'})
         break;
       case 401:
-        if(err.response.data.error==='Unauthenticated.'||err.response.data.message==='Unauthenticated.'){
+        if(err.response.data.error.translate_import){
+          Message.error({ message:err.response.data.error.translate_import})
+        }else if(err.response.data.error==='Unauthenticated.'||err.response.data.message==='Unauthenticated.'){
           Message.error({ message:'No access, please login!'})
           router.push('/401')
         }else if(err.response.data.error){
@@ -94,5 +100,5 @@ axios.interceptors.response.use(data=> {
 // 后台返回的token
 axios.defaults.headers.common['Authorization'] = window.$cookies.get("Authorization")||'';
 // 用户权限（字符串格式）
-axios.defaults.headers.common['permissionvue'] = window.$cookies.get("permissionvue")||'';
+// axios.defaults.headers.common['permissionvue'] = window.$cookies.get("permissionvue")||'';
 

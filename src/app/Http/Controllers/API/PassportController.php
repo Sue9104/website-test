@@ -27,7 +27,7 @@ class PassportController extends Controller
         if (Auth::attempt(['email' => request('email'), 'password' => request('password'),'status'=>1])) {
             $user = Auth::user();
 
-            $success['msg'] = 'Sign in successfully';
+            $success['msg'] = 'Sign in successfully.';
             $tokenResult = $user->createToken('MyApp');
             $success['token'] = $tokenResult->accessToken;
             //set expires_at
@@ -47,7 +47,7 @@ class PassportController extends Controller
 
             return response()->json(['success' => $success], $this->successStatus);
         } else {
-            return response()->json(['error' => 'email or password error'], 200);
+            return response()->json(['error' => 'Invalid email or password.'], 200);
         }
     }
 
@@ -74,16 +74,17 @@ class PassportController extends Controller
 
         $user_name_find = User::where('name',$input['name'])->first();
         if($user_name_find !== NULL){
-            return response()->json(['error' => 'Name already exists,change a new name please'], $this->successStatus);
+            return response()->json(['error' => 'User name is already taken, please choose another name.'], $this->successStatus);
         }
         
         $user_email_find = User::where('email',$input['email'])->first();
         if($user_email_find !== NULL){
-            return response()->json(['error' => 'Email already exists,change a new email please'], $this->successStatus);
+            return response()->json(['error' => 'Email is already take, please choose another one. '], $this->successStatus);
         }
         
         $user = User::create($input);
         
+        $success['uid'] = $user->id;
         $success['msg'] = 'Sign up successfully';
         //$success['token'] = $user->createToken('MyApp')->accessToken;
 
@@ -126,7 +127,7 @@ class PassportController extends Controller
             Auth::guard('api')->user()->token()->delete();
         }
 
-        return response()->json(['success' => 'Log out successfully'], $this->successStatus);
+        return response()->json(['success' => 'Sign out successfully.'], $this->successStatus);
     }
 
     public function changepwd(Request $request){
@@ -155,9 +156,9 @@ class PassportController extends Controller
             );
             DB::table('users')->where('id',$id)->update($update);
             Auth::guard('api')->user()->token()->delete();
-            return response()->json(['success' => 'Password changed successfully, please login again'], $this->successStatus);
+            return response()->json(['success' => 'Your password has been changed successfully, please log in again.'], $this->successStatus);
         }else{
-            return response()->json(['error' => 'Current password error'], $this->successStatus);
+            return response()->json(['error' => 'The old password you have entered is incorrect.'], $this->successStatus);
         }
 
     }

@@ -54,5 +54,8 @@ export default {
   color:#444;
   min-width:1180px;
 }
+body .el-table colgroup.gutter{
+    display: table-cell!important;
+}
 
 </style>

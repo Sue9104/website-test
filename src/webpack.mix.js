@@ -33,7 +33,7 @@ mix.webpackConfig({
 mix.js('resources/assets/js/app.js', 'public/js')
    .combine('resources/assets/less/init.css', 'public/css/init.css')
    .version()
-   .sourceMaps()  // 追踪错误信息
+   // .sourceMaps()  // 追踪错误信息
    .browserSync({
      proxy: 'www.translationpaper.com'
    });

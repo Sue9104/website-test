@@ -1,17 +1,17 @@
 <template>
   <div id="addUserMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/userinfo' }">User Management</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/userinfo?page=1' }">User Management</el-breadcrumb-item>
       <el-breadcrumb-item>Add New User</el-breadcrumb-item>
     </el-breadcrumb>
     <div id="addUserDetail" class="clearfix">
-      <el-form :model="addUserForm" :rules="rules" ref="addUserForm" label-position="left" label-width="80px" class="demo-addUserForm">
-        <el-form-item type='Email' prop="email" label="E-mail">
+      <el-form :model="addUserForm" :rules="rules" ref="addUserForm" label-position="left" label-width="120px" class="demo-addUserForm">
+        <el-form-item type='Email' prop="email" label="Email">
           <div class="namePwdInp">
             <el-input v-model.trim="addUserForm.email"></el-input>
           </div>
         </el-form-item>
-        <el-form-item prop="name" label="Name">
+        <el-form-item prop="name" label="User Name">
           <div class="namePwdInp">
             <el-input v-model.trim="addUserForm.name"></el-input>
           </div>
@@ -41,13 +41,13 @@ export default {
         email: [
           {
             required: true,
-            message: 'Please enter Email.',
+            message: 'Email is required.',
             trigger: 'blur'
           },
           {
             validator:function(rule,value,callback){
-              if(/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value) == false){
-                  callback(new Error("Please input a valid email address."));
+              if(/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value) == false){
+                  callback(new Error("Email address is invalid."));
               }else{
                   callback();
               }
@@ -56,8 +56,16 @@ export default {
         name: [
           {
             required: true,
-            message: 'Please enter name.'
-          }
+            message: 'User name is required.'
+          },
+          {
+            validator:function(rule,value,callback){
+              if(/^[A-Za-z0-9-_.]{1,50}$/.test(value) == false){
+                  callback(new Error("Only letters (A-Za-z), numbers (0-9), dot (.), underscore (_), hyphen (-) are supported and maximum length is 50 characters."));
+              }else{
+                  callback();
+              }
+            }, trigger: 'blur'}
         ]
       }
     }
@@ -72,16 +80,10 @@ export default {
           this.$http.post("/api/User/addUser",qs.stringify(addSubmitObj)).then(response=>{
             // console.log(addSubmitObj);
              if(response.data.success){
-               this.$router.push('/userinfo')
+               this.$router.push('/userinfo?page=1')
              }
           })
         } else {
-          // console.log('error submit!!')
-          this.$notify({
-            title: 'Notice',
-            message: 'Please check if the form is filled in correctly',
-            type: 'warning'
-          })
         }
       })
     },
@@ -93,7 +95,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
+.el-form-item{
+  margin-bottom:30px;
+}
 </style>
 
 

@@ -4,24 +4,24 @@
       <b-form id="loginForm" @submit="onSubmit" @reset="onReset">
         <b-form-group>
           <b-link>
-            <img src="/images/logo.png" height="50" width="180" alt="Singlera Genomics Logo">
+            <img src="/images/logo.png" title="Trantrace" height="50" width="180" alt="Trantrace Logo">
           </b-link>
           <div class="modeTitle">Sign In</div>
         </b-form-group>
         <b-form-group label="Email:" label-for="emailLogin">
-          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required placeholder="please enter email">
+          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('');" placeholder="enter email" title="Email is required.">
           </b-form-input>
         </b-form-group>
         <b-form-group label="Password:" label-for="pwdLogin">
-          <b-form-input id="pwdLogin" type="password" v-model.trim="loginForm.password" required placeholder="please enter password">
+          <b-form-input id="pwdLogin" type="password" v-model.trim="loginForm.password" required oninvalid="setCustomValidity('Password is required.');" oninput="setCustomValidity('');" placeholder="enter password" title="Password is required.">
           </b-form-input>
         </b-form-group>
         <b-form-group>
           <b-form-checkbox class="rememberStatus" plain id="remembercheckbox" v-model.trim="loginForm.status" value="remember" unchecked-value="forget">
-            remember
+            Remember
           </b-form-checkbox>
           <div class="formLink">
-            <b-link href="#/register">Sign Up</b-link><b-link v-b-tooltip.focus title="Please contact administrator">Forgot password?</b-link>
+            <b-link @click.prevent="$router.push('/register')">Sign Up</b-link><b-link v-b-tooltip.focus title="Please contact administrator to reset your password.">Forgot password?</b-link>
           </div>
         </b-form-group>
         <b-form-group>
@@ -31,7 +31,7 @@
       </b-form>
     </div>
     <footer>
-      <div class="sectionCenter">Copyright 2019</div>
+      <div class="sectionCenter">Copyright {{new Date().getFullYear()}}</div>
     </footer>
   </div>
 </template>
@@ -39,7 +39,13 @@
 <script>
 export default {
   mounted(){
-    $("#formCon").get(0).style.minHeight=window.innerHeight-40+"px"
+    this.myBrowser()
+    $("#formCon").get(0).style.minHeight=window.innerHeight-30+"px"
+    $("#formCon").get(0).style.height=$("#login").height()+10+"px"
+    window.onresize = function(){
+      $("#formCon").get(0).style.minHeight=window.innerHeight-30+"px"
+    }
+
     if(this.$cookies.get('loginStatus')==='remember'){
       this.$cookies.get('email')?this.loginForm.email = this.$cookies.get('email'):this.loginForm.email = ''
       this.$cookies.get('tp')?this.loginForm.password = Base64.decode(this.$cookies.get('tp')):this.loginForm.password = ''
@@ -61,9 +67,72 @@ export default {
     }
   },
   methods: {
+    myBrowser() {
+      // console.log(navigator.userAgent)
+      let userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+      let isOpera = userAgent.indexOf("Opera") > -1; //判断是否Opera浏览器
+      let isEdge = userAgent.indexOf("Edge") > -1; //判断是否IE的Edge浏览器
+      let isFF = userAgent.indexOf("Firefox") > -1; //判断是否Firefox浏览器
+      let isSafari = userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") == -1; //判断是否Safari浏览器
+      let isChrome = userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Safari") > -1; //判断Chrome浏览器
+
+      // this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Edge (>=44), IE11.', {
+      //     type:'warning',
+      //     confirmButtonText: 'OK'
+      //   });
+
+      if (isOpera) {
+        this.$message({
+          message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).',
+          type: 'warning'
+        });
+        // return "Opera";
+      }else if (isEdge) {
+        if(userAgent.match( /Edge\/([\d.]+)/ )[1].split('.')[0]<18){
+           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+            type:'warning',
+            confirmButtonText: 'OK'
+          });
+         }
+      }else if (isFF) {
+        if(userAgent.match( /Firefox\/([\d.]+)/ )[1].split('.')[0]<67){
+           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+            type:'warning',
+            confirmButtonText: 'OK'
+          });
+         }
+      }else if (isSafari) {
+        if(userAgent.match( /Safari\/([\d.]+)/ )[1].split('.')[0]<12){
+           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+            type:'warning',
+            confirmButtonText: 'OK'
+          });
+         }
+      }else if (isChrome) {
+        if((userAgent.match( /Chrome\/([\d.]+)/ )||userAgent.match( /CriOS\/([\d.]+)/ ))[1].split('.')[0]<70){
+           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+            type:'warning',
+            confirmButtonText: 'OK'
+          });
+         }
+      }else if(window.navigator.userAgent.indexOf("MSIE")>=1){
+        this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+          type:'warning',
+          confirmButtonText: 'OK'
+        });
+        }else if(!!window.ActiveXObject || "ActiveXObject" in window){
+          // return "IE11"
+        }else{
+        // return userAgent
+        this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
+          type:'warning',
+          confirmButtonText: 'OK'
+        });
+      }
+      
+    },
     onSubmit (evt) {
       evt.preventDefault();
-      this.$Loading.start()
       this.submitDisabled = true;
       this.$http.post("/api/login",qs.stringify(this.loginForm)).then(response=>{
         // console.log(response.data)
@@ -71,22 +140,25 @@ export default {
           if(this.loginForm.status === 'remember'){
             this.$cookies.set('Authorization', 'Bearer ' + response.data.success.token, 60 * 60 * 12)
             this.$cookies.set('email',this.loginForm.email,60*60*12)
+            this.$cookies.set('tname',Base64.encode(response.data.success.name),60*60*12)
             this.$cookies.set('tp',Base64.encode(this.loginForm.password),60*60*12)
             this.$cookies.set('loginStatus',this.loginForm.status,60*60*12)
-            this.$cookies.set('id',response.data.success.id,60*60*12)
-            this.$cookies.set('role',response.data.success.role,60*60*12)
+            this.$cookies.set('role',Base64.encode(response.data.success.role),60*60*12)
+            this.$cookies.set('id',Base64.encode(response.data.success.id),60*60*12)
           }else{
             this.$cookies.set('email',this.loginForm.email,60*60*12)
+            this.$cookies.set('tname',Base64.encode(response.data.success.name),60*60*12)
             this.$cookies.set('Authorization', 'Bearer ' + response.data.success.token, 60 * 60 * 12)
-            this.$cookies.set('id',response.data.success.id,60*60*12)
-            this.$cookies.set('role',response.data.success.role,60*60*12)
+            this.$cookies.set('role',Base64.encode(response.data.success.role),60*60*12)
+            this.$cookies.set('id',Base64.encode(response.data.success.id),60*60*12)
             this.$cookies.remove('tp')
+            this.$cookies.get('loginStatus')?this.$cookies.remove('loginStatus'):null
           }
           this.$nextTick(()=>{
             //设置请求头
             this.$http.defaults.headers.common['Authorization'] = this.$cookies.get('Authorization')||'';
           })
-          // 1外部用户  23内部用户 4管理员
+          // 1用户  2管理员
           if(response.data.success.role==2){
             this.$router.push("/userinfo")
           }else{
@@ -94,11 +166,9 @@ export default {
           }
         }
         this.submitDisabled = false;
-        this.$Loading.done()
       }).catch(error=>{
         // console.log(error)
         this.submitDisabled = false;
-        this.$Loading.done()
       })
     },
     onReset (evt) {

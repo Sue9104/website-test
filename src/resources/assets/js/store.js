@@ -10,7 +10,7 @@ const store = new Vuex.Store({
       Unassigned_nums:0,
       Conflict_nums:0,
       Untranslated_nums:0,
-      Re_translated_nums:0,
+      Unretranslated_nums:0,
       Approve_nums:0
     },
     loginUser: {},

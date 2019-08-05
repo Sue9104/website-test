@@ -35,6 +35,9 @@ class ProductController extends Controller{
 		$count=$request->get('count',10);
 		$priority = $request->get('priority');
 		$deadline = $request->get('deadline');
+		$is_static = $request->get('is_static',0);
+
+		$sort = $request->get('sort');
 
 		$where[] = array('product.users_name','=',$users_name);
 		if(!empty($product_name)){
@@ -46,15 +49,32 @@ class ProductController extends Controller{
         if(!empty($deadline)){
         	$where[] = array('deadline','<=',$deadline);
         }
-		$product_get =  Product::where($where)
-				->paginate($count,['*'],'page',$page)
+
+		$for_product_get =  Product::where($where)
+				->select('product.*',DB::raw("count(translate_in.status) as total_nums"))
+				->leftjoin('translate_in','translate_in.product_id','=','product.id')
+				->groupBy('product.id')
+				//->orderBy($sort[0],$sort[1])
+				//->paginate($count,['*'],'page',$page)
+				->get()
 				->toArray();
+
+		$product_get = $for_product_get;
+		if(!empty($for_product_get) && ($is_static)){
+			foreach ($for_product_get as $product_get_k => $product_get_v) {
+				# code...
+				if($product_get_v['total_nums'] === 0){
+					unset($product_get[$product_get_k]);
+				}
+			}
+		}
 		//get product_get_id as array
 		$i = 0;
 		$product_id_array = array();
-	    while ( $i < count($product_get['data'])) {
-	       	$product_id_array[] = $product_get['data'][$i]['id'];
-	        $i++;
+	    if(!empty($product_get)){
+	    	foreach ($product_get as $key_id => $value_id) {
+	    		$product_id_array[] = $value_id['id'];
+	    	}
 	    }
 	    $Count_status = array();
 	    if(!empty($product_id_array)){
@@ -72,32 +92,72 @@ class ProductController extends Controller{
 		if(!empty($Count_status)){
 			foreach ($Count_status as $key => $value) {
 			    $static[$value['product_id']][$value['status']] = $value['nums'];
-			    if(isset($static[$value['product_id']]['total_nums'])){
+			   /* if(isset($static[$value['product_id']]['total_nums'])){
 			    	$static[$value['product_id']]['total_nums'] += $value['nums'];
 			    }else{
 			    	$static[$value['product_id']]['total_nums'] = $value['nums'];
-			    }			     
+			    }*/			     
 			}
 		}
 
-		if(!empty($product_get['data'])){
-			foreach ($product_get['data'] as $key_data => $value_data) {
+		if(!empty($product_get)){
+			foreach ($product_get as $key_data => $value_data) {
 				if(array_key_exists($value_data['id'],$static)){
 					array_key_exists('Qualified',$static[$value_data['id']]) ? ($Qualified_nums_p = $static[$value_data['id']]['Qualified']) : ($Qualified_nums_p = 0);
 					array_key_exists('Unassigned',$static[$value_data['id']]) ? ($Unassigned_nums_p = $static[$value_data['id']]['Unassigned']) : ($Unassigned_nums_p = 0);
-			       	$Total_nums_p = $static[$value_data['id']]['total_nums'];
-			       	$product_get['data'][$key_data]['total_nums'] = $Total_nums_p;
-			       	$product_get['data'][$key_data]['Unassigned_nums'] = $Unassigned_nums_p;
-			       	$product_get['data'][$key_data]['Qualified_nums'] = $Qualified_nums_p;
+
+			       	$product_get[$key_data]['Unassigned_nums'] = $Unassigned_nums_p;
+			       	$product_get[$key_data]['Qualified_nums'] = $Qualified_nums_p;			   
 				}else{
-					$product_get['data'][$key_data]['total_nums'] = 0;
-					$product_get['data'][$key_data]['Unassigned_nums'] = 0;
-					$product_get['data'][$key_data]['Qualified_nums'] = 0;					
+					$product_get[$key_data]['Unassigned_nums'] = 0;
+					$product_get[$key_data]['Qualified_nums'] = 0;					
 				}
+					$product_get[$key_data]['Assignment'] = $value_data['total_nums']-$Unassigned_nums_p;
+					$product_get[$key_data]['Completed'] = ($value_data['total_nums'] !== 0) ? bcdiv($product_get[$key_data]['Assignment'],$value_data['total_nums'],4) : 0;
+					$product_get[$key_data]['Completed_Qualified'] = ($value_data['total_nums'] !== 0) ? bcdiv($product_get[$key_data]['Qualified_nums'],$value_data['total_nums'],4) : 0;
 			}
 		}
+		/*$collection = collect($product_get);
+		$sorted = $collection->sortBy('total_nums');
+		$sorted->values()->all();
+		$sorted = json_decode(json_encode($sorted), true);*/
+		if(!empty($product_get)){
+			if(empty($sort) || (!is_array($sort))){
+	        	$sort_data = sortBymany($product_get,'deadline',SORT_ASC,'priority',SORT_DESC);//SORT_DESC SORT_ASC
+	        }else{
+	        	switch ($sort[1]) {
+	        		case 'ASC':
+	        			$sort_data = sortBymany($product_get,$sort[0],SORT_ASC);
+	        			break;
+	        		case 'DESC':
+	        			$sort_data = sortBymany($product_get,$sort[0],SORT_DESC);;
+	        			break;  		
+	        		default:
+	        			return response()->json(['error' => 'Failed'], 200);
+	        			break;
+	        	}
+	        }
+	        $query_data_return = array_slice($sort_data,($page-1)*$count,$count);
+	        $total = count($sort_data);
+		}else{
+			$query_data_return = $product_get;
+			$total = 0;
+		}
+		
+		//$test = sortBymany($product_get,'deadline',SORT_ASC,'priority',SORT_DESC,'total_nums',SORT_DESC);
+		/*foreach ($return_data as $test_key => $test_value) {
+			# code...
+			$return[$test_key]['product'] = $test_value['product'];
+			$return[$test_key]['deadline'] = $test_value['deadline'];
+			$return[$test_key]['priority'] = $test_value['priority'];
+			$return[$test_key]['total_nums'] = $test_value['total_nums'];
+		}*/
 
-		return response()->json(['result' => $product_get], 200);
+		$data_return = array();
+        $data_return['total'] = $total;
+        $data_return['data'] = $query_data_return;
+
+        return response()->json(['result' => $data_return], 200);
 		
 	}
 
@@ -161,7 +221,7 @@ class ProductController extends Controller{
 
 
 	public function download_csv(Request $request){
-		$file_name = 'Importitems_table.csv';
+		$file_name = 'Trantrace.upload_template.csv';
 		return response()->json(['require' => asset('storage/excel/'.$file_name)], 200);
 	}
 
@@ -177,6 +237,7 @@ class ProductController extends Controller{
             $where[] = array('id','>',0);
         }
 		return User::where($where)
+				->orderBy('name')
 				->paginate($count,['*'],'page',$page);
 	}
 
@@ -277,7 +338,7 @@ class ProductController extends Controller{
 		$res = $product_find->save();
 
         if($res){
-			return response()->json(['success' => 'Successful'], 200);
+			return response()->json(['success' => 'Success'], 200);
 		}else{
 			return response()->json(['error' => 'Failed'], 200);
 		}
@@ -339,7 +400,7 @@ class ProductController extends Controller{
 
 		$res = $product_find->save();
 		if($res){
-			return response()->json(['success' => 'Successful'], 200);
+			return response()->json(['success' => 'Success'], 200);
 		}else{
 			return response()->json(['error' => 'Failed'], 200);
 		}
@@ -373,7 +434,7 @@ class ProductController extends Controller{
 		}
 		$res = Product::find($id)->delete();
 		if($res){
-			return response()->json(['success' => 'Successful'], 200);
+			return response()->json(['success' => 'Success'], 200);
 		}else{
 			return response()->json(['error' => 'Failed'], 200);
 		}
@@ -383,7 +444,27 @@ class ProductController extends Controller{
 
 		$page=$request->get('page',1);
 		$count=$request->get('count',10);
-		return Lang_code::paginate($count,['*'],'page',$page);
+		$sl = $request->get('sl');
+		$tl = $request->get('tl');
+		$query_l = $request->get('query_l');
+		if((!empty($sl))&&(!empty($tl))){
+			$sl_code = Lang_code::where('language','=',$sl)->value('code');
+			$tl_code = Lang_code::where('language','=',$tl)->value('code');
+			$code = array();
+			$code['sl_code'] = $sl_code;
+			$code['tl_code'] = $tl_code;
+			return response()->json(['result' => $code], 200);
+		}
+		$where = array();
+		if(!empty($query_l)){
+			$where[] = array('language','like','%'.$query_l.'%');
+		}else{
+			$where[] = array('id','>',0);
+		}
+
+		return Lang_code::where($where)
+			->orderBy('language')
+			->paginate($count,['*'],'page',$page);
 
 	}
 }

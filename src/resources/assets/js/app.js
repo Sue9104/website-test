@@ -5,6 +5,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+// 支持ie解析promise
+import 'babel-polyfill';
 
 window.Vue = require('vue');
 window.$ = require('jquery');
@@ -13,6 +15,7 @@ import { Base64 } from 'js-base64';
 // import iview from './iview.js'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+
 import ElementUI from 'element-ui';
 import locale from 'element-ui/lib/locale/lang/en'
 import 'element-ui/lib/theme-chalk/index.css';
@@ -27,7 +30,6 @@ import App from './App.vue';
 import router from './router';
 import store from './store'
 import './axiosInterceptor.js'
-Vue.prototype.$Loading = NProgress
 
 Vue.prototype.taskListTimer = null
 
@@ -46,12 +48,32 @@ Vue.prototype.$changeDate=(dateA,time)=>{
   return date;
 }
 
+Vue.prototype.$formatPercentage=(val,long)=>{
+  val = val.toString().replace(/\$|\,/g,'');
+    if(isNaN(val)) {
+      val = "0";  
+    } 
+    let sign = (val == (val = Math.abs(val)));
+    val = Math.floor(val*100+0.50000000001);
+    let cents = val%100;
+    val = Math.floor(val/100).toString();
+    if(cents<10) {
+       cents = "0" + cents
+    }
+    for (var i = 0; i < Math.floor((val.length-(1+i))/3); i++) {
+        val = val.substring(0,val.length-(4*i+3))+',' + val.substring(val.length-(4*i+3));
+    }
+
+    return (((sign)?'':'-') + val + '.' + cents);
+}
+
 Vue.use(ElementUI, { locale });
 Vue.use(uploader)
 Vue.use(BootstrapVue)
 Vue.use(VueCookies)
+
 NProgress.configure({
-  showSpinner: false
+  showSpinner: true
 })
 
 
@@ -60,8 +82,8 @@ router.beforeEach((to, from, next) => {
 
   // 判断用户是否登录,role为3和4直接跳转后台
   let token = VueCookies.get("Authorization")
-  let role = VueCookies.get("role")
-  // console.log(token)
+  let role = VueCookies.get("role")?Base64.decode(VueCookies.get("role")):null
+  // console.log(VueCookies.get("role"))
   // console.log(to)
   // console.log(to.matched.some(record => record.meta.auth))
     if(token){
@@ -88,6 +110,8 @@ router.beforeEach((to, from, next) => {
       if(to.path==='/login'||to.path==='/register'){
         VueCookies.get('Authorization') ? VueCookies.remove('Authorization') : null
         VueCookies.get('role') ? VueCookies.remove('role') : null
+        VueCookies.get('id') ? VueCookies.remove('id') : null
+        !VueCookies.get('loginStatus')&&VueCookies.get('tp') ? VueCookies.remove('tp') : null
         next()
       }else{
         next({path:'/login'})

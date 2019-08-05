@@ -120,25 +120,36 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
         ];
     }
 
-	 public function __construct($version,$field_num)
+	 public function __construct($version,$field_num,$Import_head=NULL)
     {   
         $this->version = $version;
         $this->field_num = $field_num;// e、g 5
-        
+        $this->Import_head = $Import_head;
+
         $heads = array();
         $heads[] = 'ProjectName';
-        $heads[] = 'Key';
-        $heads[] = 'Key_translate';
 
-        for($i=1;$i<=$this->field_num;$i++) {
-          $heads[] ='Value'.$i;
-          $heads[] = 'Value_translate'.$i;
+        if($this->Import_head !== NULL){
+          $import_array =json_decode($this->Import_head,TRUE);
+          $heads[] = $import_array[0];
+          $heads[] = $import_array[0].'_translate';
+          for($i=1;$i<=$this->field_num;$i++) {
+            $heads[] =$import_array[$i];
+            $heads[] = $import_array[$i].'_translate';
+          }
+        }else{          
+          $heads[] = 'Key';
+          $heads[] = 'Key_translate';
+          for($i=1;$i<=$this->field_num;$i++) {
+            $heads[] ='Value'.$i;
+            $heads[] = 'Value_translate'.$i;
+          }
         }
-        $heads[] =  'Status';
-        $heads[] =  'Allocate_users_name';
-        $heads[] =  'Translate_users_name';
-        $heads[] =  'Approve_users_name';
-        $heads[] =  'Time';
+        //$heads[] =  'Status';
+        $heads[] =  'Owner';
+        $heads[] =  'Translater';
+        $heads[] =  'Reviewer';
+        $heads[] =  'Review Time';
         $this->heads = $heads;
 
         $this->invoices = Export_version::select('product.product','product.field_num','translate_approve.key','translate_approve.translate','translate_approve.status','translate_approve.allocate_users_name','translate_approve.translate_users_name','translate_approve.approve_users_name','translate_approve.created_at','translate_approve.updated_at')
@@ -189,7 +200,7 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
               }
           }
           
-          $tmp_array['Status'] = $VALUE['status'];
+          //$tmp_array['Status'] = $VALUE['status'];
           $tmp_array['Allocate_users_name'] = $VALUE['allocate_users_name'];
           $tmp_array['Translate_users_name'] = $VALUE['translate_users_name'];
           $tmp_array['Approve_users_name'] = $VALUE['approve_users_name'];

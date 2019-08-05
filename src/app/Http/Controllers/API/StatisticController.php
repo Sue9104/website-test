@@ -41,7 +41,7 @@ class StatisticController extends Controller{
 		
 		$where[] = array('translate_in.product_id','=',$product_id);
 		$where[] = array('product.users_name','=',$users_name);
-		//Each status
+		//Each status·
 		/*$sqlTmp3 = sprintf("count( * ) AS Total,
 							count(if(translate_in.status='Unassigned',true,null)) AS Unassigned,
 							count(if(translate_in.status='Untranslated',true,null)) AS Untranslated,   
@@ -72,7 +72,7 @@ class StatisticController extends Controller{
 		array_key_exists('Unassigned',$data_return) ? '':($data_return['Unassigned'] = 0);
 		array_key_exists('Untranslated',$data_return) ? '':($data_return['Untranslated'] = 0);
 		array_key_exists('Unreviewed',$data_return) ? '':($data_return['Unreviewed'] = 0);
-		array_key_exists('Re-translated',$data_return) ? '':($data_return['Re-translated'] = 0);
+		array_key_exists('Unretranslated',$data_return) ? '':($data_return['Unretranslated'] = 0);
 		array_key_exists('Qualified',$data_return) ? '':($data_return['Qualified'] = 0);
 
 		return response()->json(['result' => $data_return], 200);
@@ -89,6 +89,11 @@ class StatisticController extends Controller{
 		$page=$request->get('page',1);
 		$count=$request->get('count',10);
 		$priority = $request->get('priority');
+		$sort = $request->get('sort');
+		
+		$data_return = $data_return_data = array();
+        $data_return['total'] = 0;
+        $data_return['data'] = $data_return_data;
 		
 		$where[] = array('product.users_name','=',$users_name);
 		if(!empty($product_name)){
@@ -97,14 +102,17 @@ class StatisticController extends Controller{
         if(!empty($priority)){
         	$where[] = array('priority','=',$priority);
         }
+
 		$product_get =  Product::where($where)
-				->paginate($count,['*'],'page',$page)
+				//->orderBy($sort[0],$sort[1])
+				//->paginate($count,['*'],'page',$page)
+				->get()
 				->toArray();
 		//get product_get_id as array
 		$i = 0;
 		$product_id_array = array();
-	    while ( $i < count($product_get['data'])) {
-	       	$product_id_array[] = $product_get['data'][$i]['id'];
+	    while ( $i < count($product_get)) {
+	       	$product_id_array[] = $product_get[$i]['id'];
 	        $i++;
 	    }
 	    //get total_nums
@@ -149,22 +157,59 @@ class StatisticController extends Controller{
 
 
 		//logic
-		if(!empty($product_get['data'])){
-			foreach ($product_get['data'] as $key_data => $value_data) {
+		if(!empty($product_get)){
+			foreach ($product_get as $key_data => $value_data) {
 				if(array_key_exists($value_data['id'],$static)){
-					$product_get['data'][$key_data]['total_conflict'] = $static[$value_data['id']]['total_conflict'];
+					$product_get[$key_data]['total_conflict'] = $static[$value_data['id']]['total_conflict'];
 				}else{
-					$product_get['data'][$key_data]['total_conflict'] = 0;
+					$product_get[$key_data]['total_conflict'] = 0;
 				}
 				if(array_key_exists($value_data['id'],$static_t)){
-					$product_get['data'][$key_data]['task_conflict'] = $static_t[$value_data['id']]['task_conflict'];
+					$product_get[$key_data]['task_conflict'] = $static_t[$value_data['id']]['task_conflict'];
 				}else{
-					$product_get['data'][$key_data]['task_conflict'] = 0;
+					$product_get[$key_data]['task_conflict'] = 0;
 				}
 			}
 		}
+ 		$for_product_get = $product_get;
 
-		return response()->json(['result' => $product_get], 200);
+		foreach ($for_product_get as $for_key => $for_value) {
+			        	# code...
+			if($for_value['total_conflict'] === 0){
+				unset($product_get[$for_key]);
+			}
+		}
+		if(!empty($product_get)){
+			foreach ($product_get as $key_data_c => $value_data_c) {
+				# code...
+				$not_completed = bcdiv($value_data_c['task_conflict'],$value_data_c['total_conflict'],4);
+				$completed = bcsub(1,$not_completed,4);
+				$product_get[$key_data_c]['completed'] = $completed;
+			}
+		}
+		if(!empty($product_get)){
+			if(empty($sort) || (!is_array($sort))){
+			    $sort_data = sortBymany($product_get,'deadline',SORT_ASC,'priority',SORT_DESC);//SORT_DESC SORT_ASC
+			}else{
+			    switch ($sort[1]) {
+			        case 'ASC':
+			        $sort_data = sortBymany($product_get,$sort[0],SORT_ASC);
+			        break;
+			        case 'DESC':
+			        $sort_data = sortBymany($product_get,$sort[0],SORT_DESC);;
+			        break;  		
+			        default:
+			        return response()->json(['error' => 'Failed'], 200);
+			        break;
+			    }
+			}
+			$query_data_return = array_slice($sort_data,($page-1)*$count,$count);
+			$total = count($sort_data);
+			$data_return['total'] = $total;
+        	$data_return['data'] = $query_data_return;
+		}		
+		
+		return response()->json(['result' => $data_return], 200);
 
 	}
 
@@ -181,134 +226,273 @@ class StatisticController extends Controller{
 		$page=$request->get('page',1);
         $count=$request->get('count',10);      
         $product_name = $request->get('product_name');
+        $priority = $request->get('priority');
+        $deadline = $request->get('deadline');
+        $sort = $request->get('sort');
         //get permission by user 
         $user = Auth::user();
         $users_name = $user->name;
         $user_id = $user->id;
         //$user_id = "'".$user_id."'";
         //product_name  Role
+        $where[] = array('product.id','>',0);
 		if(!empty($product_name)){
             $where[] = array('product','like','%'.$product_name.'%');
         }
+        if(!empty($deadline)){
+        	$where[] = array('deadline','<=',$deadline);
+        }
+        if(!empty($priority)){
+        	$where[] = array('priority','=',$priority);
+        }
 
-        
+        $data_return = $data_return_data = array();
+        $data_return['total'] = 0;
+        $data_return['data'] = $data_return_data;
+
 	    if($input['Role'] === 'translator') {
 
 	    	$product_get = Product::whereJsonContains('product.translate_users',$user_id)
-        				->paginate($count,['*'],'page',$page)
+	    				->where($where)
+	    				//->orderBy($sort[0],$sort[1])
+        				//->paginate($count,['*'],'page',$page)
+        				->get()
         				->toArray();
 
 	        $product_id_array = array();
 	        $i = 0;
-	        while ( $i < count($product_get['data'])) {
-	        	$product_id_array[] = $product_get['data'][$i]['id'];
+	        while ( $i < count($product_get)) {
+	        	$product_id_array[] = $product_get[$i]['id'];
 	        	$i++;
 	        }
 
-	    	if(!empty($product_id_array)){
-		        $where[] = array('translate_job.translate_users_name','=',$users_name);
-		        $static_get = Translate_job::select('product.id','product.product')
-		            ->addselect(DB::raw("count(translate_job.status) as nums,translate_job.status"))	                
-		            ->join('product','product.id','=','translate_job.product_id')
-		            ->where($where)
-		            ->whereIn('product.id',$product_id_array)
-		            ->groupBy('product_id','translate_job.status')
-		            ->get()
-		            ->toArray();
+	        //
+	        if(!empty($product_id_array)){
+		        $where_per[] = array('translate_job.translate_users_name','=',$users_name);
+		        $translate_job = DB::table('translate_job')
+	                ->select('translate_job.translate_id',DB::raw('MAX(translate_job.created_at) as created_at'))
+	                ->where($where_per)
+	                ->whereIn('translate_job.product_id',$product_id_array)
+	                ->groupBy('translate_job.translate_id');
+
+		        $static_get= DB::table('translate_job')
+		                ->select('product.id','translate_job.translate_users_name')
+		                ->join('product','product.id','=','translate_job.product_id')
+		                ->addselect(DB::raw("count(translate_job.status) as nums,translate_job.status"))
+		                ->JoinSub($translate_job, 'latest_posts', function($join) {
+		                    $join->on('translate_job.translate_id', '=', 'latest_posts.translate_id')
+		                    	->on('translate_job.created_at', '=','latest_posts.created_at');
+		                })
+		                ->groupBy('translate_job.status','translate_job.product_id')
+		                ->get()
+		                ->toArray();
+
 		        $static = array();
 		        if(!empty($static_get)){
 			        	foreach ($static_get as $key => $value) {
-			        	$static[$value['id']][$value['status']] = $value['nums'];
+			        	$static[$value->id][$value->status] = $value->nums;
 			        }
-		        }		        
-		        foreach ($product_get['data'] as $key_product => $value_product) {
-
-		        	if(array_key_exists($value_product['id'],$static)){
-		        		array_key_exists('Untranslated',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Untranslated'] = $static[$value_product['id']]['Untranslated']) :
-		        		($product_get['data'][$key_product]['Untranslated'] =0);
-		        		array_key_exists('Unreviewed',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Unreviewed'] = $static[$value_product['id']]['Unreviewed']) :
-		        		($product_get['data'][$key_product]['Unreviewed'] =0);
-		        		array_key_exists('Qualified',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Qualified'] = $static[$value_product['id']]['Qualified']) :
-		        		($product_get['data'][$key_product]['Qualified'] =0);
-		        		array_key_exists('Error',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Error'] = $static[$value_product['id']]['Error']) :
-		        		($product_get['data'][$key_product]['Error'] =0);
-		        		array_key_exists('Re-translated',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Re-translated'] = $static[$value_product['id']]['Re-translated']) :
-		        		($product_get['data'][$key_product]['Re-translated'] =0);
-		        	}else{
-		        		$product_get['data'][$key_product]['Untranslated'] =0;
-		        		$product_get['data'][$key_product]['Unreviewed'] =0;
-		        		$product_get['data'][$key_product]['Qualified'] =0;
-		        		$product_get['data'][$key_product]['Error'] =0;
-		        		$product_get['data'][$key_product]['Re-translated'] =0;
-		        	}		        	
 		        }
-		        return response()->json(['result' => $product_get], 200);
+		        if(!empty($product_get)){
+		        	foreach ($product_get as $key_product => $value_product) {
+
+			        	if(array_key_exists($value_product['id'],$static)){
+			        		array_key_exists('Untranslated',$static[$value_product['id']]) ? 
+			        		($product_get[$key_product]['Untranslated'] = $static[$value_product['id']]['Untranslated']) :
+			        		($product_get[$key_product]['Untranslated'] =0);
+			        		array_key_exists('Unreviewed',$static[$value_product['id']]) ? 
+			        		($product_get[$key_product]['Unreviewed'] = $static[$value_product['id']]['Unreviewed']) :
+			        		($product_get[$key_product]['Unreviewed'] =0);
+			        		array_key_exists('Qualified',$static[$value_product['id']]) ? 
+			        		($product_get[$key_product]['Qualified'] = $static[$value_product['id']]['Qualified']) :
+			        		($product_get[$key_product]['Qualified'] =0);
+			        		array_key_exists('Error',$static[$value_product['id']]) ? 
+			        		($product_get[$key_product]['Error'] = $static[$value_product['id']]['Error']) :
+			        		($product_get[$key_product]['Error'] =0);
+			        		array_key_exists('Unretranslated',$static[$value_product['id']]) ? 
+			        		($product_get[$key_product]['Unretranslated'] = $static[$value_product['id']]['Unretranslated']) :
+			        		($product_get[$key_product]['Unretranslated'] =0);
+			        	}else{
+			        		$product_get[$key_product]['Untranslated'] =0;
+			        		$product_get[$key_product]['Unreviewed'] =0;
+			        		$product_get[$key_product]['Qualified'] =0;
+			        		$product_get[$key_product]['Error'] =0;
+			        		$product_get[$key_product]['Unretranslated'] =0;
+			        	}
+			        	$calculate_tmp = $product_get[$key_product];//a tmp value for calculate
+			        	$total_nums = $calculate_tmp['Untranslated']+$calculate_tmp['Unreviewed']+$calculate_tmp['Qualified']+$calculate_tmp['Unretranslated'];
+			        	$product_get[$key_product]['total_nums'] = $total_nums;
+			        	$product_get[$key_product]['not_finished'] = $calculate_tmp['Untranslated']+$calculate_tmp['Unretranslated'];
+			        }
+			        $for_product_get = $product_get;
+
+			        foreach ($for_product_get as $for_key => $for_value) {
+			        	# code...
+			        	if($for_value['total_nums'] === 0){
+							unset($product_get[$for_key]);
+						}
+			        }
+			        if(!empty($product_get)){
+			        	foreach ($product_get as $key_data_c => $value_data_c) {
+				        	# code...
+				        	$not_completed = bcdiv($value_data_c['Unretranslated']+$value_data_c['Untranslated'],$value_data_c['total_nums'],4);
+				        	$completed = bcsub(1,$not_completed,4);
+				        	$product_get[$key_data_c]['completed'] = $completed;
+				        }
+			        }
+			        			  
+		        }
+		        //sort and paging
+		        if(!empty($product_get)){
+					if(empty($sort) || (!is_array($sort))){
+			        	$sort_data = sortBymany($product_get,'deadline',SORT_ASC,'priority',SORT_DESC);//SORT_DESC SORT_ASC
+			        }else{
+			        	switch ($sort[1]) {
+			        		case 'ASC':
+			        			$sort_data = sortBymany($product_get,$sort[0],SORT_ASC);
+			        			break;
+			        		case 'DESC':
+			        			$sort_data = sortBymany($product_get,$sort[0],SORT_DESC);;
+			        			break;  		
+			        		default:
+			        			return response()->json(['error' => 'Failed'], 200);
+			        			break;
+			        	}
+			        }
+			        $query_data_return = array_slice($sort_data,($page-1)*$count,$count);
+			        $total = count($sort_data);
+			        $data_return['total'] = $total;
+        			$data_return['data'] = $query_data_return;
+				}
+
+		        return response()->json(['result' => $data_return], 200);
 				die();
 	        }else{
-	        	return response()->json(['result' => $product_get], 200);
+	        	return response()->json(['result' => $data_return], 200);
 				die(); 
 	        }
 
 	    }else{
 	       	$product_get = Product::whereJsonContains('product.approve_users',$user_id)
-        				->paginate($count,['*'],'page',$page)
+	       				->where($where)
+	       				//->orderBy($sort[0],$sort[1])
+        				//->paginate($count,['*'],'page',$page)
+        				->get()
         				->toArray();
 
 	        $product_id_array = array();
 	        $i = 0;
-	        while ( $i < count($product_get['data'])) {
-	        	$product_id_array[] = $product_get['data'][$i]['id'];
+	        while ( $i < count($product_get)) {
+	        	$product_id_array[] = $product_get[$i]['id'];
 	        	$i++;
 	        }
 
 	        if(!empty($product_id_array)){
+	        	//
+	        	$where_per[] = array('translate_approve.approve_users_name','=',$users_name);
+	        	$where_total[] = array('translate_approve.status','=','Unreviewed');
+	        	$translate_approve = DB::table('translate_approve')
+		                ->select('translate_approve.translate_id',DB::raw('MAX(translate_approve.created_at) as created_at'))
+		                ->where($where_per)
+		                ->orWhere($where_total)
+		                ->whereIn('translate_approve.product_id',$product_id_array)
+		                ->groupBy('translate_approve.translate_id');
 
+				$static_get= DB::table('translate_approve')
+		                ->select('product.id','translate_approve.approve_users_name')
+		                ->join('product','product.id','=','translate_approve.product_id')
+		                ->addselect(DB::raw("count(translate_approve.status) as nums,translate_approve.status"))
+		                ->JoinSub($translate_approve, 'latest_posts', function($join) {
+		                    $join->on('translate_approve.translate_id', '=', 'latest_posts.translate_id')
+		                    	->on('translate_approve.created_at', '=','latest_posts.created_at');
+		                })
+		                ->groupBy('translate_approve.status','translate_approve.product_id')
+		                ->get()
+		                ->toArray();
+	        	//
 		        //$where[] = array('translate_approve.approve_users_name','=',$users_name);
-		        $static_get = Translate_approve::select('product.id','product.product')
+		        /*$static_get = Translate_approve::select('product.id','product.product')
 		            ->addselect(DB::raw("count(translate_approve.status) as nums,translate_approve.status"))	                
 		            ->join('product','product.id','=','translate_approve.product_id')
 		            //->where($where)
 		            ->whereIn('product.id',$product_id_array)
 		            ->groupBy('product_id','translate_approve.status')
 		            ->get()
-		            ->toArray();
+		            ->toArray();*/
 		        $static = array();
 		        if(!empty($static_get)){
 			        	foreach ($static_get as $key => $value) {
-			        	$static[$value['id']][$value['status']] = $value['nums'];
+			        	$static[$value->id][$value->status] = $value->nums;
 			        }
 		        }
-		    	foreach ($product_get['data'] as $key_product => $value_product) {
+		    	foreach ($product_get as $key_product => $value_product) {
 
 		        	if(array_key_exists($value_product['id'],$static)){
 		        		array_key_exists('Unreviewed',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Unreviewed'] = $static[$value_product['id']]['Unreviewed']) :
-		        		($product_get['data'][$key_product]['Unreviewed'] =0);
+		        		($product_get[$key_product]['Unreviewed'] = $static[$value_product['id']]['Unreviewed']) :
+		        		($product_get[$key_product]['Unreviewed'] =0);
 		        		array_key_exists('Qualified',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Qualified'] = $static[$value_product['id']]['Qualified']) :
-		        		($product_get['data'][$key_product]['Qualified'] =0);
+		        		($product_get[$key_product]['Qualified'] = $static[$value_product['id']]['Qualified']) :
+		        		($product_get[$key_product]['Qualified'] =0);
 		        		array_key_exists('Error',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Error'] = $static[$value_product['id']]['Error']) :
-		        		($product_get['data'][$key_product]['Error'] =0);
-		        		array_key_exists('Re-translated',$static[$value_product['id']]) ? 
-		        		($product_get['data'][$key_product]['Re-translated'] = $static[$value_product['id']]['Re-translated']) :
-		        		($product_get['data'][$key_product]['Re-translated'] =0);
+		        		($product_get[$key_product]['Error'] = $static[$value_product['id']]['Error']) :
+		        		($product_get[$key_product]['Error'] =0);
+		        		array_key_exists('Unretranslated',$static[$value_product['id']]) ? 
+		        		($product_get[$key_product]['Unretranslated'] = $static[$value_product['id']]['Unretranslated']) :
+		        		($product_get[$key_product]['Unretranslated'] =0);
 		        	}else{
-		        		$product_get['data'][$key_product]['Unreviewed'] =0;
-		        		$product_get['data'][$key_product]['Qualified'] =0;
-		        		$product_get['data'][$key_product]['Error'] =0;
-		        		$product_get['data'][$key_product]['Re-translated'] =0;
-		        	}		        	
+		        		$product_get[$key_product]['Unreviewed'] =0;
+		        		$product_get[$key_product]['Qualified'] =0;
+		        		$product_get[$key_product]['Error'] =0;
+		        		$product_get[$key_product]['Unretranslated'] =0;
+		        	}
+		        	$calculate_tmp = $product_get[$key_product];//a tmp value for calculate
+			        $total_nums = $calculate_tmp['Unreviewed']+$calculate_tmp['Qualified'];
+			        $product_get[$key_product]['total_nums'] = $total_nums;
+			        $product_get[$key_product]['not_finished'] = $calculate_tmp['Unreviewed'];		        	
 		        }
-  				return response()->json(['result' => $product_get], 200);
+
+		    		$for_product_get = $product_get;
+			        foreach ($for_product_get as $for_key => $for_value) {
+			        	# code...
+			        	if($for_value['total_nums'] === 0){
+							unset($product_get[$for_key]);
+						}
+			        }
+
+			        if(!empty($product_get)){
+			        	foreach ($product_get as $key_data_c => $value_data_c) {
+				        	# code...
+				        	$completed = bcdiv($value_data_c['Qualified'],$value_data_c['total_nums'],4);
+				        	$product_get[$key_data_c]['completed'] = $completed;
+				        }
+			        }
+			        //sort and paging
+			        if(!empty($product_get)){
+						if(empty($sort) || (!is_array($sort))){
+				        	$sort_data = sortBymany($product_get,'deadline',SORT_ASC,'priority',SORT_DESC);//SORT_DESC SORT_ASC
+				        }else{
+				        	switch ($sort[1]) {
+				        		case 'ASC':
+				        			$sort_data = sortBymany($product_get,$sort[0],SORT_ASC);
+				        			break;
+				        		case 'DESC':
+				        			$sort_data = sortBymany($product_get,$sort[0],SORT_DESC);;
+				        			break;  		
+				        		default:
+				        			return response()->json(['error' => 'Failed'], 200);
+				        			break;
+				        	}
+				        }
+				        $query_data_return = array_slice($sort_data,($page-1)*$count,$count);
+				        $total = count($sort_data);
+				        $data_return['total'] = $total;
+	        			$data_return['data'] = $query_data_return;
+					}
+  				return response()->json(['result' => $data_return], 200);
 				die(); 
 		    }else{
-		    	return response()->json(['result' => $product_get], 200);
+		    	return response()->json(['result' => $data_return], 200);
 				die(); 
 		    }
 	    }
@@ -335,42 +519,84 @@ class StatisticController extends Controller{
 			die();
 		}
 
-    	$static_t_get = Translate_job::select('product.product','translate_job.translate_users_name')
+		$translate_job = DB::table('translate_job')
+                ->select('translate_job.translate_id',DB::raw('MAX(translate_job.created_at) as created_at'))
+                ->where('translate_job.product_id','=',$product_id)
+                ->groupBy('translate_job.translate_id');
+
+        $static_t_get= DB::table('translate_job')
+                ->select('product.product','translate_job.translate_users_name')
+                ->join('product','product.id','=','translate_job.product_id')
+                ->addselect(DB::raw("count(translate_job.status) as nums,translate_job.status"))
+                ->JoinSub($translate_job, 'latest_posts', function($join) {
+                    $join->on('translate_job.translate_id', '=', 'latest_posts.translate_id')
+                    	->on('translate_job.created_at', '=','latest_posts.created_at');
+                })
+                ->groupBy('translate_job.status','translate_job.translate_users_name')
+                ->get()
+                ->toArray();
+    	/*$static_t_get = Translate_job::select('product.product','translate_job.translate_users_name')
 		            ->addselect(DB::raw("count(translate_job.status) as nums,translate_job.status"))	                
 		            ->join('product','product.id','=','translate_job.product_id')
 		            ->where('product.id','=',$product_id)
-		            ->groupBy('translate_job.status')
+		            ->groupBy('translate_job.status','translate_job.translate_users_name')
 		            ->get()
-		            ->toArray();
+		            ->toArray();*/
 		$static_t = array();//static for translate_job of product
 		if(!empty($static_t_get)){
 			foreach ($static_t_get as $key => $value) {
-				$static_t[$value['translate_users_name']][$value['status']] = $value['nums'];
+				$static_t[$value->translate_users_name][$value->status]= $value->nums;
 			}
 			foreach ($static_t as $key_t => $value_t) {
+				$Re_translated_nums = 0;
 				array_key_exists('Untranslated',$value_t) ? '': ($static_t[$key_t]['Untranslated'] = 0);
 				array_key_exists('Unreviewed',$value_t) ? '': ($static_t[$key_t]['Unreviewed'] = 0);
 				array_key_exists('Qualified',$value_t) ? '': ($static_t[$key_t]['Qualified'] = 0);
-				array_key_exists('Error',$value_t) ? '': ($static_t[$key_t]['Error'] = 0);
-				array_key_exists('Re-translated',$value_t) ? '': ($static_t[$key_t]['Re-translated'] = 0);
+				array_key_exists('Unretranslated',$value_t) ? '': ($static_t[$key_t]['Unretranslated'] = 0);
+
+				/*$Re_translated_nums = Translate_approve::select(DB::raw("count(translate_approve.id) as nums"))
+		            ->where([
+		            	['translate_approve.product_id','=',$product_id],
+		            	['translate_approve.translate_users_name','=',$key_t],
+		            	['translate_approve.status','=','Unretranslated']
+		            ])
+		            ->get()
+		            ->toArray();
+		        $static_t[$key_t]['Unretranslated'] = $Re_translated_nums[0]['nums'];*/
 			}
 		}
-
+		
 		$static_a = array();
-		$static_a_get = Translate_approve::select('product.product','translate_approve.approve_users_name')
+		$translate_approve = DB::table('translate_approve')
+                ->select('translate_approve.translate_id',DB::raw('MAX(translate_approve.created_at) as created_at'))
+                ->where('translate_approve.product_id','=',$product_id)
+                ->groupBy('translate_approve.translate_id');
+
+		/*$static_a_get = Translate_approve::select('product.product','translate_approve.approve_users_name')
 		            ->addselect(DB::raw("count(translate_approve.status) as nums,translate_approve.status"))	                
 		            ->join('product','product.id','=','translate_approve.product_id')
 		            ->where('product.id','=',$product_id)
 		            ->groupBy('translate_approve.status','translate_approve.approve_users_name')
 		            ->get()
-		            ->toArray();
+		            ->toArray();*/
+		$static_a_get= DB::table('translate_approve')
+                ->select('product.product','translate_approve.approve_users_name')
+                ->join('product','product.id','=','translate_approve.product_id')
+                ->addselect(DB::raw("count(translate_approve.status) as nums,translate_approve.status"))
+                ->JoinSub($translate_approve, 'latest_posts', function($join) {
+                    $join->on('translate_approve.translate_id', '=', 'latest_posts.translate_id')
+                    	->on('translate_approve.created_at', '=','latest_posts.created_at');
+                })
+                ->groupBy('translate_approve.status','translate_approve.approve_users_name')
+                ->get()
+                ->toArray();
 
 		if(!empty($static_a_get)){
 			foreach ($static_a_get as $key_a => $value_a) {
-				if($value_a['approve_users_name'] === NULL){
-					$static_a[$value_a['status']] = $value_a['nums'];
+				if($value_a->approve_users_name === NULL){
+					$static_a[$value_a->status] = $value_a->nums;
 				}else{
-					$static_a[$value_a['approve_users_name']][$value_a['status']] = $value_a['nums'];
+					$static_a[$value_a->approve_users_name][$value_a->status] = $value_a->nums;
 				}			
 			}
 			
@@ -380,7 +606,7 @@ class StatisticController extends Controller{
 				}
 				array_key_exists('Qualified',$value_aa) ? '': ($static_a[$key_aa]['Qualified'] = 0);
 				array_key_exists('Error',$value_aa) ? '': ($static_a[$key_aa]['Error'] = 0);
-				array_key_exists('Re-translated',$value_aa) ? '': ($static_a[$key_aa]['Re-translated'] = 0);
+				array_key_exists('Unretranslated',$value_aa) ? '': ($static_a[$key_aa]['Unretranslated'] = 0);
 			}
 		}
 
@@ -409,7 +635,7 @@ class StatisticController extends Controller{
 						->count();
 
 		$where_t[] = array('translate_job.translate_users_name','=',$users_name);
-		$where_t[] = array('translate_job.status','=','Re-translated');
+		$where_t[] = array('translate_job.status','=','Unretranslated');
 		$where_t_re[] = array('translate_job.status','=','Untranslated');
 		$where_t_re[] = array('translate_job.translate_users_name','=',$users_name);
 		$Translate_nums = Translate_job::where($where_t)
@@ -422,7 +648,7 @@ class StatisticController extends Controller{
 		$Untranslated_nums = $Re_translated_nums = 0;
 		if(!empty($Translate_nums)){
 			foreach ($Translate_nums as $key => $value) {
-				if($value['status'] === 'Re-translated'){
+				if($value['status'] === 'Unretranslated'){
 					$Re_translated_nums = $value['nums'];
 				}else{
 					$Untranslated_nums = $value['nums'];
@@ -442,7 +668,7 @@ class StatisticController extends Controller{
 
 		$data_return['Unassigned_nums'] = $Unassigned_nums;
 		$data_return['Untranslated_nums'] = $Untranslated_nums;
-		$data_return['Re_translated_nums'] = $Re_translated_nums;
+		$data_return['Unretranslated_nums'] = $Re_translated_nums;
 		$data_return['Approve_nums'] = $Approve_nums;
 		$data_return['Conflict_nums'] = $Conflict_nums;
 		return response()->json(['result' => $data_return], 200);

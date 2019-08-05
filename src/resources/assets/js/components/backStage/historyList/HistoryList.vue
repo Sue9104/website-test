@@ -1,25 +1,30 @@
 <template>
   <div id="historyListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>History</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="$route.path !== '/v_history'">History</el-breadcrumb-item>
+      <el-breadcrumb-item v-else>Issues</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">
-        <el-form :inline="true" :model="searchForm" ref="searchForm" :rules="rules" label-position="left" class="demo-form-inline" size="small">
-          <el-form-item label="Project:">
-            <el-input v-model.trim="searchForm.product_name" placeholder="please enter project name"></el-input>
+        <el-form :inline="true" :model="searchForm_raw" ref="searchForm_raw" :rules="rules" label-position="left" label-width="120px" class="demo-form-inline" size="small">
+          <el-form-item label="Project Name:">
+            <el-input v-model="searchForm_raw.product_name" placeholder="enter project name"></el-input>
           </el-form-item>
-          <el-form-item label="Keywords:">
-            <el-input v-model.trim="searchForm.key" placeholder="please enter keywords"></el-input>
+          <el-form-item label="Keyword:">
+            <el-input v-model="searchForm_raw.key" placeholder="enter keyword"></el-input>
           </el-form-item>
-          <el-form-item key="ta_statusSearch" label="Status:" v-if="!($route.path === '/v_history')">
-            <el-select v-model.trim="searchForm.status" clearable placeholder="please select status">
+          <el-form-item key="ta_statusSearch" label="Status:">
+            <el-select v-model="searchForm_raw.status" clearable placeholder="select status">
+              <el-option label="All" value=""></el-option>
               <el-option label="Unreviewed" value="Unreviewed" v-if="$route.path === '/t_history'"></el-option>
-              <el-option label="Re-translated" value="Re-translated" v-if="$route.path === '/t_history'"></el-option>
-              <el-option label="Qualified" value="Qualified" v-if="$route.path === '/t_history'"></el-option>
-              <el-option label="Error" value="Error" v-if="$route.path === '/t_history'"></el-option>
-              <el-option label="Qualified" value="Qualified" v-if="$route.path === '/a_history'"></el-option>
-              <el-option label="Unqualified" value="Unqualified" v-if="$route.path === '/a_history'"></el-option>
+              <el-option label="Passed" value="Qualified" v-if="$route.path === '/t_history'"></el-option>
+              <el-option label="Failed" value="Unretranslated" v-if="$route.path === '/t_history'"></el-option>
+              <el-option label="Passed" value="Qualified" v-if="$route.path === '/a_history'"></el-option>
+              <el-option label="Failed" value="Unretranslated" v-if="$route.path === '/a_history'"></el-option>
+              <el-option label="Error" value="Error" v-if="($route.path === '/t_history')||($route.path === '/a_history')"></el-option>
+              <el-option label="Unresolved" value="0" v-if="$route.path === '/v_history'"></el-option>
+              <el-option label="Agreed" value="1" v-if="$route.path === '/v_history'"></el-option>
+              <el-option label="Ignored" value="2" v-if="$route.path === '/v_history'"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -30,8 +35,8 @@
       </div>
     </div>
     <div class="showHistoryList">
-      <el-table ref="historyListTable" :data="historyListTable" v-loading="loading" stripe border style="width: 100%" @row-dblclick="rowDblClick">
-        <el-table-column key="o_historySource" label="Suggestion" align="center" type="expand" width="100" v-if="$route.path === '/v_history'">
+      <el-table ref="historyListTable" :data="historyListTable" v-loading="loading" style="width: 100%" @row-dblclick="rowDblClick" @sort-change="sortChange">
+        <el-table-column key="o_historySource" label="Issues" align="center" type="expand" width="100" v-if="$route.path === '/v_history'">
           <template slot-scope="scope">
             <div>{{scope.row.objection}}</div>
           </template>
@@ -43,40 +48,50 @@
             </ol>
           </template>
         </el-table-column>
-        <el-table-column prop="product" label="Project Name" align="center">
+        <el-table-column prop="product" label="Project Name" align="center" sortable="custom">
         </el-table-column>
-        <el-table-column prop="key" label="Keywords" align="center">
+        <el-table-column prop="key" label="Keyword" align="center" sortable="custom" show-overflow-tooltip>
           <template slot-scope="scope">
             <div>{{Object.keys(JSON.parse(scope.row.key)[0])[0]}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="status" key="ta_historyStatus" label="Status" align="center" v-if="$route.path === '/t_history'||$route.path === '/a_history'">
-        </el-table-column>
-        <el-table-column label="Status" key="v_historyStatus" align="center" v-if="$route.path === '/v_history'">
+        <el-table-column prop="status" key="ta_historyStatus" label="Status" align="center" v-if="$route.path === '/t_history'||$route.path === '/a_history'" sortable="custom">
           <template slot-scope="scope">
-            <div v-if="scope.row.approved===2">Ignore</div>
-            <div v-else-if="scope.row.approved===1">Agree</div>
-            <div v-else-if="scope.row.approved===0" style="color:#E6A23C">Unprocessed</div>
+            <div v-if="scope.row.status==='Qualified'">Passed</div>
+            <div v-else-if="scope.row.status==='Unretranslated'">Failed</div>
+            <div v-else>{{scope.row.status}}</div>
           </template>
         </el-table-column>
-        <el-table-column key="t_historyCreate_at" prop="created_at" label="TranslationDate" align="center" v-if="$route.path === '/t_history'">
+        <el-table-column label="Status" key="v_historyStatus" align="center" v-if="$route.path === '/v_history'" sortable="custom">
           <template slot-scope="scope">
-            <div :title="scope.row.created_at">{{scope.row.created_at&&(scope.row.created_at.split(" ")[1])?scope.row.created_at.split(" ")[0]:scope.row.created_at}}</div>
+            <div v-if="scope.row.approved===2">Ignored</div>
+            <div v-else-if="scope.row.approved===1">Agreed</div>
+            <div v-else-if="scope.row.approved===0" style="color:#E6A23C">Unresolved</div>
           </template>
         </el-table-column>
-        <el-table-column key="v_historyCreate_at" prop="created_at" label="SuggestionDate" align="center" v-if="$route.path === '/v_history'">
+        <el-table-column key="t_historyCreate_at" prop="created_at" label="Translation Time" align="center" v-if="$route.path === '/t_history'" sortable="custom">
           <template slot-scope="scope">
-            <div :title="scope.row.created_at">{{scope.row.created_at&&(scope.row.created_at.split(" ")[1])?scope.row.created_at.split(" ")[0]:scope.row.created_at}}</div>
+            <div :title="scope.row.created_at">{{scope.row.created_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column key="a_historyUpdated_at" prop="updated_at" label="ApprovalDate" align="center" v-if="$route.path === '/a_history'">
+        <el-table-column key="a_historyUpdated_at" prop="updated_at" label="Review Time" align="center" v-if="$route.path === '/a_history'" sortable="custom">
           <template slot-scope="scope">
-            <div :title="scope.row.updated_at">{{scope.row.updated_at&&(scope.row.updated_at.split(" ")[1])?scope.row.updated_at.split(" ")[0]:scope.row.updated_at}}</div>
+            <div :title="scope.row.updated_at">{{scope.row.updated_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Operation" align="center">
+        <el-table-column key="v_historyCreate_at" prop="created_at" label="Creation Time" align="center" v-if="$route.path === '/v_history'" sortable="custom">
           <template slot-scope="scope">
-          <el-button type="text" size="medium" title="view" @click="transItem(scope.row)">View</el-button>
+            <div :title="scope.row.created_at">{{scope.row.created_at}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column key="v_historyAdvice_updated_at" prop="advice_updated_at" label="Reply Time" align="center" v-if="$route.path === '/v_history'" sortable="custom">
+          <template slot-scope="scope">
+            <div :title="scope.row.approved!==0?scope.row.advice_updated_at:''" v-if="scope.row.approved!==0">{{scope.row.advice_updated_at}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Translation" align="center">
+          <template slot-scope="scope">
+          <el-button type="text" size="medium" title="View" @click="transItem(scope.row)">View</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -92,45 +107,62 @@ export default {
     // console.log(this.$route.path);
     this.$route.path === '/t_history'?this.url = '/api/translate/history':null
     this.$route.path === '/a_history'?this.url = '/api/approve/list':null
-    this.$route.path === '/v_history'?this.url = '/api/view/list_conflict_mine':null
-    this.loading = true
-    // this.$http.post(this.url).then(response=>{
-    //   // console.log(response.data);
-    //   this.historyListTable = response.data.data;
-    //   this.total = response.data.total;
-    //   this.loading = false
-    // })
-    this.onSearch()
+    this.$route.path === '/v_history'?this.url = '/api/view/list_conflict_all':null
+
+    // this.$router.push(this.$route.path+'?page=1&count=10')
+    // this.onSearch()
+    // !this.$route.query.name&&!this.$route.query.key&&!this.$route.query.status?this.searchFlag = false:this.searchFlag = true
+    this.$http.post(this.url,qs.stringify({product_name:this.$route.query.name,key:this.$route.query.key,status:this.$route.query.status,page:this.$route.query.page,count:this.$route.query.count})).then(response=>{
+        // console.log(response.data);
+        this.historyListTable = response.data.data;
+        this.total = response.data.total;
+      })
   },
   data() {
     return {
+      url:'',
+      searchForm_raw: {
+        product_name:this.$route.query.name||'',
+        key: this.$route.query.key||'',
+        status: this.$route.query.status||''
+      },
       searchForm: {
-        product_name:'',
-        key: '',
-        status: ''
+        product_name:this.$route.query.name||'',
+        key: this.$route.query.key||'',
+        status: this.$route.query.status||''
       },
       listUrl:'',
       loading:false,
-      searchFlag:false,
+      // searchFlag:false,
+      sort:[],
       rules: {},
       historyListTable: [],
       total:0,
-      currentPage: 1,
-      pageSize: 10
+      currentPage: Number(this.$route.query.page)||1,
+      pageSize: Number(this.$route.query.count)||10
     }
   },
   watch:{
     '$route.path':{
       handler(val,oldVal){
-        this.searchForm.product_name=""
-        this.searchForm.key=""
-        this.searchForm.status=""
-        this.currentPage = 1
-        this.pageSize = 10
-        val === '/t_history'?this.url = '/api/translate/history':null
-        val === '/a_history'?this.url = '/api/approve/list':null
-        val === '/v_history'?this.url = '/api/view/list_conflict_mine':null
-        this.onSearch()
+        if(val!==oldVal){
+          // console.log(val,oldVal)
+          this.searchForm_raw.product_name=""
+          this.searchForm_raw.key=""
+          this.searchForm_raw.status=""
+
+          this.searchForm.product_name=""
+          this.searchForm.key=""
+          this.searchForm.status=""
+
+          // this.currentPage = 1
+          this.pageSize = 10
+          val === '/t_history'?this.url = '/api/translate/history':null
+          val === '/a_history'?this.url = '/api/approve/list':null
+          val === '/v_history'?this.url = '/api/view/list_conflict_all':null
+          this.onSearch()
+        }
+        
         // this.loading = true
         // this.$http.post(this.url).then(response=>{
         //   // console.log(response.data);
@@ -144,14 +176,41 @@ export default {
   },
   methods: {
     onSearch() {
-      this.loading = true
+      this.$refs.historyListTable.clearSort()
+      this.sort = []
+      
       this.currentPage = 1
-      this.searchForm.product_name===''&&this.searchForm.key===''&&this.searchForm.status===''?this.searchFlag = false:this.searchFlag = true
+      let obj = {}
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.status?obj.status = this.searchForm.status:null
+      this.currentPage?obj.page = this.currentPage:null
+      this.pageSize?obj.count = this.pageSize:null
+      this.$router.push({path:this.$route.path,query:obj})
+
+      this.searchForm.product_name = this.searchForm_raw.product_name
+      this.searchForm.key = this.searchForm_raw.key
+      this.searchForm.status = this.searchForm_raw.status
+
+      // this.searchForm.product_name===''&&this.searchForm.key===''&&this.searchForm.status===''?this.searchFlag = false:this.searchFlag = true
       this.$http.post(this.url,qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:this.currentPage,count:this.pageSize})).then(response=>{
         // console.log(response.data);
         this.historyListTable = response.data.data;
         this.total = response.data.total;
-        this.loading = false
+      })
+    },
+    sortChange(event){
+      let order=""
+      event.order==="ascending"?order='ASC':null
+      event.order==="descending"?order='DESC':null
+      this.sort[0] = event.prop
+      this.sort[1] = order
+      this.currentPage = 1
+
+      this.$http.post(this.url,qs.stringify(event.prop?{product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:this.currentPage,count:this.pageSize,sort:this.sort}:{product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:this.currentPage,count:this.pageSize})).then(response=>{
+        // console.log(response.data);
+        this.historyListTable = response.data.data;
+        this.total = response.data.total;
       })
     },
     rowDblClick(row, column, event){
@@ -167,7 +226,17 @@ export default {
       this.$route.path === '/t_history'?path = '/t_browhistoryitem':null
       this.$route.path === '/a_history'?path = '/a_browhistoryitem':null
       this.$route.path === '/v_history'?path = '/v_browhistoryitem':null
-      this.$router.push({path:path,query:{id:row.id}})
+
+      let obj = {
+        id:row.id
+      }
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.status?obj.status = this.searchForm.status:null
+      this.currentPage?obj.page = this.currentPage:null
+      this.pageSize?obj.count = this.pageSize:null
+
+      this.$router.push({path:path,query:obj})
     },
     handleSizeChange(size){
       this.pageSize = size
@@ -175,23 +244,28 @@ export default {
       this.handleCurrentChange(this.currentPage)
     },
     handleCurrentChange(val) {
-      this.loading = true
       this.currentPage = val;
-      if(this.searchFlag){
-        this.$http.post(this.url,qs.stringify({product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:val,count:this.pageSize})).then(response=>{
+      let obj = {}
+      this.searchForm.product_name?obj.name = this.searchForm.product_name:null
+      this.searchForm.key?obj.key = this.searchForm.key:null
+      this.searchForm.status?obj.status = this.searchForm.status:null
+      this.pageSize?obj.count = this.pageSize:null
+      val?obj.page = val:null
+      this.$router.push({path:this.$route.path,query:obj})
+      
+      // if(this.searchFlag){
+        this.$http.post(this.url,qs.stringify(this.sort[0]?{product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:val,count:this.pageSize,sort:this.sort}:{product_name:this.searchForm.product_name,key:this.searchForm.key,status:this.searchForm.status,page:val,count:this.pageSize})).then(response=>{
           // console.log(response.data);
           this.historyListTable = response.data.data;
           this.total = response.data.total;
-          this.loading = false
         })
-      }else{
-        this.$http.post(this.url,qs.stringify({page:val,count:this.pageSize})).then(response=>{
-          // console.log(response.data);
-          this.historyListTable = response.data.data;
-          this.total = response.data.total;
-          this.loading = false
-        })
-      }
+      // }else{
+      //   this.$http.post(this.url,qs.stringify(this.sort[0]?{page:val,count:this.pageSize,sort:this.sort}:{page:val,count:this.pageSize})).then(response=>{
+      //     // console.log(response.data);
+      //     this.historyListTable = response.data.data;
+      //     this.total = response.data.total;
+      //   })
+      // }
     }
   }
 }

@@ -42,12 +42,13 @@ class ExportController extends Controller
         $user_id = $user->id;
         $users_name = $user->name;
         //make sure user
-        $Product_find = Product::select('users_name','field_num','product')
+        $Product_find = Product::select('users_name','field_num','product','import_head')
                             ->where('id',$product_id)
                             ->first();
 
         $product_name = $Product_find->product;
         $field_num = $Product_find->field_num;
+        $Import_head = empty($Product_find->import_head) ? NULL: $Product_find->import_head;
 
         if($Product_find->users_name !== $users_name){
             return response()->json(['error' => 'Failed'], 200);
@@ -89,7 +90,7 @@ class ExportController extends Controller
                 ->toArray();
 
         if(empty($get_qualified)){
-        	return response()->json(['error' => 'No item is Qualified in the project'], 200);
+        	return response()->json(['error' => 'No entries are qualified in this project.'], 200);
             die();
         }
     				
@@ -127,7 +128,7 @@ class ExportController extends Controller
         ob_start();
  
        // return (new SampleExport($status))->download('Sample.xlsx',\Maatwebsite\Excel\Excel::XLSX);
-        Excel::store(new QualifiedExport($version,$field_num),$file_name,'qualifiedexport');
+        Excel::store(new QualifiedExport($version,$field_num,$Import_head),$file_name,'qualifiedexport');
         $md5_array = Excel::toArray(new QualifiedImport,$file_name,'qualifiedexport');
 
         $count_md5 = count($md5_array[0]);
@@ -142,7 +143,25 @@ class ExportController extends Controller
 
             Export_version::where('version_id','=',$version)->update(['status'=>1]);
 
-            return response()->json(['require' => asset('storage/excel/qualifiedexport/'.$file_name_new)], 200);
+            $where_export[] = array('users_name','=',$users_name);
+            if(!empty($product_id)){
+                $where_export[] = array('product.id','=',$product_id);
+            }
+            $where_export[] = array('version.version_id','=',$version);
+
+            $getbyversion =  Product::where($where_export)
+                    ->select('product','users_name','lang','deadline','translate_users','approve_users','viewed_users',
+                        'status','product.created_at','product.updated_at','attribute','priority','product_desc')
+                    ->addselect('version_name','version_id','version.created_at as version_created_at')
+                    ->leftjoin('version','product.id','=','version.product_id')
+                    ->orderBy('version.id','DESC')
+                    ->get()
+                    ->toArray();
+            $json_return = array();
+            $json_return['getbyversion'] = $getbyversion;
+            $json_return['file'] = asset('storage/excel/qualifiedexport/'.$file_name_new);
+
+            return response()->json(['result' => $json_return], 200);
             die();
 
         }else{
@@ -170,12 +189,13 @@ class ExportController extends Controller
         $user_id = $user->id;
         $users_name = $user->name;
         //make sure user
-        $Product_find = Product::select('users_name','field_num','product')
+        $Product_find = Product::select('users_name','field_num','product','import_head')
                             ->where('id',$product_id)
                             ->first();
 
         $product_name = $Product_find->product;
         $field_num = $Product_find->field_num;
+        $Import_head = empty($Product_find->import_head) ? NULL: $Product_find->import_head;
 
         if($Product_find->users_name !== $users_name){
             return response()->json(['error' => 'Failed'], 200);
@@ -198,7 +218,7 @@ class ExportController extends Controller
         ob_end_clean();
         ob_start();
         //return (new SampleExport($status))->download('Sample.xlsx',\Maatwebsite\Excel\Excel::XLSX);
-        Excel::store(new QualifiedExport($version_id,$field_num),$file_name,'qualifiedexport');        
+        Excel::store(new QualifiedExport($version_id,$field_num,$Import_head),$file_name,'qualifiedexport');        
         $md5_array = Excel::toArray(new QualifiedImport,$file_name,'qualifiedexport');
 
         $count_md5 = count($md5_array[0]);

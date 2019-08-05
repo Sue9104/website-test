@@ -310,6 +310,29 @@ function getnextTask($order_id){
 
     	return $permission_get;
     }
+    function sortBymany(){
+    	//return '123';
+    	$args = func_get_args();
+		 if(empty($args)){
+		  return null;
+		 }
+		 $arr = array_shift($args);
+		 if(!is_array($arr)){
+		  throw new Exception("第一个参数应为数组");
+		 }
+		 foreach($args as $key => $field){
+		  if(is_string($field)){
+		   $temp = array();
+		   foreach($arr as $index=> $val){
+		    $temp[$index] = $val[$field];
+		   }
+		   $args[$key] = $temp;
+		  }
+		 }
+		 $args[] = &$arr;//引用值
+		 call_user_func_array('array_multisort',$args);
+		 return array_pop($args);
+    }
 
 
 

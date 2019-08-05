@@ -38,28 +38,66 @@ class ViewedController extends Controller
         $user_id = $user->id;
         $user_id = "'".$user_id."'";
         $users_name = "'".$users_name."'";
+        $sort = $request->get('sort');
         //product_id
         $where[] = array('id','>',0);
 		if(!empty($product_name)){
             $where[] = array('product','like','%'.$product_name.'%');
         }
-        
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'product';
+            $sort[] = 'ASC';
+        }
+
         $sqlTmp = sprintf("json_contains(`product`.`viewed_users`,%s)", $user_id);
         $sqlTmp2 = sprintf("json_contains(`product`.`translate_users`,%s)", $user_id);
         $sqlTmp3 = sprintf("json_contains(`product`.`approve_users`,%s)", $user_id);
-        $sql_where = sprintf("(%s OR %s OR %s OR product.users_name=%s)",$sqlTmp,$sqlTmp2,$sqlTmp3,$users_name);
-        /*var_dump($sql_where);
-        die();*/
-        $sql_orwhere = "`product`.`attribute` = 'public'";
-        return  DB::table('product')
+        $sqlTmp4 = sprintf("`product`.`attribute` = 'public'");
+        $sql_where = sprintf("(%s OR %s OR %s OR product.users_name=%s OR %s)",$sqlTmp,$sqlTmp2,$sqlTmp3,$users_name,$sqlTmp4);
+
+        $product_get= Product::where($where)
+                            ->select('id');
+
+        $version_get = Version::select('product_id',DB::raw('COUNT(`version`.id) as version_nums'))
+                                ->JoinSub($product_get, 'latest_posts', function($join) {
+                                    $join->on('version.product_id', '=', 'latest_posts.id');
+                                })
+                                ->groupBy('version.product_id')
+                                ->get()
+                                ->toArray();
+
+        $version_array = array();
+        if(!empty($version_get)){
+            foreach ($version_get as $key => $value) {
+                $version_array[$value['product_id']] = $value['version_nums'];
+            }
+        }
+
+        $query_get =  DB::table('product')
                 ->select('*')
                 ->where($where)
                 ->WhereRaw($sql_where)
-                ->orWhereRaw($sql_orwhere)
-                /*->orWhereRaw($sqlTmp2)
-                ->orWhereRaw($sqlTmp3)
-                ->orWhere('product.users_name','=',$users_name)*/
-                ->paginate($count,['*'],'page',$page);			
+                ->orderBy($sort[0],$sort[1])
+                ->get()
+                ->toArray();
+
+        if(count($query_get) >0){
+            $query_get_data = $query_get;
+            foreach ($query_get as $key2 => $value2) {
+                if(!array_key_exists($value2->id, $version_array)){
+                    unset($query_get_data[$key2]);
+                }
+            }
+        }
+        
+        $query_data_return = array_slice($query_get_data,($page-1)*$count,$count);
+        $total = count($query_get_data);
+        
+        $data_return = array();
+        $data_return['total'] = $total;
+        $data_return['data'] = $query_data_return;
+
+        return response()->json(['result' => $data_return], 200);
 	}
 
 	public function list_version(Request $request){
@@ -262,11 +300,12 @@ class ViewedController extends Controller
         $insert_advices = new Advices;
         $insert_advices->t_app_id = $t_appove_id;
         $insert_advices->user_name = $users_name;
+        $insert_advices->version_id = $version_id_find;
         $insert_advices->objection = $input['objection'];
         $insert_advices->save();
 
         if($items_update){
-            return response()->json(['success' => 'Successful'], 200);           
+            return response()->json(['success' => 'Success'], 200);           
         }else{
             return response()->json(['error' => 'Failed'], 200);
         }
@@ -284,6 +323,8 @@ class ViewedController extends Controller
         $key = $request->get('key');
         $id = $request->get('id');
         $product_name = $request->get('product_name');
+        $status = $request->get('status');
+        $sort = $request->get('sort');
         //get permission by user 
         $user = Auth::user();
         $users_name = $user->name;
@@ -302,7 +343,15 @@ class ViewedController extends Controller
         if(!empty($product_name)){
             $where[] = array('product.product','like','%'.$product_name.'%');
         }
-        
+
+        if($status !== NULL){
+            $where[] = array('advices.approved','=',$status);
+        }
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'translate_approve.id';
+            $sort[] = 'DESC';
+        }
+
         return Advices::select('translate_approve.id','translate_approve.key','translate_approve.translate')
                 ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')//
                 ->addselect('product.lang','product.product')//product
@@ -310,6 +359,81 @@ class ViewedController extends Controller
                 ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
                 ->join('product','translate_approve.product_id','=','product.id')
                 ->where($where)
+                ->orderBy($sort[0],$sort[1])
+                ->paginate($count,['*'],'page',$page);
+
+    }
+    public function list_conflict_all(Request $request){
+
+        //get data
+        $page=$request->get('page',1);
+        $count=$request->get('count',10);
+     
+        //$status = $request->get('status');
+        $key = $request->get('key');
+        $id = $request->get('id');
+        $product_name = $request->get('product_name');
+        $status = $request->get('status');
+        $sort = $request->get('sort');
+        //get permission by user 
+        $user = Auth::user();
+        $users_name = $user->name;
+        $user_id = $user->id;
+        $users_name_js = "'".$users_name."'";
+        $user_id_js = "'".$user_id."'";
+
+        $sqlTmp = sprintf("json_contains(`product`.`viewed_users`,%s)", $user_id_js);
+        $sqlTmp2 = sprintf("json_contains(`product`.`translate_users`,%s)", $user_id_js);
+        $sqlTmp3 = sprintf("json_contains(`product`.`approve_users`,%s)", $user_id_js);
+        $sqlTmp4 = sprintf("`product`.`attribute` = 'public'");
+        $sql_where = sprintf("(%s OR %s OR %s OR product.users_name=%s OR %s)",$sqlTmp,$sqlTmp2,$sqlTmp3,$users_name_js,$sqlTmp4);//"'".
+
+        $product_get= Product::WhereRaw($sql_where)
+                            ->select('id')
+                            ->get()
+                            ->toArray();
+        $i = 0;
+        $product_id_array = array();
+        while ( $i < count($product_get)) {
+            $product_id_array[] = $product_get[$i]['id'];
+            $i++;
+        }
+
+        //below
+        //$where[] = array('advices.user_name','=',$users_name);     
+        //conflict is 1 and status is Qualified             
+        //other conditions 
+        if(!empty($id)){
+            $where[] = array('advices.id','=',$id);
+        }else{
+            $where[] = array('advices.id','>',0);
+        }
+        if(!empty($key)){
+            $where[] = array('translate_approve.key','like','%'.$key.'%');
+        }
+        if(!empty($product_name)){
+            $where[] = array('product.product','like','%'.$product_name.'%');
+        }
+
+        if($status !== NULL){
+            $where[] = array('advices.approved','=',$status);
+        }
+        if(empty($sort) || (!is_array($sort))){
+            $sort[] = 'translate_approve.id';
+            $sort[] = 'DESC';
+        }
+
+        return Advices::select('advices.id','advices.t_app_id','advices.user_name','advices.approved','advices.objection','advices.created_at as advice_created_at','advices.updated_at as advice_updated_at')
+                ->addselect('translate_approve.translate_id','translate_approve.product_id','translate_approve.key','translate_approve.translate','translate_approve.tips','translate_approve.created_at','translate_approve.updated_at','translate_approve.objection')
+                ->addselect('translate_approve.translate_users_name','translate_approve.allocate_users_name','translate_approve.approve_users_name')
+                ->addselect('product.users_name','product.translate_users','product.lang','product.product','product.attribute')
+                ->addselect('version.version_name')
+                ->join('translate_approve','translate_approve.id','=','advices.t_app_id')
+                ->join('product','translate_approve.product_id','=','product.id')
+                ->leftjoin('version','version.version_id','=','advices.version_id')
+                ->whereIn('product.id',$product_id_array)
+                ->where($where)
+                ->orderBy($sort[0],$sort[1])
                 ->paginate($count,['*'],'page',$page);
 
     }

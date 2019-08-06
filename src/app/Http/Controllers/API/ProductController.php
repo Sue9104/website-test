@@ -231,10 +231,10 @@ class ProductController extends Controller{
 		$page=$request->get('page',1);
 		$count=$request->get('count',1000);
 		
+		$where[] = array('role','=',1);
+		$where[] = array('status','=',1);
 		if(!empty($user_name)){
             $where[] = array('name','like','%'.$user_name.'%');
-        }else{
-            $where[] = array('id','>',0);
         }
 		return User::where($where)
 				->orderBy('name')

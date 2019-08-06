@@ -4,6 +4,7 @@ COPY src/ /var/www/trantrace/
 COPY .env /var/www/trantrace/docker.env
 COPY wait_for_mysql.sh /var/www/trantrace/
 COPY conf/trantrace.apache.conf /etc/apache2/sites-available/000-default.conf
+COPY conf/php.ini $PHP_INI_DIR/php.ini
 WORKDIR /var/www/trantrace/
 
 # install php extension

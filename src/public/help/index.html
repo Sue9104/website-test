@@ -17,7 +17,35 @@
     
             
                 
-                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fancybox/jquery.fancybox.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-prism/prism-darcula.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-alerts/style.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-terminal/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-emphasize/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-splitter/splitter.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-katex/katex.min.css">
                 
             
                 
@@ -57,7 +85,7 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="install-trantrace/configure.html" />
+    <link rel="next" href="install-trantrace/requirements.html" />
     
     
 
@@ -107,12 +135,12 @@
         
         
     
-        <li class="chapter " data-level="2.1" data-path="install-trantrace/configure.html">
+        <li class="chapter " data-level="2.1" data-path="install-trantrace/requirements.html">
             
-                <a href="install-trantrace/configure.html">
+                <a href="install-trantrace/requirements.html">
             
                     
-                    Configure
+                    Requirement
             
                 </a>
             
@@ -120,12 +148,25 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="install-trantrace/install.html">
+        <li class="chapter " data-level="2.2" data-path="install-trantrace/install-with-docker-compose.html">
             
-                <a href="install-trantrace/install.html">
+                <a href="install-trantrace/install-with-docker-compose.html">
             
                     
-                    Install
+                    Install with Docker-compose
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="install-trantrace/install-from-source.html">
+            
+                <a href="install-trantrace/install-from-source.html">
+            
+                    
+                    Install from Source
             
                 </a>
             
@@ -158,7 +199,7 @@
                 <a href="getting-started/roles.html">
             
                     
-                    Roles
+                    Role
             
                 </a>
             
@@ -191,7 +232,7 @@
                 <a href="interface/root.html">
             
                     
-                    root
+                    Root
             
                 </a>
             
@@ -204,7 +245,7 @@
                 <a href="interface/user.html">
             
                     
-                    user
+                    User
             
                 </a>
             
@@ -218,7 +259,7 @@
                 <a href="interface/owner-project-management.html">
             
                     
-                    owner: project management
+                    Owner: project management
             
                 </a>
             
@@ -231,7 +272,7 @@
                 <a href="interface/translator-translation-management.html">
             
                     
-                    translator: translation management
+                    Translator: translation management
             
                 </a>
             
@@ -244,7 +285,7 @@
                 <a href="interface/reviewer-review-management.html">
             
                     
-                    reviewer: review management
+                    Reviewer: review management
             
                 </a>
             
@@ -257,7 +298,7 @@
                 <a href="interface/guest-released-projects.html">
             
                     
-                    guest: released projects
+                    All: released projects
             
                 </a>
             
@@ -350,33 +391,26 @@
                                 
                                 <h1 id="trantrace">Trantrace</h1>
 <p>Trantrace is an open-source web-based application, which offers a simple and robust solution for large-scale continuous collaborative database translation.</p>
-<p><img src="assets/login.png" alt=""></p>
+<p>     <a href="assets/signin.png" rel="grouped" title="" target="_self" class="fancybox">
+       <img src="assets/signin.png" alt="">
+     </a></p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Enable every log-in users to build own translation projects with different permissions</li>
-<li>Version control is easy for your translation</li>
-<li>Real-time progress management</li>
+<li><p>Enable every user to build own translation project with different permissions</p>
+</li>
+<li><p>Version control for your translation</p>
+</li>
+<li><p>Real-time task management</p>
+</li>
 </ul>
 <h2 id="license">License</h2>
 <blockquote>
-<p>Trantrace is a free and open source software with <a href="https://opensource.org/licenses/MIT" target="_blank">MIT license</a>.  </p>
+<p><strong>[info] Trantrace is a free and open-source software with an <a href="https://opensource.org/licenses/MIT" target="_blank">MIT license</a>.</strong></p>
 </blockquote>
 <p>Copyright (c) 2019 Singlera Genomics</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy<br>of this software and associated documentation files (the &quot;Software&quot;), to deal<br>in the Software without restriction, including without limitation the rights<br>to use, copy, modify, merge, publish, distribute, sublicense, and/or sell<br>copies of the Software, and to permit persons to whom the Software is<br>furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all<br>copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<br>IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<br>FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<br>AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<br>LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,<br>OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE<br>SOFTWARE.</p>
 
                                 
                                 </section>
@@ -405,7 +439,7 @@ SOFTWARE.</p>
             
                 
                 
-                <a href="install-trantrace/configure.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Configure">
+                <a href="install-trantrace/requirements.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Requirement">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -416,7 +450,7 @@ SOFTWARE.</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"Configure","level":"2.1","depth":1,"path":"install-trantrace/configure.md","ref":"install-trantrace/configure.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2019-06-06T11:48:25.315Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-11T02:11:33.942Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"Requirement","level":"2.1","depth":1,"path":"install-trantrace/requirements.md","ref":"install-trantrace/requirements.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["fancybox","-highlight","prism","prism-themes","alerts","terminal","emphasize","splitter","simple-page-toc","katex"],"pluginsConfig":{"prism":{"css":["prism-themes/themes/prism-darcula.css"]},"fancybox":{"helpers":{"buttons":{}}},"emphasize":{},"simple-page-toc":{},"splitter":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"katex":{},"fontsettings":{"theme":"white","family":"sans","size":2},"prism-themes":{},"alerts":{},"sharing":{"facebook":true,"twitter":true,"google":true,"weibo":true,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"terminal":{"copyButtons":true,"fade":true,"style":"flat"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2019-07-24T14:04:07.131Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-08T16:08:41.614Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
@@ -424,6 +458,38 @@ SOFTWARE.</p>
         
     <script src="gitbook/gitbook.js"></script>
     <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.mousewheel.pack.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.fancybox.pack.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-alerts/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-terminal/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-splitter/splitter.js"></script>
+        
     
         
         <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>

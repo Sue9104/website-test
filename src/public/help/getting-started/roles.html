@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Roles · GitBook</title>
+        <title>Role · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -17,7 +17,35 @@
     
             
                 
-                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fancybox/jquery.fancybox.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism-darcula.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-alerts/style.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-terminal/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-emphasize/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-splitter/splitter.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-katex/katex.min.css">
                 
             
                 
@@ -109,12 +137,12 @@
         
         
     
-        <li class="chapter " data-level="2.1" data-path="../install-trantrace/configure.html">
+        <li class="chapter " data-level="2.1" data-path="../install-trantrace/requirements.html">
             
-                <a href="../install-trantrace/configure.html">
+                <a href="../install-trantrace/requirements.html">
             
                     
-                    Configure
+                    Requirement
             
                 </a>
             
@@ -122,12 +150,25 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="../install-trantrace/install.html">
+        <li class="chapter " data-level="2.2" data-path="../install-trantrace/install-with-docker-compose.html">
             
-                <a href="../install-trantrace/install.html">
+                <a href="../install-trantrace/install-with-docker-compose.html">
             
                     
-                    Install
+                    Install with Docker-compose
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="../install-trantrace/install-from-source.html">
+            
+                <a href="../install-trantrace/install-from-source.html">
+            
+                    
+                    Install from Source
             
                 </a>
             
@@ -160,7 +201,7 @@
                 <a href="roles.html">
             
                     
-                    Roles
+                    Role
             
                 </a>
             
@@ -193,7 +234,7 @@
                 <a href="../interface/root.html">
             
                     
-                    root
+                    Root
             
                 </a>
             
@@ -206,7 +247,7 @@
                 <a href="../interface/user.html">
             
                     
-                    user
+                    User
             
                 </a>
             
@@ -220,7 +261,7 @@
                 <a href="../interface/owner-project-management.html">
             
                     
-                    owner: project management
+                    Owner: project management
             
                 </a>
             
@@ -233,7 +274,7 @@
                 <a href="../interface/translator-translation-management.html">
             
                     
-                    translator: translation management
+                    Translator: translation management
             
                 </a>
             
@@ -246,7 +287,7 @@
                 <a href="../interface/reviewer-review-management.html">
             
                     
-                    reviewer: review management
+                    Reviewer: review management
             
                 </a>
             
@@ -259,7 +300,7 @@
                 <a href="../interface/guest-released-projects.html">
             
                     
-                    guest: released projects
+                    All: released projects
             
                 </a>
             
@@ -335,7 +376,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Roles</a>
+        <a href=".." >Role</a>
     </h1>
 </div>
 
@@ -350,63 +391,101 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="roles">Roles</h1>
-<h2 id="system-roles-">System roles <span id="system-roles"></span></h2>
-<p>There are two roles in the Trantrace system: root and user. </p>
+                                <h1 id="role">Role</h1>
+<h2 id="user-role">User role</h2>
+<p><span id="system-roles"></span></p>
+<p>There are two roles in Trantrace: root (administrator) and general user.</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Role</th>
-<th style="text-align:left">Permissions</th>
-<th style="text-align:left">Workspace</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">root</td>
-<td style="text-align:left">add or delete users</td>
-<td style="text-align:left"><a href="../interface/root.html">Root Interface</a></td>
-</tr>
-<tr>
-<td style="text-align:left">user</td>
-<td style="text-align:left">build projects and different operation (assign&#x3001;translate&#x3001;review&#x3001;suggest) depending on the role in project</td>
-<td style="text-align:left"><a href="../interface/user.html">User Interface</a></td>
-</tr>
-</tbody>
+  <tr>
+    <th>Role</th>
+    <th>Permission</th>
+    <th>Workspace</th>
+  </tr>
+  <tr>
+    <td>root</td>
+    <td>
+      <li>Add new user without registration.</li>
+      <li>Activate or deactivate user account.</li>
+      <li>Reset user password to 123456.</li>
+    </td>
+    <td><a href="../interface/root.html">Administration Interface</a></td>
+  </tr>
+  <tr>
+    <td>general user</td>
+    <td>
+      <li>Creat Own projects.</li>
+      <li>Others depending on the role in project.</li>
+    </td>
+    <td><a href="../interface/user.html">User Interface</a></td>
+  </tr>
 </table>
-<h2 id="project-roles">Project Roles</h2>
-<p>Each user in Trantrace share same interface but have different workspace. There are four roles in a specific translation project: owner, translator, reviewer, guest.</p>
+
+<h2 id="project-role">Project role</h2>
+<p>General users all share same interface but have different workspace depending on the project role. There are four roles in one project: owner, translator, reviewer and guest (optional).</p>
+<p>Once the project visibility is set to public, every logged in user is the project guest and they all can search released translation and open issues.</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Role</th>
-<th style="text-align:left">Permissions</th>
-<th style="text-align:left">Workspace</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">owner</td>
-<td style="text-align:left">assign task to translators, revise project settings, release version</td>
-<td style="text-align:left"><a href="../interface/owner-project-management.html">Project Management</a></td>
-</tr>
-<tr>
-<td style="text-align:left">translator</td>
-<td style="text-align:left">translate the assigned items and retranslate the items rejected by reviewers</td>
-<td style="text-align:left"><a href="../interface/translator-translation-management.html">Translation Management</a></td>
-</tr>
-<tr>
-<td style="text-align:left">reviewer</td>
-<td style="text-align:left">decide whether to accept the translation or not</td>
-<td style="text-align:left"><a href="../interface/reviewer-review-management.html">Review Management</a></td>
-</tr>
-<tr>
-<td style="text-align:left">guest</td>
-<td style="text-align:left">search the released database and submit suggestions</td>
-<td style="text-align:left"><a href="../interface/guest-released-projects.html">Released Projects</a></td>
-</tr>
-</tbody>
+  <tr>
+    <th>Role</th>
+    <th>Permission</th>
+    <th>Workspace</th>
+  </tr>
+  <tr>
+    <td rowspan="2">owner</td>
+    <td>
+      <li><b>Specify setting</b>, including deadline, priority, source and target language, visibility and members.</li> 
+      <li><b>Upload the database files</b> to be translated and large file should be splited to multiple small files.</li>
+      <li><b>Assign entries</b> to translator.</li>
+      <li><b>Release version</b> for qualified translation.</li>
+    </td>
+    <td><a href="../interface/owner-project-management.html">Project Management</a></td>
+  </tr>
+  <tr>
+    <td>
+      <li><b>Search released translations</b> from joined project.</li>
+      <li><b>Resolve issues.</b></li>
+    </td>
+    <td><a href="../interface/guest-released-projects.html">Released Projects</a></td>
+  </tr>
+  <tr>
+    <td rowspan="2">translator</td>
+    <td>
+      <li><b>Translate assigned entries</b> from owner.</li>
+      <li><b>Retranslate failed entries</b> from reviewer.</li>
+     and </td>
+    <td><a href="../interface/translator-translation-management.html">Translation Management</a></td>
+  </tr>
+  <tr>
+    <td>
+      <li><b>Search released translations</b> from joined project.</li>
+      <li><b>Open issues if found error.</b></li>
+    </td><td><a href="../interface/guest-released-projects.html">Released Projects</a></td>
+  </tr>
+  <tr>
+    <td rowspan="2">reviewer</td>
+    <td><li><b>Review translation</b> to decide whether to let it pass or not.</li><li></li></td>
+    <td><a href="../interface/reviewer-review-management.html">Review Management</a></td>
+  </tr>
+  <tr>
+    <td>
+      <li><b>Search released translations</b> from joined project.</li>
+      <li><b>Open issues if found error.</b></li>
+    </td>
+    <td><a href="../interface/guest-released-projects.html">Released Projects</a></td>
+  </tr>
+  <tr>
+    <td>guest</td>
+    <td>
+      <li><b>Search released translations</b> from joined project.</li>
+      <li><b>Open issues if found error.</b></li>
+    </td>
+    <td><a href="../interface/guest-released-projects.html">Released Projects</a></td>
+  </tr>
 </table>
+
+<p>User case diagram:</p>
+<p>     <a href="../assets/usercase.png" rel="grouped" title="" target="_self" class="fancybox">
+       <img src="../assets/usercase.png" alt="">
+     </a></p>
 
                                 
                                 </section>
@@ -450,7 +529,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Roles","level":"3.2","depth":1,"next":{"title":"Workflow","level":"3.3","depth":1,"path":"getting-started/workflow.md","ref":"getting-started/workflow.md","articles":[]},"previous":{"title":"Registration","level":"3.1","depth":1,"path":"getting-started/registration.md","ref":"getting-started/registration.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"getting-started/roles.md","mtime":"2019-06-11T01:38:47.807Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-11T02:11:33.942Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Role","level":"3.2","depth":1,"next":{"title":"Workflow","level":"3.3","depth":1,"path":"getting-started/workflow.md","ref":"getting-started/workflow.md","articles":[]},"previous":{"title":"Registration","level":"3.1","depth":1,"path":"getting-started/registration.md","ref":"getting-started/registration.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["fancybox","-highlight","prism","prism-themes","alerts","terminal","emphasize","splitter","simple-page-toc","katex"],"pluginsConfig":{"prism":{"css":["prism-themes/themes/prism-darcula.css"]},"fancybox":{"helpers":{"buttons":{}}},"emphasize":{},"simple-page-toc":{},"splitter":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"katex":{},"fontsettings":{"theme":"white","family":"sans","size":2},"prism-themes":{},"alerts":{},"sharing":{"facebook":true,"twitter":true,"google":true,"weibo":true,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"terminal":{"copyButtons":true,"fade":true,"style":"flat"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"getting-started/roles.md","mtime":"2019-08-08T05:54:44.672Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-08T16:08:41.614Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
@@ -458,6 +537,38 @@
         
     <script src="../gitbook/gitbook.js"></script>
     <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-fancybox/jquery.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fancybox/jquery.mousewheel.pack.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fancybox/jquery.fancybox.pack.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fancybox/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-alerts/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-terminal/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-splitter/splitter.js"></script>
+        
     
         
         <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>

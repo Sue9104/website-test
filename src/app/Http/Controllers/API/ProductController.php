@@ -109,7 +109,7 @@ class ProductController extends Controller{
 			       	$product_get[$key_data]['Unassigned_nums'] = $Unassigned_nums_p;
 			       	$product_get[$key_data]['Qualified_nums'] = $Qualified_nums_p;			   
 				}else{
-					$product_get[$key_data]['Unassigned_nums'] = 0;
+					$product_get[$key_data]['Unassigned_nums'] = $Unassigned_nums_p = 0;
 					$product_get[$key_data]['Qualified_nums'] = 0;					
 				}
 					$product_get[$key_data]['Assignment'] = $value_data['total_nums']-$Unassigned_nums_p;
@@ -163,6 +163,12 @@ class ProductController extends Controller{
 
 	public function add(Request $request){
 
+		$messages = [
+			'required' => 'The :attribute is required.',
+            'max' => 'Upload file must be less than 10MB.',
+            'unique'=>'The project name is already taken. Please choose another one.',
+        ];
+
 		$validator = Validator::make($request->all(), [
             'product' => 'required | unique :product,product',
             'deadline' => 'required', 
@@ -173,10 +179,10 @@ class ProductController extends Controller{
             'attribute'=>['required',Rule::in(['public','private'])],
             'priority'=>['required',Rule::in([1,2,3])],
             'product_desc' => 'present',
-        ]); 
+        ],$messages); 
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 200);
+            return response()->json(['error' => $validator->errors()], 202);
         }
 
         $input = $request->all();

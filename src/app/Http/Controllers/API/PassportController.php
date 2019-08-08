@@ -57,16 +57,22 @@ class PassportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function register(Request $request)
-    {
+    {   
+        $messages = [
+            'required' => 'The :attribute is required.',
+            'email'=>'Please enter the correct email.',
+            'same'=>'The passwords do not match twice.',
+        ];
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
-        ]);
+        ],$messages);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 200);
+            return response()->json(['error' => $validator->errors()], 202);
         }
 
         $input = $request->all();
@@ -79,13 +85,13 @@ class PassportController extends Controller
         
         $user_email_find = User::where('email',$input['email'])->first();
         if($user_email_find !== NULL){
-            return response()->json(['error' => 'Email is already take, please choose another one. '], $this->successStatus);
+            return response()->json(['error' => 'Email is already taken, please choose another one. '], $this->successStatus);
         }
         
         $user = User::create($input);
         
         $success['uid'] = $user->id;
-        $success['msg'] = 'Sign up successfully';
+        $success['msg'] = 'Sign up successfully.';
         //$success['token'] = $user->createToken('MyApp')->accessToken;
 
         $tokenResult = $user->createToken('MyApp');

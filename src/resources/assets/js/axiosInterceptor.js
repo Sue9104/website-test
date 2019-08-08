@@ -40,6 +40,16 @@ axios.interceptors.response.use(data=> {
     }
     // return data;
   }
+  if (data.status && data.status === 202) {
+    // console.log(data.data)
+    // console.log(Object.values(data.data.error))
+    if(data.data.error){
+      Message.error({ message:Object.values(data.data.error)[0][0]})
+    }else{
+      return data;
+    }
+    // return data;
+  }
   return data;
 }, err=> {
   if (err && err.response) {
@@ -50,7 +60,11 @@ axios.interceptors.response.use(data=> {
         break;
       case 401:
         if(err.response.data.error.translate_import){
-          Message.error({ message:err.response.data.error.translate_import})
+          if(err.response.data.error.translate_import.onstructor===Array){
+            Message.error({ message:err.response.data.error.translate_import.join()})
+          }else{
+            Message.error({ message:err.response.data.error.translate_import})
+          }
         }else if(err.response.data.error==='Unauthenticated.'||err.response.data.message==='Unauthenticated.'){
           Message.error({ message:'No access, please login!'})
           router.push('/401')

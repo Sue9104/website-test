@@ -230,7 +230,7 @@
             <div style="padding-left:40px;">- The first column must be unique.</div>
         </div>
         <!-- <div style="font-size:14px;padding:15px 0px;">Max filesize: 10MB</div> -->
-        <el-button size="small" type="primary" @click="procductImport">Select File</el-button>
+        <el-button size="small" type="primary" :disabled="uploadLoadingFlag" @click="procductImport">Select File</el-button>
         <div style="font-size:14px;margin:8px 0;">File Name：
           <span style="font-weight:bold;">{{uploadFile.name?uploadFile.name:''}}</span>
           <span style="color:#41babc;font-size:12px;" v-show="uploadLoadingFlag"><i class="el-icon-loading"></i> Start uploading, please do not close it.</span>
@@ -1186,9 +1186,17 @@ export default {
       // console.log(event.target.files[0]);
       if(/\.csv$|\.tsv$|\.xls$|\.xlsx$/.test(event.target.files[0].name)){
         if(/^[A-Za-z0-9-_.]/.test(event.target.files[0].name.split('.')[0])){
-          this.uploadFile = event.target.files[0]
-          this.uploadLoadingFlag = true
-          this.submitUpload()
+          if(event.target.files[0].size<10485760){
+            this.uploadFile = event.target.files[0]
+            this.uploadLoadingFlag = true
+            this.submitUpload()
+          }else{
+            // 清除file的value
+            this.uploadFile={}
+            $("#translateUpload").val('')
+            this.$message.warning("File size must be less than 10MB.")
+          }
+          
         }else{
         // 清除file的value
         this.uploadFile={}
@@ -1221,6 +1229,7 @@ export default {
       }}).then(response=>{
         this.uploadLoadingFlag = false
         this.uploadFile = ''
+        $("#translateUpload").val('')
         if(response.data.result){
           this.resultVisible = true
           this.uploadResult = response.data.result

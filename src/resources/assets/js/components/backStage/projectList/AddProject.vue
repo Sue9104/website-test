@@ -405,7 +405,7 @@ export default {
           }
           // console.log(obj);
           this.$http.post("/api/product/create",qs.stringify(obj)).then(response=>{
-            if(response.data.result.status==='Successful'){
+            if(response.data.result.status&&(response.data.result.status==='Successful')){
               this.$router.push('/projectdetail?id='+response.data.result.product_id+'&pane=upload')
             }else{
               this.$message.warning("Add failed!")

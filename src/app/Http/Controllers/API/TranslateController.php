@@ -36,7 +36,7 @@ class TranslateController extends Controller
         ],$messages);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error' => $validator->errors()], 202);
         }  
 
         if ($request->hasFile('translate_import')) {
@@ -586,7 +586,7 @@ class TranslateController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error' => $validator->errors()], 200);
         }
         $input = $request->all();
 
@@ -651,7 +651,7 @@ class TranslateController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error' => $validator->errors()], 200);
         }
         $input = $request->all();
         $do_command = "trans -t '".$input['lang']."' -b ".$input['translate_contents'];

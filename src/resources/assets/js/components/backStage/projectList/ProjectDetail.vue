@@ -760,8 +760,6 @@ export default {
         })).then(response=>{
           if(response.data.success){
             this.$router.push(this.backUrl)
-          }else{
-            this.$message('Failed to delete!')
           }
         })
       }).catch(() => {

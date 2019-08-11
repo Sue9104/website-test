@@ -435,7 +435,7 @@ class ProductController extends Controller{
 		}
 		$translate_in_nums = Translate_in::where('product_id','=',$id)->count();
 		if($translate_in_nums>0){
-			return response()->json(['error' => 'Failed'], 200);
+			return response()->json(['error' => 'Delete the project is only allowed before nothing is uploaded.'], 200);
 			die();
 		}
 		$res = Product::find($id)->delete();

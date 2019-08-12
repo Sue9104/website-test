@@ -17,7 +17,35 @@
     
             
                 
-                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fancybox/jquery.fancybox.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-prism/prism-darcula.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-alerts/style.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-terminal/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-emphasize/plugin.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-splitter/splitter.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-katex/katex.min.css">
                 
             
                 
@@ -109,12 +137,12 @@
         
         
     
-        <li class="chapter " data-level="2.1" data-path="install-trantrace/configure.html">
+        <li class="chapter " data-level="2.1" data-path="install-trantrace/requirements.html">
             
-                <a href="install-trantrace/configure.html">
+                <a href="install-trantrace/requirements.html">
             
                     
-                    Configure
+                    Requirement
             
                 </a>
             
@@ -122,12 +150,25 @@
             
         </li>
     
-        <li class="chapter " data-level="2.2" data-path="install-trantrace/install.html">
+        <li class="chapter " data-level="2.2" data-path="install-trantrace/install-with-docker-compose.html">
             
-                <a href="install-trantrace/install.html">
+                <a href="install-trantrace/install-with-docker-compose.html">
             
                     
-                    Install
+                    Install with Docker-compose
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="install-trantrace/install-from-source.html">
+            
+                <a href="install-trantrace/install-from-source.html">
+            
+                    
+                    Install from Source
             
                 </a>
             
@@ -160,7 +201,7 @@
                 <a href="getting-started/roles.html">
             
                     
-                    Roles
+                    Role
             
                 </a>
             
@@ -193,7 +234,7 @@
                 <a href="interface/root.html">
             
                     
-                    root
+                    Administration Interface
             
                 </a>
             
@@ -206,7 +247,7 @@
                 <a href="interface/user.html">
             
                     
-                    user
+                    User Interface
             
                 </a>
             
@@ -220,7 +261,7 @@
                 <a href="interface/owner-project-management.html">
             
                     
-                    owner: project management
+                    Owner: project management
             
                 </a>
             
@@ -233,7 +274,7 @@
                 <a href="interface/translator-translation-management.html">
             
                     
-                    translator: translation management
+                    Translator: translation management
             
                 </a>
             
@@ -246,7 +287,7 @@
                 <a href="interface/reviewer-review-management.html">
             
                     
-                    reviewer: review management
+                    Reviewer: review management
             
                 </a>
             
@@ -259,7 +300,7 @@
                 <a href="interface/guest-released-projects.html">
             
                     
-                    guest: released projects
+                    All: released projects
             
                 </a>
             
@@ -351,75 +392,146 @@
                                 <section class="normal markdown-section">
                                 
                                 <h1 id="glossary">Glossary</h1>
-<h2 id="item-status">item status</h2>
-<p><span id="status"></span></p>
+<!-- toc -->
+<ul>
+<li><a href="#visibility-level">Visibility level</a></li>
+<li><a href="#entry-status">Entry status</a></li>
+<li><a href="#issue-status">Issue status</a></li>
+<li><a href="#translation-status">Translation status</a></li>
+</ul>
+<!-- tocstop -->
+<h2 id="visibility-level">Visibility level</h2>
 <table>
 <thead>
 <tr>
-<th style="text-align:left">Status</th>
-<th style="text-align:left">Before/After version</th>
+<th style="text-align:left">Level</th>
 <th style="text-align:left">Description</th>
-<th style="text-align:left">Worker</th>
-<th style="text-align:left">Workspace in menu</th>
-<th style="text-align:left">Dashboard</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">unassigned</td>
-<td style="text-align:left">before</td>
-<td style="text-align:left">this item is not assigned</td>
-<td style="text-align:left">owner</td>
-<td style="text-align:left">Assignment</td>
-<td style="text-align:left">Assignment</td>
+<td style="text-align:left">private</td>
+<td style="text-align:left">This project is only visible for project members (owner, translator, reviewer, and guest).</td>
 </tr>
 <tr>
-<td style="text-align:left">untranslated</td>
-<td style="text-align:left">before</td>
-<td style="text-align:left">this item is not translated</td>
-<td style="text-align:left">translator</td>
-<td style="text-align:left">Translation</td>
-<td style="text-align:left">Translation</td>
+<td style="text-align:left">public</td>
+<td style="text-align:left">This project is visible for any logged-in user.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="entry-status">Entry status</h2>
+<p><span id="entry-status"></span></p>
+<p>An entry has five states: unassigned, untranslated, unretranslated, unreviewed and qualified.
+Therefore, the sum of entry counts with five status equals to total counts of project entries.</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi><mo>=</mo></mrow><annotation encoding="application/x-tex"> Total = </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.69444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">T</span><span class="mord mathit">o</span><span class="mord mathit">t</span><span class="mord mathit">a</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mrel">=</span></span></span></span>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>&#x2211;</mo><mi>u</mi><mi>n</mi><mi>a</mi><mi>s</mi><mi>s</mi><mi>i</mi><mi>g</mi><mi>n</mi><mi>e</mi><mi>d</mi><mo>+</mo><mo>&#x2211;</mo><mi>u</mi><mi>n</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>n</mi><mi>s</mi><mi>l</mi><mi>a</mi><mi>t</mi><mi>e</mi><mi>d</mi><mo>+</mo><mo>&#x2211;</mo><mi>u</mi><mi>n</mi><mi>r</mi><mi>e</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>n</mi><mi>s</mi><mi>l</mi><mi>a</mi><mi>t</mi><mi>e</mi><mi>d</mi><mo>+</mo><mo>&#x2211;</mo><mi>u</mi><mi>n</mi><mi>r</mi><mi>e</mi><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi><mi>e</mi><mi>d</mi><mo>+</mo><mo>&#x2211;</mo><mi>q</mi><mi>u</mi><mi>a</mi><mi>l</mi><mi>i</mi><mi>f</mi><mi>i</mi><mi>e</mi><mi>d</mi></mrow><annotation encoding="application/x-tex"> \sum unassigned + \sum untranslated + \sum unretranslated + \sum unreviewed + \sum qualified </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1.00001em;vertical-align:-0.25001em;"></span><span class="base textstyle uncramped"><span class="mop op-symbol small-op" style="top:-0.0000050000000000050004em;">&#x2211;</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord mathit">a</span><span class="mord mathit">s</span><span class="mord mathit">s</span><span class="mord mathit">i</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">n</span><span class="mord mathit">e</span><span class="mord mathit">d</span><span class="mbin">+</span><span class="mop op-symbol small-op" style="top:-0.0000050000000000050004em;">&#x2211;</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">a</span><span class="mord mathit">n</span><span class="mord mathit">s</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">a</span><span class="mord mathit">t</span><span class="mord mathit">e</span><span class="mord mathit">d</span><span class="mbin">+</span><span class="mop op-symbol small-op" style="top:-0.0000050000000000050004em;">&#x2211;</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">e</span><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">a</span><span class="mord mathit">n</span><span class="mord mathit">s</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">a</span><span class="mord mathit">t</span><span class="mord mathit">e</span><span class="mord mathit">d</span><span class="mbin">+</span><span class="mop op-symbol small-op" style="top:-0.0000050000000000050004em;">&#x2211;</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.03588em;">v</span><span class="mord mathit">i</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02691em;">w</span><span class="mord mathit">e</span><span class="mord mathit">d</span><span class="mbin">+</span><span class="mop op-symbol small-op" style="top:-0.0000050000000000050004em;">&#x2211;</span><span class="mord mathit" style="margin-right:0.03588em;">q</span><span class="mord mathit">u</span><span class="mord mathit">a</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">i</span><span class="mord mathit" style="margin-right:0.10764em;">f</span><span class="mord mathit">i</span><span class="mord mathit">e</span><span class="mord mathit">d</span></span></span></span></p>
+<p>     <a href="assets/entry_status.png" rel="grouped" title="" target="_self" class="fancybox">
+       <img src="assets/entry_status.png" alt="">
+     </a></p>
+<table>
+  <tr>
+    <th><a href="glossary.html#entry-status" class="glossary-term" title="">Entry Status</a></th>
+    <th>Dashboard</th>
+    <th>Workspace</th>
+    <th>Worker</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>unassigned</td>
+    <td>Assignment</td>
+    <td>Project Management &gt; <b>Assignment</b></td>
+    <td>Owner</td>
+    <td>Entry has not been assigned to translator.</td>
+  </tr>
+  <tr>
+    <td>untranslated</td>
+    <td rowspan="2">Translation</td>
+    <td>Translation Management &gt; <b>Translation</b></td>
+    <td rowspan="2">Translator</td>
+    <td>Entry is assigned to you and has not been translated.</td>
+  </tr>
+  <tr>
+    <td>unretranslated</td>
+    <td>Translation Management &gt; <b>Retranslation</b></td>
+    <td>Entry&apos;s latest translation is rejected by reviewer and has not been retranslated.</td>
+  </tr>
+  <tr>
+    <td>unreviewed</td>
+    <td>Review</td>
+    <td>Review Management &gt; <b>Review</b> </td>
+    <td>Reviewer</td>
+    <td>Entry is translated and has not been reviewed. </td>
+  </tr>
+  <tr>
+    <td>qualified</td>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+    <td>Entry has been well translated and the translation can&apos;t be modified before version release.</td>
+  </tr>
+</table>
+
+<h2 id="issue-status">Issue status</h2>
+<p><span id="issue-status"></span></p>
+<p>If one project member opened an issue about entry&apos;s wrong translation, the owner need to recheck the translation and reply it as soon as possible.</p>
+<p>     <a href="assets/issue_status.png" rel="grouped" title="" target="_self" class="fancybox">
+       <img src="assets/issue_status.png" alt="">
+     </a></p>
+<p>Once the issue was agreed, the <a href="glossary.html#translation-status" class="glossary-term" title="">translation status</a> changed to &quot;Error&quot;.</p>
+<table>
+  <tr>
+    <th><a href="glossary.html#issue-status" class="glossary-term" title="">Issue Status</a></th>
+    <th>Dashboard</th>
+    <th>Workspace</th>
+    <th>Worker</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>unresolved</td>
+    <td>Issues</td>
+    <td rowspan="3">Released Projects &gt; <b>Issues</b> </td>
+    <td rowspan="3">Owner</td>
+    <td>Owner has not replied to the issue yet.</td>
+  </tr>
+  <tr>
+    <td>agreed</td>
+    <td rowspan="2">-</td>
+    <td>Owner agreed with the issue and revived the translation.</td>
+  </tr>
+  <tr>
+    <td>ignored</td>
+    <td>Owner disagreed with the issue and ignored it.</td>
+  </tr>
+</table>
+
+<h2 id="translation-status">Translation status</h2>
+<p><span id="translation-status"></span></p>
+<p>     <a href="assets/translation_status.png" rel="grouped" title="" target="_self" class="fancybox">
+       <img src="assets/translation_status.png" alt="">
+     </a></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Status</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Unreviewed</td>
+<td style="text-align:left">This translation has not been reviewed.</td>
 </tr>
 <tr>
-<td style="text-align:left">re-transalted</td>
-<td style="text-align:left">before</td>
-<td style="text-align:left">translation is refused by reviewer and need another translation</td>
-<td style="text-align:left">translator</td>
-<td style="text-align:left">Re-translation</td>
-<td style="text-align:left">Translation</td>
+<td style="text-align:left">Passed</td>
+<td style="text-align:left">This translation passed the review.</td>
 </tr>
 <tr>
-<td style="text-align:left">unreviewed</td>
-<td style="text-align:left">before</td>
-<td style="text-align:left">translation is not reviewed</td>
-<td style="text-align:left">reviewer</td>
-<td style="text-align:left">Review</td>
-<td style="text-align:left">Review</td>
+<td style="text-align:left">Failed</td>
+<td style="text-align:left">This translation did not pass the review.</td>
 </tr>
 <tr>
-<td style="text-align:left">qualified</td>
-<td style="text-align:left">before</td>
-<td style="text-align:left">translation is approved</td>
-<td style="text-align:left">reviewer</td>
-<td style="text-align:left">Review</td>
-<td style="text-align:left">Review</td>
-</tr>
-<tr>
-<td style="text-align:left">suggested</td>
-<td style="text-align:left">after</td>
-<td style="text-align:left">guest submit a suggestion for translation</td>
-<td style="text-align:left">owner</td>
-<td style="text-align:left">Feedback</td>
-<td style="text-align:left">Feedback</td>
-</tr>
-<tr>
-<td style="text-align:left">error</td>
-<td style="text-align:left">after</td>
-<td style="text-align:left">owner accepted guest suggestion, and mark this item wrong</td>
-<td style="text-align:left">owner</td>
-<td style="text-align:left">Feedback</td>
-<td style="text-align:left">Feedback</td>
+<td style="text-align:left">Error</td>
+<td style="text-align:left">This translation was released in a version, but someone thought it was wrong and the owner agreed.</td>
 </tr>
 </tbody>
 </table>
@@ -450,7 +562,7 @@
 
             
                 
-                <a href="interface/guest-released-projects.html" class="navigation navigation-prev " aria-label="Previous page: guest: released projects">
+                <a href="interface/guest-released-projects.html" class="navigation navigation-prev " aria-label="Previous page: All: released projects">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
@@ -466,7 +578,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Glossary","level":"5.1","depth":1,"next":{"title":"FAQs","level":"5.2","depth":1,"path":"faqs.md","ref":"faqs.md","articles":[]},"previous":{"title":"guest: released projects","level":"4.2.4","depth":2,"path":"interface/guest-released-projects.md","ref":"interface/guest-released-projects.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"glossary.md","mtime":"2019-06-10T06:51:57.354Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-11T02:11:33.942Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Glossary","level":"5.1","depth":1,"next":{"title":"FAQs","level":"5.2","depth":1,"path":"faqs.md","ref":"faqs.md","articles":[]},"previous":{"title":"All: released projects","level":"4.2.4","depth":2,"path":"interface/guest-released-projects.md","ref":"interface/guest-released-projects.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["fancybox","-highlight","prism","prism-themes","alerts","terminal","emphasize","splitter","simple-page-toc","katex"],"pluginsConfig":{"prism":{"css":["prism-themes/themes/prism-darcula.css"]},"fancybox":{"helpers":{"buttons":{}}},"emphasize":{},"simple-page-toc":{},"splitter":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"katex":{},"fontsettings":{"theme":"white","family":"sans","size":2},"prism-themes":{},"alerts":{},"sharing":{"facebook":true,"twitter":true,"google":true,"weibo":true,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"terminal":{"copyButtons":true,"fade":true,"style":"flat"},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"glossary.md","mtime":"2019-08-12T07:24:14.315Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-12T07:39:19.109Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
@@ -474,6 +586,38 @@
         
     <script src="gitbook/gitbook.js"></script>
     <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.mousewheel.pack.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.fancybox.pack.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/jquery.fancybox-buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fancybox/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-alerts/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-terminal/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-splitter/splitter.js"></script>
+        
     
         
         <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>

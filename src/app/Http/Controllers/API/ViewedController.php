@@ -81,6 +81,7 @@ class ViewedController extends Controller
                 ->get()
                 ->toArray();
 
+        $query_get_data = $query_data_return = array();
         if(count($query_get) >0){
             $query_get_data = $query_get;
             foreach ($query_get as $key2 => $value2) {

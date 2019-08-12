@@ -69,7 +69,7 @@ export default {
     // this.registerForm.email=""
     // this.registerForm.password=""
     // this.registerForm.c_password=""
-    document.getElementById("agreeCheckbox").setCustomValidity(agreeCheckbox.validity.valueMissing ? "Please check this box if you want to proceed.":"");
+    document.getElementById("agreeCheckbox").setCustomValidity(document.getElementById("agreeCheckbox").validity.valueMissing ? "Please check this box if you want to proceed.":"");
   },
   data(){
     return{
@@ -132,7 +132,7 @@ export default {
   },
   methods: {
     changeCheckbox(){
-      document.getElementById("agreeCheckbox").setCustomValidity(agreeCheckbox.validity.valueMissing ? "Please check this box if you want to proceed.":"");
+      document.getElementById("agreeCheckbox").setCustomValidity(document.getElementById("agreeCheckbox").validity.valueMissing ? "Please check this box if you want to proceed.":"");
     },
     onSubmit (evt) {
       evt.preventDefault();

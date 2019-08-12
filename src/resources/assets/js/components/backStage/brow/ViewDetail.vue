@@ -1,7 +1,7 @@
 <template>
   <div id="viewDetailItemMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="backUrl2">Projects</el-breadcrumb-item>
+      <el-breadcrumb-item :to="backUrl2">Overview</el-breadcrumb-item>
       <el-breadcrumb-item :to="backUrl1">Entries</el-breadcrumb-item>
       <el-breadcrumb-item>View</el-breadcrumb-item>
     </el-breadcrumb>

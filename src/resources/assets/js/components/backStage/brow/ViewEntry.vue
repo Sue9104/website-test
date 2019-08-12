@@ -1,7 +1,7 @@
 <template>
   <div id="transListMain">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="backUrl">Projects</el-breadcrumb-item>
+      <el-breadcrumb-item :to="backUrl">Overview</el-breadcrumb-item>
       <el-breadcrumb-item>Entries</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">

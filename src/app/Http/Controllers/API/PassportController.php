@@ -80,12 +80,12 @@ class PassportController extends Controller
 
         $user_name_find = User::where('name',$input['name'])->first();
         if($user_name_find !== NULL){
-            return response()->json(['error' => 'User name is already taken, please choose another name.'], $this->successStatus);
+            return response()->json(['error' => 'User name is already taken.'], $this->successStatus);
         }
         
         $user_email_find = User::where('email',$input['email'])->first();
         if($user_email_find !== NULL){
-            return response()->json(['error' => 'Email is already taken, please choose another one. '], $this->successStatus);
+            return response()->json(['error' => 'Email is already taken.'], $this->successStatus);
         }
         
         $user = User::create($input);

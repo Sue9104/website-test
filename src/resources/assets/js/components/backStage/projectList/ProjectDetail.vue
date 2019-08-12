@@ -227,7 +227,7 @@
         <div style="font-size:12px; margin-bottom:20px;"> 
           <div style="padding-left:20px;">Content:</div>
             <div style="padding-left:40px;">- The first line must be the header.</div>
-            <div style="padding-left:40px;">- The first column must be unique.</div>
+            <div style="padding-left:40px;">- The first column must be unique and not null.</div>
         </div>
         <!-- <div style="font-size:14px;padding:15px 0px;">Max filesize: 10MB</div> -->
         <el-button size="small" type="primary" :disabled="uploadLoadingFlag" @click="procductImport">Select File</el-button>

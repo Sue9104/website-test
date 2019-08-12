@@ -1,7 +1,7 @@
 <template>
   <div id="viewProjectMain" class="clearfix">
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>Projects</el-breadcrumb-item>
+      <el-breadcrumb-item>Overview</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="addSearch clearfix">
       <div id="searchCon">

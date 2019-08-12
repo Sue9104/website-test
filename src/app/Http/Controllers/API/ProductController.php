@@ -166,7 +166,7 @@ class ProductController extends Controller{
 		$messages = [
 			'required' => 'The :attribute is required.',
             'max' => 'Upload file must be less than 10MB.',
-            'unique'=>'The project name is already taken. Please choose another one.',
+            'unique'=>'The project name is already taken.',
         ];
 
 		$validator = Validator::make($request->all(), [

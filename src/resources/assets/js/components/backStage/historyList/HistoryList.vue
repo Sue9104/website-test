@@ -89,9 +89,14 @@
             <div :title="scope.row.approved!==0?scope.row.advice_updated_at:''" v-if="scope.row.approved!==0">{{scope.row.advice_updated_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Translation" align="center">
+        <el-table-column label="Translation" align="center" v-if="$route.path !== '/v_history'">
           <template slot-scope="scope">
           <el-button type="text" size="medium" title="View" @click="transItem(scope.row)">View</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="Operation" align="center" v-if="$route.path === '/v_history'">
+          <template slot-scope="scope">
+          <el-button type="text" size="medium" title="View" @click="transItem(scope.row)">{{(scope.row.approved===0)&&(scope.row.users_name===userName)?'Resolve':'View'}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -121,6 +126,7 @@ export default {
   data() {
     return {
       url:'',
+      userName:Base64.decode(this.$cookies.get('tname')),
       searchForm_raw: {
         product_name:this.$route.query.name||'',
         key: this.$route.query.key||'',

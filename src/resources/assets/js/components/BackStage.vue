@@ -82,7 +82,7 @@
                 <span>Released Projects</span>
               </template>
               <el-menu-item index="viewlist" :route="{path:'/viewlist',query:{count:10,page:1}}">
-                <span slot="title" id="viewlist">Projects</span>
+                <span slot="title" id="viewlist">Overview</span>
               </el-menu-item>
               <el-menu-item index="v_history" :route="{path:'/v_history',query:{count:10,page:1}}">
                 <span slot="title" id="v_history">Issues</span>

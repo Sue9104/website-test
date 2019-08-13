@@ -157,7 +157,7 @@
         <div class="per_task" @click="$router.push('/assignment')">Unassigned: <b>{{$store.state.taskList.Unassigned_nums}}</b></div>
         <div class="per_task" @click="$router.push('/translation?count=10&page=1')">Untranslated: <b>{{$store.state.taskList.Untranslated_nums}}</b></div>
         <div class="per_task" @click="$router.push('/retranslation?count=10&page=1')">Unretranslated: <b>{{$store.state.taskList['Unretranslated_nums']}}</b></div>
-        <div class="per_task" @click="$router.push('/Review?count=10&page=1')">Unreviewed: <b>{{$store.state.taskList.Approve_nums}}</b></div>
+        <div class="per_task" @click="$router.push('/review?count=10&page=1')">Unreviewed: <b>{{$store.state.taskList.Approve_nums}}</b></div>
         <div class="per_task" @click="$router.push('/dashboard?tab=objection&count=10&page=1')">Unresolved: <b>{{$store.state.taskList.Conflict_nums}}</b></div>
       </el-card>
       <el-button round size="small" type="warning" @click="taskVisibleFlag=!taskVisibleFlag">My Task<el-badge :value="$store.state.taskList.Unassigned_nums+$store.state.taskList.Conflict_nums+$store.state.taskList.Untranslated_nums+$store.state.taskList['Unretranslated_nums']+$store.state.taskList.Approve_nums" :max="99" v-show="$store.state.taskList.Unassigned_nums+$store.state.taskList.Conflict_nums+$store.state.taskList.Untranslated_nums+$store.state.taskList['Unretranslated_nums']+$store.state.taskList.Approve_nums>0"></el-badge></el-button>

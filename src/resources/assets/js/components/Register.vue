@@ -9,27 +9,27 @@
           <div class="modeTitle">Sign Up</div>
         </b-form-group>
         <b-form-group label="Email:" label-for="emailRegister">
-          <b-form-input id="emailRegister" type="email" v-model.trim="registerForm.email" :state="emailState" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('Email is required.');" placeholder="enter Email" title="Email is required.">
+          <b-form-input id="emailRegister" type="email" v-model.trim="registerForm.email" :state="emailState" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('');" placeholder="enter Email" title="Email is required.">
           </b-form-input>
           <b-form-invalid-feedback id="emailRegisterFeedback">
             Email address is invalid.
           </b-form-invalid-feedback>
         </b-form-group>
         <b-form-group label="User Name:" label-for="nameRegister">
-          <b-form-input id="nameRegister" v-model.trim="registerForm.name" :state="nameState" required oninvalid="setCustomValidity('User Name is required.');" oninput="setCustomValidity('User Name is required.');" placeholder="enter user name" title="User Name is required.">
+          <b-form-input id="nameRegister" v-model.trim="registerForm.name" :state="nameState" required oninvalid="setCustomValidity('User Name is required.');" oninput="setCustomValidity('');" placeholder="enter user name" title="User Name is required.">
           </b-form-input>
           <b-form-invalid-feedback id="nameRegisterFeedback">
             Only letters (A-Za-z), numbers (0-9), dot (.), underscore (_), hyphen (-) are supported and maximum length is 50 characters.
           </b-form-invalid-feedback>
         </b-form-group>
         <b-form-group label="Password:" label-for="pwdRegister">
-          <b-form-input id="pwdRegister" type="password" v-model.trim="registerForm.password" :state="pwdState" required oninvalid="setCustomValidity('Password is required.');" oninput="setCustomValidity('Password is required.');" placeholder="enter password" title="Password is required."></b-form-input>
+          <b-form-input id="pwdRegister" type="password" v-model.trim="registerForm.password" :state="pwdState" required oninvalid="setCustomValidity('Password is required.');" oninput="setCustomValidity('');" placeholder="enter password" title="Password is required."></b-form-input>
           <b-form-invalid-feedback id="pwdRegisterFeedback">
             Password length cannot be less than 6.
           </b-form-invalid-feedback>
         </b-form-group>
         <b-form-group label="Repeat the password:" label-for="c_pwdRegister">
-          <b-form-input type="password" id="c_pwdRegister" v-model.trim="registerForm.c_password" :state="c_passwordState" required oninvalid="setCustomValidity('Repeat the password is required.');" oninput="setCustomValidity('Repeat the password is required.');" placeholder="enter password again" title="Repeat the password is required."></b-form-input>
+          <b-form-input type="password" id="c_pwdRegister" v-model.trim="registerForm.c_password" :state="c_passwordState" required oninvalid="setCustomValidity('Repeat the password is required.');" oninput="setCustomValidity('');" placeholder="enter password again" title="Repeat the password is required."></b-form-input>
           <b-form-invalid-feedback id="c_pwdRegisterFeedback">
             The passwords you typed do not match.
           </b-form-invalid-feedback>
@@ -136,7 +136,7 @@ export default {
     },
     onSubmit (evt) {
       evt.preventDefault();
-      // console.log(this.registerForm)
+      console.log(this.registerForm)
       this.$http.post("/api/register",qs.stringify(this.registerForm)).then(response=>{
         // console.log(response.data)
         if(response.data.success.token){
@@ -159,5 +159,10 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-  
+  #emailRegister,
+  #nameRegister,
+  #pwdRegister,
+  #c_pwdRegister {
+    outline: none;
+  }
 </style>

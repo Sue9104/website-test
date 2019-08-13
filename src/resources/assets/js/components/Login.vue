@@ -9,11 +9,11 @@
           <div class="modeTitle">Sign In</div>
         </b-form-group>
         <b-form-group label="Email:" label-for="emailLogin">
-          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('Email is required.');" placeholder="enter email" title="Email is required.">
+          <b-form-input id="emailLogin" v-model.trim="loginForm.email" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('');" placeholder="enter email" title="Email is required.">
           </b-form-input>
         </b-form-group>
         <b-form-group label="Password:" label-for="pwdLogin">
-          <b-form-input id="pwdLogin" type="password" v-model.trim="loginForm.password" required oninvalid="setCustomValidity('Password is required.');" oninput="setCustomValidity('Password is required.');" placeholder="enter password" title="Password is required.">
+          <b-form-input id="pwdLogin" type="password" v-model.trim="loginForm.password" required oninvalid="setCustomValidity('Password is required.');" oninput="setCustomValidity('');" placeholder="enter password" title="Password is required.">
           </b-form-input>
         </b-form-group>
         <b-form-group>
@@ -180,6 +180,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-  
+  #emailLogin,
+  #pwdLogin {
+    outline: none;
+  }
   
 </style>

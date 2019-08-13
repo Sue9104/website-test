@@ -110,7 +110,7 @@ export default {
   methods: {
     deadlineHighlight({row, rowIndex}) {
       // console.log(row)
-      if (new Date().valueOf() > new Date(row.deadline).valueOf()) {
+      if (new Date().valueOf() > new Date(row.deadline.replace(/-/g,'/')).valueOf()) {
         return 'deadlineOverdueHighlight';
       }
       return '';

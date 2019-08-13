@@ -89,12 +89,12 @@
             <div :title="scope.row.approved!==0?scope.row.advice_updated_at:''" v-if="scope.row.approved!==0">{{scope.row.advice_updated_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Translation" align="center" v-if="$route.path !== '/v_history'">
+        <el-table-column key="ta_historyTranslation" label="Translation" align="center" v-if="$route.path !== '/v_history'">
           <template slot-scope="scope">
           <el-button type="text" size="medium" title="View" @click="transItem(scope.row)">View</el-button>
           </template>
         </el-table-column>
-        <el-table-column label="Operation" align="center" v-if="$route.path === '/v_history'">
+        <el-table-column key="v_historyOperation" label="Operation" align="center" v-if="$route.path === '/v_history'">
           <template slot-scope="scope">
           <el-button type="text" size="medium" title="View" @click="transItem(scope.row)">{{(scope.row.approved===0)&&(scope.row.users_name===userName)?'Resolve':'View'}}</el-button>
           </template>

@@ -147,7 +147,7 @@ class QualifiedExport implements FromArray,WithHeadings,WithColumnFormatting,Wit
         }
         //$heads[] =  'Status';
         $heads[] =  'Owner';
-        $heads[] =  'Translater';
+        $heads[] =  'Translator';
         $heads[] =  'Reviewer';
         $heads[] =  'Review Time';
         $this->heads = $heads;

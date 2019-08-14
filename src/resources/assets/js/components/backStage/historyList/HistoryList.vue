@@ -79,9 +79,9 @@
             <div :title="scope.row.updated_at">{{scope.row.updated_at}}</div>
           </template>
         </el-table-column>
-        <el-table-column key="v_historyCreate_at" prop="created_at" label="Creation Time" align="center" v-if="$route.path === '/v_history'" sortable="custom">
+        <el-table-column key="v_historyAdvice_created_at" prop="advice_created_at" label="Creation Time" align="center" v-if="$route.path === '/v_history'" sortable="custom">
           <template slot-scope="scope">
-            <div :title="scope.row.created_at">{{scope.row.created_at}}</div>
+            <div :title="scope.row.created_at">{{scope.row.advice_created_at}}</div>
           </template>
         </el-table-column>
         <el-table-column key="v_historyAdvice_updated_at" prop="advice_updated_at" label="Reply Time" align="center" v-if="$route.path === '/v_history'" sortable="custom">

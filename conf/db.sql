@@ -35,7 +35,7 @@ CREATE TABLE `advices` (
   `version_id` varchar(40) DEFAULT NULL,
   `objection` varchar(255) DEFAULT NULL,
   `approved` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;

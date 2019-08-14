@@ -306,7 +306,7 @@ class ApproveController extends Controller
                     $res2 = DB::table('translate_in')->where('id',$translate_id)->update(['status'=>'Untranslated','updated_at'=>$date_time]);
                     $res3 = DB::table('translate_approve')->where('id',$t_approve_id)->update(['status'=>'Error','updated_at'=>$date_time]);
                     $res4 = DB::table('translate_job')->where('id',$translate_job_id)->update(['status'=>'Error','updated_at'=>$date_time]);
-                    $res5 = DB::table('advices')->where('id',$id)->update(['approved'=>1]);
+                    $res5 = DB::table('advices')->where('id',$id)->update(['approved'=>1,'updated_at'=>$date_time]);
 
                     DB::commit();
                 }catch(Exception $e){

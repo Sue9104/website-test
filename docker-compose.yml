@@ -9,10 +9,10 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: translate_01
     volumes:
+      - ./conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
       - ./data:/var/lib/mysql
       - ./conf/db.sql:/docker-entrypoint-initdb.d/db.sql
-      - ./storage:/var/www/trantrace/storage/app/public/excel
-    command: mysqld --sql_mode="STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    #command: mysqld --sql_mode="STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
     ports:
       - "${DB_PORT}:3306"
   web:
@@ -22,6 +22,8 @@ services:
       context: .
       dockerfile: php.dockerfile
     command: ["./wait_for_mysql.sh", "${DB_PASSWORD}"]
+    volumes:
+      - ./storage:/var/www/trantrace/storage/app/public/excel
     restart: always
     container_name: trantrace
     ports:

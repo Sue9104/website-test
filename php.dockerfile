@@ -9,9 +9,8 @@ WORKDIR /var/www/trantrace/
 
 # install php extension
 RUN \
-  #sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list \
-  #&& sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g; s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/buster.list \
   apt-get update \
+  && apt-get install -y default-mysql-client \
   && apt-get install -y libpng-dev libjpeg62-turbo-dev libfreetype6-dev libc-client-dev libkrb5-dev libldap2-dev libmemcached-dev zlib1g-dev libxml2 libxml2-dev libxslt1-dev \
   && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
   && docker-php-ext-configure ldap --with-libdir=/lib/x86_64-linux-gnu/ \

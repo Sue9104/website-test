@@ -76,57 +76,64 @@ export default {
       let isSafari = userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") == -1; //判断是否Safari浏览器
       let isChrome = userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Safari") > -1; //判断Chrome浏览器
 
-      // this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Edge (>=44), IE11.', {
+      // this.$message('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Edge (>=44), IE11.', {
       //     type:'warning',
       //     confirmButtonText: 'OK'
       //   });
 
       if (isOpera) {
         this.$message({
-          message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).',
-          type: 'warning'
+          message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+          type: 'warning',
+          duration: 6000
         });
         // return "Opera";
       }else if (isEdge) {
         if(userAgent.match( /Edge\/([\d.]+)/ )[1].split('.')[0]<18){
-           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-            type:'warning',
-            confirmButtonText: 'OK'
+           this.$message({
+            message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+            type: 'warning',
+            duration: 6000
           });
          }
       }else if (isFF) {
         if(userAgent.match( /Firefox\/([\d.]+)/ )[1].split('.')[0]<67){
-           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-            type:'warning',
-            confirmButtonText: 'OK'
+          this.$message({
+            message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+            type: 'warning',
+            duration: 6000
           });
          }
       }else if (isSafari) {
         if(userAgent.match( /Safari\/([\d.]+)/ )[1].split('.')[0]<12){
-           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-            type:'warning',
-            confirmButtonText: 'OK'
+          this.$message({
+            message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+            type: 'warning',
+            duration: 6000
           });
          }
       }else if (isChrome) {
         if((userAgent.match( /Chrome\/([\d.]+)/ )||userAgent.match( /CriOS\/([\d.]+)/ ))[1].split('.')[0]<70){
-           this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-            type:'warning',
-            confirmButtonText: 'OK'
+          this.$message({
+            message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+            type: 'warning',
+            duration: 6000
           });
          }
       }else if(window.navigator.userAgent.indexOf("MSIE")>=1){
-        this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-          type:'warning',
-          confirmButtonText: 'OK'
+        this.$message({
+          message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+          type: 'warning',
+          duration: 6000
         });
         }else if(!!window.ActiveXObject || "ActiveXObject" in window){
           // return "IE11"
         }else{
         // return userAgent
-        this.$alert('Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), safari (>=12), Edge (>=18), IE (>=11).', {
-          type:'warning',
-          confirmButtonText: 'OK'
+        this.$message({
+          message: 'Your browser may have incompatiblity issues with Trantrace. Please update to latest stable version of Google Chrome (>=70), Firefox (>=67), Safari (>=12), Edge (>=18), IE (>=11).',
+          type: 'warning',
+          duration: 6000
         });
       }
       

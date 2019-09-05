@@ -2,11 +2,14 @@
   <div id="login">
     <div id="formCon">
       <b-form id="loginForm" @submit="onSubmit" @reset="onReset">
-        <b-form-group>
+        <b-form-group style="position:relative;">
           <b-link>
             <img src="/images/logo.png" title="Trantrace" height="50" width="180" alt="Trantrace Logo">
           </b-link>
           <div class="modeTitle">Sign In</div>
+          <div style="position:absolute;top:-40px;right:-40px;">
+            <el-button size="small" type="text" plain @click.native="help" style="padding:5px;font-size:16px;color:#e6a23c"><i class="el-icon-question">Help</i></el-button>
+          </div>
         </b-form-group>
         <b-form-group label="Email:" label-for="emailLogin">
           <b-form-input id="emailLogin" v-model.trim="loginForm.email" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('');" placeholder="enter email" title="Email is required.">
@@ -67,6 +70,10 @@ export default {
     }
   },
   methods: {
+    help(){
+      window.open('/help/index.html','_blank')
+      // window.open('','_blank').location.href = response.data.require
+    },
     myBrowser() {
       // console.log(navigator.userAgent)
       let userAgent = navigator.userAgent; //取得浏览器的userAgent字符串

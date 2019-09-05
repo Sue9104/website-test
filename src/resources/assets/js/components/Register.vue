@@ -2,11 +2,14 @@
   <div id="register">
     <div id="formCon">
       <b-form id="registerForm" method="post" @submit="onSubmit">
-        <b-form-group>
+        <b-form-group style="position:relative;">
           <b-link>
             <img src="/images/logo.png" title="Trantrace" height="50" width="180" alt="Trantrace Logo">
           </b-link>
           <div class="modeTitle">Sign Up</div>
+          <div style="position:absolute;top:-40px;right:-40px;">
+            <el-button size="small" type="text" plain @click.native="help" style="padding:5px;font-size:16px;color:#e6a23c"><i class="el-icon-question">Help</i></el-button>
+          </div>
         </b-form-group>
         <b-form-group label="Email:" label-for="emailRegister">
           <b-form-input id="emailRegister" type="email" v-model.trim="registerForm.email" :state="emailState" required oninvalid="setCustomValidity('Email is required.');" oninput="setCustomValidity('');" placeholder="enter Email" title="Email is required.">
@@ -131,12 +134,16 @@ export default {
     },
   },
   methods: {
+    help(){
+      window.open('/help/index.html','_blank')
+      // window.open('','_blank').location.href = response.data.require
+    },
     changeCheckbox(){
       document.getElementById("agreeCheckbox").setCustomValidity(document.getElementById("agreeCheckbox").validity.valueMissing ? "Please check this box if you want to proceed.":"");
     },
     onSubmit (evt) {
       evt.preventDefault();
-      console.log(this.registerForm)
+      // console.log(this.registerForm)
       this.$http.post("/api/register",qs.stringify(this.registerForm)).then(response=>{
         // console.log(response.data)
         if(response.data.success.token){
